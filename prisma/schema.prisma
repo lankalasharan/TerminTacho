@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Office {
+  id        String   @id @default(cuid())
+  city      String
+  name      String
+  createdAt DateTime @default(now())
+
+  reports   Report[]
+}
+
+model ProcessType {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  reports   Report[]
+}
+
+model Report {
+  id            String      @id @default(cuid())
+  officeId      String
+  processTypeId String
+
+  method        String
+  submittedAt   DateTime
+  decisionAt    DateTime?
+  status        String
+  notes         String?
+
+  createdAt     DateTime    @default(now())
+
+  office        Office      @relation(fields: [officeId], references: [id])
+  processType   ProcessType @relation(fields: [processTypeId], references: [id])
+
+  @@index([officeId, processTypeId])
+}
