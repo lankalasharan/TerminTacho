@@ -170,6 +170,24 @@ export default function MenuBar() {
               📧 Contact
             </Link>
 
+            <Link
+              href="/faq"
+              onClick={() => setIsOpen(false)}
+              style={{
+                padding: "12px 16px",
+                fontSize: "16px",
+                fontWeight: 600,
+                color: "#1a1a1a",
+                textDecoration: "none",
+                borderRadius: "8px",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              ❓ FAQ
+            </Link>
+
             <div style={{
               height: "1px",
               background: "#e5e7eb",

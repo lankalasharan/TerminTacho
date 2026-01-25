@@ -5,6 +5,8 @@ import Logo from "./components/Logo";
 import { Providers } from "./providers";
 import AuthButton from "./components/AuthButton";
 import MenuBar from "./components/MenuBar";
+import Footer from "./components/Footer";
+import CookieConsent from "./components/CookieConsent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,8 +23,25 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TerminTacho - Real German Bureaucracy Processing Times",
-  description: "Anonymous, crowdsourced timelines for German visas, residence permits, and bureaucracy. See real processing times from actual applicants.",
+  title: {
+    default: 'TerminTacho - Real Processing Times for German Bureaucracy',
+    template: '%s | TerminTacho'
+  },
+  description: 'Anonymous, crowdsourced processing times for German visa applications, residence permits, and bureaucratic processes. Real data from real people across 74 cities.',
+  keywords: ['Germany', 'visa', 'residence permit', 'Aufenthaltserlaubnis', 'processing time', 'Ausländerbehörde', 'Blue Card', 'citizenship', 'German bureaucracy'],
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://termintacho.com',
+    title: 'TerminTacho - Real Processing Times for German Bureaucracy',
+    description: 'Anonymous, crowdsourced processing times for German visa applications, residence permits, and bureaucratic processes.',
+    siteName: 'TerminTacho',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TerminTacho - Real Processing Times for German Bureaucracy',
+    description: 'Anonymous, crowdsourced processing times for German visa applications and residence permits.',
+  },
 };
 
 export default function RootLayout({
@@ -68,6 +87,8 @@ export default function RootLayout({
 
           {/* Main Content */}
           {children}
+          <Footer />
+          <CookieConsent />
         </Providers>
       </body>
     </html>
