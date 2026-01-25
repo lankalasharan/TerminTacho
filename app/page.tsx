@@ -1,13 +1,21 @@
 "use client";
 
 import GermanyMap from "./components/GermanyMap";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function Home() {
   const [showMap, setShowMap] = useState(false);
   const { data: session } = useSession();
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/activity?limit=5")
+      .then(res => res.json())
+      .then(data => setRecentActivity(data))
+      .catch(console.error);
+  }, []);
 
   return (
     <>
@@ -261,7 +269,117 @@ export default function Home() {
             </p>
           </div>
         </div>
+        {/* Recent Activity Feed */}
+        <div style={{ marginTop: "80px" }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "32px",
+          }}>
+            <div>
+              <h2 style={{
+                fontSize: "36px",
+                fontWeight: 800,
+                color: "#1a1a1a",
+                marginBottom: "8px",
+              }}>
+                🔔 Recent Activity
+              </h2>
+              <p style={{ fontSize: "16px", color: "#6b7280" }}>
+                Latest reports and reviews from the community
+              </p>
+            </div>
+            <Link
+              href="/timelines"
+              style={{
+                padding: "12px 24px",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "white",
+                borderRadius: "8px",
+                textDecoration: "none",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+            >
+              View All →
+            </Link>
+          </div>
 
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            border: "1px solid #f3f4f6",
+            overflow: "hidden",
+          }}>
+            {recentActivity.length === 0 ? (
+              <div style={{ padding: "40px", textAlign: "center", color: "#9ca3af" }}>
+                Loading recent activity...
+              </div>
+            ) : (
+              <div>
+                {recentActivity.map((activity, index) => (
+                  <div
+                    key={activity.id}
+                    style={{
+                      padding: "20px 24px",
+                      borderBottom: index < recentActivity.length - 1 ? "1px solid #f3f4f6" : "none",
+                      transition: "background 0.2s",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "#f9fafb"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "white"}
+                  >
+                    {activity.type === "report" ? (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "14px", color: "#667eea", fontWeight: 600, marginBottom: "4px" }}>
+                            📊 New Timeline Report
+                          </div>
+                          <div style={{ fontSize: "16px", color: "#1a1a1a", fontWeight: 600, marginBottom: "4px" }}>
+                            {activity.process} in {activity.city}
+                          </div>
+                          <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                            Status: <span style={{
+                              padding: "2px 8px",
+                              background: activity.status === "approved" ? "#d1fae5" : activity.status === "rejected" ? "#fee2e2" : "#fef3c7",
+                              color: activity.status === "approved" ? "#065f46" : activity.status === "rejected" ? "#991b1b" : "#92400e",
+                              borderRadius: "4px",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                            }}>
+                              {activity.status}
+                            </span>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#9ca3af", whiteSpace: "nowrap" }}>
+                          {new Date(activity.date).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "14px", color: "#f59e0b", fontWeight: 600, marginBottom: "4px" }}>
+                            ⭐ New Review
+                          </div>
+                          <div style={{ fontSize: "16px", color: "#1a1a1a", fontWeight: 600, marginBottom: "4px" }}>
+                            {activity.title || "Review for " + activity.city}
+                          </div>
+                          <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                            {"⭐".repeat(activity.rating)} • {activity.city}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#9ca3af", whiteSpace: "nowrap" }}>
+                          {new Date(activity.date).toLocaleDateString()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
         {/* Interactive Map Section */}
         <div style={{
           background: "white",

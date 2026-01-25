@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Report = {
   id: string;
@@ -26,6 +27,7 @@ export default function TimelinesPage() {
   const [cityFilter, setCityFilter] = useState("");
   const [processFilter, setProcessFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [sortBy, setSortBy] = useState("recent"); // recent, fastest, slowest
 
   useEffect(() => {
     async function load() {
@@ -48,7 +50,21 @@ export default function TimelinesPage() {
     return true;
   });
 
-  const completedReports = filteredReports.filter(r => r.decisionAt);
+  // Sort reports
+  const sortedReports = [...filteredReports].sort((a, b) => {
+    if (sortBy === "recent") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    } else if (sortBy === "fastest" || sortBy === "slowest") {
+      const daysA = calculateDays(a.submittedAt, a.decisionAt);
+      const daysB = calculateDays(b.submittedAt, b.decisionAt);
+      if (daysA === null) return 1;
+      if (daysB === null) return -1;
+      return sortBy === "fastest" ? daysA - daysB : daysB - daysA;
+    }
+    return 0;
+  });
+
+  const completedReports = sortedReports.filter(r => r.decisionAt);
   const waitingDays = completedReports.map(r => calculateDays(r.submittedAt, r.decisionAt)).filter(d => d !== null) as number[];
   const avgDays = waitingDays.length > 0 ? Math.round(waitingDays.reduce((a, b) => a + b, 0) / waitingDays.length) : null;
   const minDays = waitingDays.length > 0 ? Math.min(...waitingDays) : null;
@@ -264,6 +280,39 @@ export default function TimelinesPage() {
                 <option value="rejected">❌ Rejected</option>
               </select>
             </div>
+
+            <div>
+              <label style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#374151"
+              }}>
+                Sort By
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  border: "2px solid #e5e7eb",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  outline: "none",
+                  cursor: "pointer",
+                  background: "white",
+                  transition: "border-color 0.2s",
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
+                onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+              >
+                <option value="recent">Most Recent</option>
+                <option value="fastest">Fastest First</option>
+                <option value="slowest">Slowest First</option>
+              </select>
+            </div>
           </div>
 
           {(cityFilter || processFilter || statusFilter) && (
@@ -300,7 +349,7 @@ export default function TimelinesPage() {
           color: "#6b7280",
           fontWeight: 600,
         }}>
-          Showing {filteredReports.length} {filteredReports.length === 1 ? "report" : "reports"}
+          Showing {sortedReports.length} {sortedReports.length === 1 ? "report" : "reports"}
         </div>
 
         {/* Reports Grid */}
@@ -309,7 +358,7 @@ export default function TimelinesPage() {
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
             <div style={{ fontSize: "18px" }}>Loading timelines...</div>
           </div>
-        ) : filteredReports.length === 0 ? (
+        ) : sortedReports.length === 0 ? (
           <div style={{
             textAlign: "center",
             padding: "60px 20px",
@@ -330,7 +379,7 @@ export default function TimelinesPage() {
             display: "grid",
             gap: "20px",
           }}>
-            {filteredReports.map(report => {
+            {sortedReports.map(report => {
               const days = calculateDays(report.submittedAt, report.decisionAt);
               const statusColors = {
                 approved: { bg: "#d1fae5", border: "#10b981", text: "#065f46" },
@@ -376,15 +425,22 @@ export default function TimelinesPage() {
                       }}>
                         {report.processType.name}
                       </h3>
-                      <div style={{
-                        fontSize: "14px",
-                        color: "#6b7280",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}>
-                        📍 {report.office.city} • {report.office.name}
-                      </div>
+                      <Link
+                        href={`/offices/${encodeURIComponent(report.office.city)}`}
+                        style={{
+                          fontSize: "14px",
+                          color: "#667eea",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          textDecoration: "none",
+                          fontWeight: 600,
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+                        onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+                      >
+                        📍 {report.office.city} • {report.office.name} →
+                      </Link>
                     </div>
 
                     <div style={{

@@ -56,8 +56,12 @@ model Office {
   id        String   @id @default(cuid())
   city      String
   name      String
+  address   String?
+  phone     String?
+  website   String?
   createdAt DateTime @default(now())
   reports   Report[]
+  reviews   Review[]
 }
 
 model ProcessType {
@@ -77,8 +81,31 @@ model Report {
   status        String
   notes         String?
   createdAt     DateTime    @default(now())
+  helpful       Int         @default(0)
+  notHelpful    Int         @default(0)
   office        Office      @relation(fields: [officeId], references: [id])
   processType   ProcessType @relation(fields: [processTypeId], references: [id])
 
   @@index([officeId, processTypeId])
+  @@index([createdAt])
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  officeId        String
+  userId          String?
+  overallRating   Int      // 1-5 stars
+  serviceRating   Int?     // 1-5 stars
+  staffRating     Int?     // 1-5 stars
+  speedRating     Int?     // 1-5 stars
+  title           String?
+  content         String   @db.Text
+  processType     String?
+  helpful         Int      @default(0)
+  notHelpful      Int      @default(0)
+  createdAt       DateTime @default(now())
+  office          Office   @relation(fields: [officeId], references: [id])
+
+  @@index([officeId])
+  @@index([createdAt])
 }
