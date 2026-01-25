@@ -1,78 +1,331 @@
+"use client";
+
+import GermanyMap from "./components/GermanyMap";
+import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
+
 export default function Home() {
+  const [showMap, setShowMap] = useState(false);
+  const { data: session } = useSession();
+
   return (
-    <main style={{ maxWidth: 900, margin: "0 auto", padding: "60px 20px" }}>
-      <div style={{ textAlign: "center", marginBottom: 60 }}>
-        <h1 style={{ fontSize: 48, fontWeight: 800, marginBottom: 16 }}>
-          TerminTacho 🇩🇪
-        </h1>
-        <p style={{ fontSize: 20, opacity: 0.8, lineHeight: 1.6, maxWidth: 700, margin: "0 auto" }}>
-          Real processing times for German bureaucracy. Anonymous, crowdsourced timelines for visas, residence permits, and more.
-        </p>
+    <>
+      {/* Hero Section with Gradient Background */}
+      <div style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "80px 20px",
+        textAlign: "center",
+      }}>
+        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+          <h1 style={{
+            fontSize: "56px",
+            fontWeight: 800,
+            marginBottom: "24px",
+            lineHeight: 1.2,
+            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            Real Processing Times for<br/>German Bureaucracy
+          </h1>
+          <p style={{
+            fontSize: "22px",
+            opacity: 0.95,
+            lineHeight: 1.6,
+            marginBottom: "40px",
+            maxWidth: "700px",
+            margin: "0 auto 40px",
+          }}>
+            Anonymous, crowdsourced timelines for visas, residence permits, and more. 
+            Know what to expect. Plan your life with confidence.
+          </p>
+          
+          <div style={{
+            display: "flex",
+            gap: "16px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}>
+            <Link 
+              href="/timelines"
+              style={{
+                padding: "16px 32px",
+                background: "white",
+                color: "#667eea",
+                borderRadius: "12px",
+                fontSize: "18px",
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                transition: "transform 0.2s, box-shadow 0.2s",
+                display: "inline-block",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+              }}
+            >
+              📊 Browse Timelines
+            </Link>
+            
+            <Link 
+              href="/submit"
+              style={{
+                padding: "16px 32px",
+                background: "rgba(255,255,255,0.2)",
+                color: "white",
+                borderRadius: "12px",
+                fontSize: "18px",
+                fontWeight: 700,
+                textDecoration: "none",
+                border: "2px solid white",
+                backdropFilter: "blur(10px)",
+                transition: "transform 0.2s, background 0.2s",
+                display: "inline-block",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+              }}
+            >
+              ✍️ Share Your Timeline
+            </Link>
+          </div>
+
+          {/* Auth Status */}
+          {!session && (
+            <div style={{ marginTop: "24px" }}>
+              <button
+                onClick={() => signIn()}
+                style={{
+                  background: "transparent",
+                  color: "white",
+                  border: "none",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  opacity: 0.8,
+                  textDecoration: "underline",
+                }}
+              >
+                Sign in to contribute
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div style={{ display: "grid", gap: 24, marginBottom: 60 }}>
-        <div style={{ background: "#f9fafb", padding: 32, borderRadius: 12, border: "1px solid #e5e7eb" }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>😰 The Problem</h2>
-          <p style={{ opacity: 0.8, lineHeight: 1.7 }}>
-            German authorities provide little to no information about real processing times. 
-            Applicants are left in the dark, causing anxiety and making it impossible to plan their lives. 
-            Official websites often show unrealistic estimates or no estimates at all.
-          </p>
+      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
+        {/* Stats Section */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: "24px",
+          marginBottom: "60px",
+        }}>
+          <div style={{
+            background: "white",
+            padding: "32px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            textAlign: "center",
+            border: "1px solid #f3f4f6",
+          }}>
+            <div style={{ fontSize: "48px", fontWeight: 800, color: "#667eea", marginBottom: "8px" }}>
+              74
+            </div>
+            <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
+              Cities Covered
+            </div>
+          </div>
+          
+          <div style={{
+            background: "white",
+            padding: "32px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            textAlign: "center",
+            border: "1px solid #f3f4f6",
+          }}>
+            <div style={{ fontSize: "48px", fontWeight: 800, color: "#764ba2", marginBottom: "8px" }}>
+              47
+            </div>
+            <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
+              Process Types
+            </div>
+          </div>
+          
+          <div style={{
+            background: "white",
+            padding: "32px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            textAlign: "center",
+            border: "1px solid #f3f4f6",
+          }}>
+            <div style={{ fontSize: "48px", fontWeight: 800, color: "#10b981", marginBottom: "8px" }}>
+              100%
+            </div>
+            <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
+              Anonymous
+            </div>
+          </div>
         </div>
 
-        <div style={{ background: "#f0fdf4", padding: 32, borderRadius: 12, border: "1px solid #bbf7d0" }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>✨ The Solution</h2>
-          <p style={{ opacity: 0.8, lineHeight: 1.7 }}>
-            TerminTacho collects real, anonymous timelines from actual applicants. 
-            See how long others waited at your specific office, filter by process type, 
-            and get realistic expectations. Submit your own experience to help others.
-          </p>
+        {/* Feature Cards */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "32px",
+          marginBottom: "60px",
+        }}>
+          <div style={{
+            background: "white",
+            padding: "40px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            border: "1px solid #f3f4f6",
+            transition: "transform 0.2s, box-shadow 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+          }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎯</div>
+            <h3 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "12px", color: "#1a1a1a" }}>
+              Real Data
+            </h3>
+            <p style={{ fontSize: "16px", lineHeight: 1.7, color: "#6b7280" }}>
+              Actual processing times from real applicants. No guesswork, no official estimates that never match reality.
+            </p>
+          </div>
+
+          <div style={{
+            background: "white",
+            padding: "40px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            border: "1px solid #f3f4f6",
+            transition: "transform 0.2s, box-shadow 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+          }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔒</div>
+            <h3 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "12px", color: "#1a1a1a" }}>
+              Completely Anonymous
+            </h3>
+            <p style={{ fontSize: "16px", lineHeight: 1.7, color: "#6b7280" }}>
+              Share your experience without worries. We don't store personal data. Authentication is only for verification.
+            </p>
+          </div>
+
+          <div style={{
+            background: "white",
+            padding: "40px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            border: "1px solid #f3f4f6",
+            transition: "transform 0.2s, box-shadow 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+          }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🌍</div>
+            <h3 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "12px", color: "#1a1a1a" }}>
+              All Germany
+            </h3>
+            <p style={{ fontSize: "16px", lineHeight: 1.7, color: "#6b7280" }}>
+              Coverage across 74 German cities. From Berlin to Munich, Hamburg to Stuttgart. Find your local office.
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <a 
-          href="/timelines"
-          style={{ 
-            display: "block",
-            padding: 24, 
-            background: "#2563eb", 
-            color: "white", 
-            textAlign: "center", 
-            borderRadius: 8,
-            textDecoration: "none",
-            fontSize: 18,
-            fontWeight: 600,
-            transition: "background 0.2s"
-          }}
-        >
-          📊 Browse Timelines
-        </a>
-        <a 
-          href="/submit"
-          style={{ 
-            display: "block",
-            padding: 24, 
-            background: "#16a34a", 
-            color: "white", 
-            textAlign: "center", 
-            borderRadius: 8,
-            textDecoration: "none",
-            fontSize: 18,
-            fontWeight: 600,
-            transition: "background 0.2s"
-          }}
-        >
-          ➕ Submit Your Timeline
-        </a>
-      </div>
+        {/* Interactive Map Section */}
+        <div style={{
+          background: "white",
+          borderRadius: "16px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          overflow: "hidden",
+          border: "1px solid #f3f4f6",
+        }}>
+          <div style={{
+            padding: "40px",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+            textAlign: "center",
+          }}>
+            <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "12px" }}>
+              🗺️ Explore Offices on Map
+            </h2>
+            <p style={{ fontSize: "18px", opacity: 0.95, marginBottom: "24px", maxWidth: "600px", margin: "0 auto 24px" }}>
+              Click on any city to see detailed statistics and processing time reports
+            </p>
+            <button
+              onClick={() => setShowMap(!showMap)}
+              style={{
+                padding: "14px 32px",
+                background: "white",
+                color: "#667eea",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "16px",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                transition: "transform 0.2s, box-shadow 0.2s"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 6px 16px rgba(0,0,0,0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+              }}
+            >
+              {showMap ? "Hide Map 🔼" : "Show Interactive Map 🔍"}
+            </button>
+          </div>
 
-      <div style={{ marginTop: 60, padding: 24, background: "#fef3c7", borderRadius: 8, border: "1px solid #fde047" }}>
-        <p style={{ fontSize: 14, opacity: 0.8, textAlign: "center", lineHeight: 1.6 }}>
-          ⚠️ <strong>Disclaimer:</strong> This data is crowdsourced and not official. 
-          Use it for general expectations only. Processing times vary by individual case.
-        </p>
-      </div>
-    </main>
+          {showMap && (
+            <div>
+              <GermanyMap />
+              <div style={{
+                padding: "20px",
+                background: "#f9fafb",
+                borderTop: "1px solid #e5e7eb",
+                fontSize: "14px",
+                color: "#6b7280",
+                textAlign: "center"
+              }}>
+                💡 <strong>Tip:</strong> Click markers for details • Zoom in/out to explore • Hover for quick info
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </>
   );
 }
