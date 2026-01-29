@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { use } from "react";
 
 // This will be replaced with database/CMS content later
 const blogPosts: Record<string, any> = {
@@ -123,8 +124,9 @@ const blogPosts: Record<string, any> = {
   },
 };
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = blogPosts[params.slug];
+export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const post = blogPosts[slug];
 
   if (!post) {
     notFound();
