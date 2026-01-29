@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
+import { PrismaClient } from "@prisma/client";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
@@ -12,25 +17,56 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Implement email sending logic here
-    // Options:
-    // 1. Use Resend.com: https://resend.com/
-    // 2. Use SendGrid: https://sendgrid.com/
-    // 3. Use Nodemailer with SMTP
-    // 4. Store in database and review manually
-
-    console.log("Contact form submission:", {
-      name,
-      email,
-      subject,
-      message,
-      timestamp: new Date().toISOString(),
+    // Store in database
+    const submission = await prisma.contactSubmission.create({
+      data: {
+        name,
+        email,
+        subject,
+        message,
+      },
     });
 
-    // For now, just return success
-    // In production, you should actually send the email or store in database
+    // Send email to admin
+    const adminEmailResponse = await resend.emails.send({
+      from: "noreply@termintacho.de",
+      to: "lankalasharan@gmail.com",
+      subject: `New Contact Form Submission: ${subject}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, "<br>")}</p>
+        <hr>
+        <p><small>Submitted at: ${new Date().toISOString()}</small></p>
+      `,
+    });
+
+    // Send confirmation email to user
+    await resend.emails.send({
+      from: "noreply@termintacho.de",
+      to: email,
+      subject: "We received your message",
+      html: `
+        <h2>Thank you for contacting us!</h2>
+        <p>Hi ${name},</p>
+        <p>We've received your message and will get back to you within 2-3 business days.</p>
+        <p><strong>Your message details:</strong></p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, "<br>")}</p>
+        <hr>
+        <p>Best regards,<br>The Termintacho Team</p>
+      `,
+    });
+
     return NextResponse.json(
-      { message: "Message sent successfully" },
+      {
+        message: "Message sent successfully",
+        submissionId: submission.id,
+      },
       { status: 200 }
     );
   } catch (error) {

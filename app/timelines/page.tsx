@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import GermanyMap from "../components/GermanyMap";
+import ShareButtons from "../components/ShareButtons";
 
 type Report = {
   id: string;
@@ -21,27 +23,57 @@ function calculateDays(start: string, end: string | null): number | null {
   return Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+function getPercentile(arr: number[], percentile: number): number {
+  const sorted = [...arr].sort((a, b) => a - b);
+  const index = Math.ceil((percentile / 100) * sorted.length) - 1;
+  return sorted[index];
+}
+
+function getDayRange(days: number): string {
+  if (days <= 30) return "0-30 days";
+  if (days <= 60) return "31-60 days";
+  if (days <= 90) return "61-90 days";
+  if (days <= 120) return "91-120 days";
+  return "120+ days";
+}
+
 export default function TimelinesPage() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [allCities, setAllCities] = useState<string[]>([]);
+  const [allProcessTypes, setAllProcessTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [cityFilter, setCityFilter] = useState("");
   const [processFilter, setProcessFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [sortBy, setSortBy] = useState("recent"); // recent, fastest, slowest
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const res = await fetch("/api/reports");
-      const data = await res.json();
-      setReports(data.reports || []);
+      const [reportsRes, optionsRes] = await Promise.all([
+        fetch("/api/reports"),
+        fetch("/api/options")
+      ]);
+      const reportsData = await reportsRes.json();
+      const optionsData = await optionsRes.json();
+      
+      setReports(reportsData.reports || []);
+      
+      // Get unique cities from all offices
+      const cities = [...new Set((optionsData.offices || []).map((o: any) => o.city))].sort() as string[];
+      setAllCities(cities);
+      
+      // Get all process types
+      const processes = ((optionsData.processTypes || []).map((p: any) => p.name).sort()) as string[];
+      setAllProcessTypes(processes);
+      
       setLoading(false);
     }
     load();
   }, []);
 
-  const cities = [...new Set(reports.map(r => r.office.city))].sort();
-  const processTypes = [...new Set(reports.map(r => r.processType.name))].sort();
+  const cities = allCities;
+  const processTypes = allProcessTypes;
 
   const filteredReports = reports.filter(r => {
     if (cityFilter && r.office.city !== cityFilter) return false;
@@ -50,28 +82,244 @@ export default function TimelinesPage() {
     return true;
   });
 
-  // Sort reports
-  const sortedReports = [...filteredReports].sort((a, b) => {
-    if (sortBy === "recent") {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    } else if (sortBy === "fastest" || sortBy === "slowest") {
-      const daysA = calculateDays(a.submittedAt, a.decisionAt);
-      const daysB = calculateDays(b.submittedAt, b.decisionAt);
-      if (daysA === null) return 1;
-      if (daysB === null) return -1;
-      return sortBy === "fastest" ? daysA - daysB : daysB - daysA;
-    }
-    return 0;
-  });
+  // Calculate comprehensive statistics
+  const completedReports = filteredReports.filter(r => r.decisionAt);
+  const pendingReports = filteredReports.filter(r => !r.decisionAt);
+  const approvedReports = filteredReports.filter(r => r.status === "approved");
+  const rejectedReports = filteredReports.filter(r => r.status === "rejected");
 
-  const completedReports = sortedReports.filter(r => r.decisionAt);
-  const waitingDays = completedReports.map(r => calculateDays(r.submittedAt, r.decisionAt)).filter(d => d !== null) as number[];
-  const avgDays = waitingDays.length > 0 ? Math.round(waitingDays.reduce((a, b) => a + b, 0) / waitingDays.length) : null;
+  const waitingDays = completedReports
+    .map(r => calculateDays(r.submittedAt, r.decisionAt))
+    .filter(d => d !== null) as number[];
+
+  const avgDays = waitingDays.length > 0 
+    ? Math.round(waitingDays.reduce((a, b) => a + b, 0) / waitingDays.length) 
+    : null;
+  const medianDays = waitingDays.length > 0 ? getPercentile(waitingDays, 50) : null;
+  const p25Days = waitingDays.length > 0 ? getPercentile(waitingDays, 25) : null;
+  const p75Days = waitingDays.length > 0 ? getPercentile(waitingDays, 75) : null;
   const minDays = waitingDays.length > 0 ? Math.min(...waitingDays) : null;
   const maxDays = waitingDays.length > 0 ? Math.max(...waitingDays) : null;
 
+  const approvalRate = completedReports.length > 0 
+    ? Math.round((approvedReports.length / completedReports.length) * 100) 
+    : 0;
+
+  // Distribution by time ranges
+  const timeDistribution: { [key: string]: number } = {};
+  waitingDays.forEach(days => {
+    const range = getDayRange(days);
+    timeDistribution[range] = (timeDistribution[range] || 0) + 1;
+  });
+
+  // Method distribution
+  const onlineCount = filteredReports.filter(r => r.method === "online").length;
+  const inPersonCount = filteredReports.filter(r => r.method === "in-person").length;
+
+  // City statistics
+  const cityStats: { [city: string]: { count: number; avgDays: number | null } } = {};
+  cities.forEach(city => {
+    const cityReports = filteredReports.filter(r => r.office.city === city);
+    const cityCompleted = cityReports.filter(r => r.decisionAt);
+    const cityDays = cityCompleted
+      .map(r => calculateDays(r.submittedAt, r.decisionAt))
+      .filter(d => d !== null) as number[];
+    const avg = cityDays.length > 0 
+      ? Math.round(cityDays.reduce((a, b) => a + b, 0) / cityDays.length) 
+      : null;
+    cityStats[city] = { count: cityReports.length, avgDays: avg };
+  });
+
+  // Process type statistics
+  const processStats: { [process: string]: { count: number; avgDays: number | null } } = {};
+  processTypes.forEach(process => {
+    const processReports = filteredReports.filter(r => r.processType.name === process);
+    const processCompleted = processReports.filter(r => r.decisionAt);
+    const processDays = processCompleted
+      .map(r => calculateDays(r.submittedAt, r.decisionAt))
+      .filter(d => d !== null) as number[];
+    const avg = processDays.length > 0 
+      ? Math.round(processDays.reduce((a, b) => a + b, 0) / processDays.length) 
+      : null;
+    processStats[process] = { count: processReports.length, avgDays: avg };
+  });
+
   return (
     <>
+      <style>{`
+        @media (max-width: 768px) {
+          .timeline-map-btn {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+            top: 70px !important;
+            right: 10px !important;
+          }
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
+          }
+          .filter-container {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .filter-item {
+            width: 100% !important;
+          }
+          .reports-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .timeline-map-btn {
+            padding: 6px 10px !important;
+            font-size: 11px !important;
+            top: 65px !important;
+            right: 8px !important;
+          }
+          .stats-grid {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+          }
+          .stat-card {
+            padding: 12px !important;
+          }
+          .stat-card h3 {
+            font-size: 14px !important;
+          }
+          .stat-card p {
+            font-size: 12px !important;
+          }
+          .filter-container {
+            flex-direction: column !important;
+            gap: 8px !important;
+          }
+          .filter-item {
+            width: 100% !important;
+            font-size: 13px !important;
+            padding: 8px !important;
+          }
+          .reports-grid {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+          }
+          .report-card {
+            padding: 12px !important;
+          }
+          .report-card h4 {
+            font-size: 14px !important;
+          }
+          .report-card p {
+            font-size: 12px !important;
+          }
+        }
+      `}</style>
+      {/* Floating Map Button */}
+      <button
+        className="timeline-map-btn"
+        onClick={() => setShowMap(!showMap)}
+        style={{
+          position: "fixed",
+          top: "80px",
+          right: "20px",
+          zIndex: 500,
+          padding: "12px 20px",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          border: "none",
+          borderRadius: "12px",
+          fontSize: "14px",
+          fontWeight: 700,
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+          transition: "all 0.2s",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-2px)";
+          e.currentTarget.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+        }}
+      >
+        � {showMap ? "Hide Map" : "Search in Map"}
+      </button>
+
+      {/* Full Page Map Overlay */}
+      {showMap && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.8)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            paddingTop: "80px",
+          }}
+          onClick={() => setShowMap(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "1400px",
+              maxHeight: "calc(90vh - 80px)",
+              background: "white",
+              borderRadius: "16px",
+              padding: "20px",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}>
+              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0 }}>
+                🗺️ Interactive City Map
+              </h2>
+              <button
+                onClick={() => setShowMap(false)}
+                style={{
+                  background: "#f3f4f6",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: "#6b7280",
+                }}
+              >
+                ✕ Close
+              </button>
+            </div>
+            <GermanyMap />
+            <div style={{
+              marginTop: "12px",
+              padding: "12px",
+              background: "#f9fafb",
+              borderRadius: "8px",
+              fontSize: "13px",
+              color: "#6b7280",
+              textAlign: "center",
+            }}>
+              💡 Click on city markers to view processing time statistics and details
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div style={{
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -79,88 +327,39 @@ export default function TimelinesPage() {
         padding: "60px 20px",
         textAlign: "center",
       }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <h1 style={{
             fontSize: "48px",
             fontWeight: 800,
             marginBottom: "16px",
             textShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}>
-            📊 Processing Timelines
+            📊 Processing Times Dashboard
           </h1>
           <p style={{
             fontSize: "20px",
             opacity: 0.95,
-            marginBottom: "32px",
+            marginBottom: "8px",
           }}>
-            Real experiences from <strong>{reports.length}</strong> community reports
+            Aggregated insights from <strong>{filteredReports.length}</strong> community reports
           </p>
-
-          {/* Statistics Bar */}
-          {completedReports.length > 0 && (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-              gap: "16px",
-              marginTop: "32px",
-            }}>
-              <div style={{
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                padding: "20px",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.3)",
-              }}>
-                <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px" }}>
-                  {avgDays}
-                </div>
-                <div style={{ fontSize: "14px", opacity: 0.9 }}>Avg Days</div>
-              </div>
-              
-              <div style={{
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                padding: "20px",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.3)",
-              }}>
-                <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px" }}>
-                  {minDays}
-                </div>
-                <div style={{ fontSize: "14px", opacity: 0.9 }}>Fastest</div>
-              </div>
-              
-              <div style={{
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                padding: "20px",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.3)",
-              }}>
-                <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px" }}>
-                  {maxDays}
-                </div>
-                <div style={{ fontSize: "14px", opacity: 0.9 }}>Longest</div>
-              </div>
-              
-              <div style={{
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                padding: "20px",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.3)",
-              }}>
-                <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px" }}>
-                  {completedReports.length}
-                </div>
-                <div style={{ fontSize: "14px", opacity: 0.9 }}>Completed</div>
-              </div>
-            </div>
-          )}
+          <p style={{
+            fontSize: "16px",
+            opacity: 0.85,
+          }}>
+            Real data ranges • Not exact values • Community driven
+          </p>
+          <div style={{ marginTop: "24px" }}>
+            <ShareButtons 
+              title="Check out TerminTacho - Real processing times for German bureaucracy" 
+              url="/timelines"
+              description="Crowdsourced processing times for German bureaucratic processes"
+            />
+          </div>
         </div>
       </div>
 
-      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
+      <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "40px 20px" }}>
         {/* Filters */}
         <div style={{
           background: "white",
@@ -171,15 +370,15 @@ export default function TimelinesPage() {
           border: "1px solid #f3f4f6",
         }}>
           <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
-            🔍 Filter Reports
+            🔍 Filter Data
           </h2>
           
-          <div style={{
+          <div className="filter-container" style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "20px",
           }}>
-            <div>
+            <div className="filter-item">
               <label style={{
                 display: "block",
                 marginBottom: "8px",
@@ -206,9 +405,11 @@ export default function TimelinesPage() {
                 onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
                 onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
               >
-                <option value="">All Cities ({cities.length})</option>
+                <option value="">All Cities</option>
                 {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
+                  <option key={city} value={city}>
+                    {city} ({cityStats[city]?.count || 0} reports)
+                  </option>
                 ))}
               </select>
             </div>
@@ -240,9 +441,11 @@ export default function TimelinesPage() {
                 onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
                 onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
               >
-                <option value="">All Processes ({processTypes.length})</option>
+                <option value="">All Processes</option>
                 {processTypes.map(pt => (
-                  <option key={pt} value={pt}>{pt}</option>
+                  <option key={pt} value={pt}>
+                    {pt} ({processStats[pt]?.count || 0} reports)
+                  </option>
                 ))}
               </select>
             </div>
@@ -280,39 +483,6 @@ export default function TimelinesPage() {
                 <option value="rejected">❌ Rejected</option>
               </select>
             </div>
-
-            <div>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#374151"
-              }}>
-                Sort By
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  outline: "none",
-                  cursor: "pointer",
-                  background: "white",
-                  transition: "border-color 0.2s",
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
-              >
-                <option value="recent">Most Recent</option>
-                <option value="fastest">Fastest First</option>
-                <option value="slowest">Slowest First</option>
-              </select>
-            </div>
           </div>
 
           {(cityFilter || processFilter || statusFilter) && (
@@ -341,24 +511,13 @@ export default function TimelinesPage() {
             </button>
           )}
         </div>
-
-        {/* Results Count */}
-        <div style={{
-          marginBottom: "24px",
-          fontSize: "16px",
-          color: "#6b7280",
-          fontWeight: 600,
-        }}>
-          Showing {sortedReports.length} {sortedReports.length === 1 ? "report" : "reports"}
-        </div>
-
-        {/* Reports Grid */}
+        {/* Dashboard Content */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#9ca3af" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
-            <div style={{ fontSize: "18px" }}>Loading timelines...</div>
+            <div style={{ fontSize: "18px" }}>Loading dashboard data...</div>
           </div>
-        ) : sortedReports.length === 0 ? (
+        ) : filteredReports.length === 0 ? (
           <div style={{
             textAlign: "center",
             padding: "60px 20px",
@@ -368,155 +527,351 @@ export default function TimelinesPage() {
           }}>
             <div style={{ fontSize: "64px", marginBottom: "16px" }}>📭</div>
             <div style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
-              No reports found
+              No data available
             </div>
             <div style={{ fontSize: "16px", color: "#6b7280" }}>
               Try adjusting your filters or be the first to share your experience!
             </div>
           </div>
         ) : (
-          <div style={{
-            display: "grid",
-            gap: "20px",
-          }}>
-            {sortedReports.map(report => {
-              const days = calculateDays(report.submittedAt, report.decisionAt);
-              const statusColors = {
-                approved: { bg: "#d1fae5", border: "#10b981", text: "#065f46" },
-                pending: { bg: "#fef3c7", border: "#f59e0b", text: "#92400e" },
-                rejected: { bg: "#fee2e2", border: "#ef4444", text: "#991b1b" },
-              };
-              const statusColor = statusColors[report.status as keyof typeof statusColors] || statusColors.pending;
+          <>
+            {/* Key Statistics Cards */}
+            <div className="stats-grid" style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "24px",
+              marginBottom: "32px",
+            }}>
+              {/* Processing Time Range Card */}
+              <div className="stat-card" style={{
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 8px 24px rgba(102, 126, 234, 0.25)",
+              }}>
+                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
+                  📅 TYPICAL PROCESSING TIME
+                </div>
+                <div style={{ fontSize: "42px", fontWeight: 800, marginBottom: "8px" }}>
+                  {p25Days} - {p75Days} days
+                </div>
+                <div style={{ fontSize: "14px", opacity: 0.85 }}>
+                  Range covers 50% of all cases
+                </div>
+                <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.3)" }}>
+                  Median: <strong>{medianDays} days</strong>
+                </div>
+              </div>
 
-              return (
-                <div
-                  key={report.id}
-                  style={{
-                    background: "white",
-                    padding: "28px",
-                    borderRadius: "12px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                    border: "1px solid #f3f4f6",
-                    transition: "transform 0.2s, box-shadow 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
-                  }}
-                >
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
-                    gap: "16px",
-                    marginBottom: "16px",
-                  }}>
-                    <div style={{ flex: 1, minWidth: "200px" }}>
-                      <h3 style={{
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        marginBottom: "8px",
-                        color: "#1a1a1a",
-                      }}>
-                        {report.processType.name}
-                      </h3>
-                      <Link
-                        href={`/offices/${encodeURIComponent(report.office.city)}`}
-                        style={{
-                          fontSize: "14px",
-                          color: "#667eea",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          textDecoration: "none",
-                          fontWeight: 600,
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
-                        onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
-                      >
-                        📍 {report.office.city} • {report.office.name} →
-                      </Link>
-                    </div>
+              {/* Approval Rate Card */}
+              <div style={{
+                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                color: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 8px 24px rgba(16, 185, 129, 0.25)",
+              }}>
+                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
+                  ✅ APPROVAL RATE
+                </div>
+                <div style={{ fontSize: "42px", fontWeight: 800, marginBottom: "8px" }}>
+                  {approvalRate}%
+                </div>
+                <div style={{ fontSize: "14px", opacity: 0.85 }}>
+                  Based on {completedReports.length} completed cases
+                </div>
+                <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.3)" }}>
+                  Approved: <strong>{approvedReports.length}</strong> • Rejected: <strong>{rejectedReports.length}</strong>
+                </div>
+              </div>
 
-                    <div style={{
-                      padding: "8px 16px",
-                      background: statusColor.bg,
-                      border: `2px solid ${statusColor.border}`,
-                      color: statusColor.text,
-                      borderRadius: "20px",
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      textTransform: "capitalize",
-                    }}>
-                      {report.status === "approved" && "✅"} 
-                      {report.status === "pending" && "⏳"} 
-                      {report.status === "rejected" && "❌"} 
-                      {report.status}
-                    </div>
-                  </div>
+              {/* Total Reports Card */}
+              <div style={{
+                background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                color: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 8px 24px rgba(245, 158, 11, 0.25)",
+              }}>
+                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
+                  📊 TOTAL REPORTS
+                </div>
+                <div style={{ fontSize: "42px", fontWeight: 800, marginBottom: "8px" }}>
+                  {filteredReports.length}
+                </div>
+                <div style={{ fontSize: "14px", opacity: 0.85 }}>
+                  Community contributions
+                </div>
+                <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.3)" }}>
+                  Pending: <strong>{pendingReports.length}</strong> • Completed: <strong>{completedReports.length}</strong>
+                </div>
+              </div>
+            </div>
 
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                    gap: "16px",
-                    padding: "16px",
-                    background: "#f9fafb",
-                    borderRadius: "8px",
-                    marginBottom: "16px",
-                  }}>
-                    <div>
-                      <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "4px", fontWeight: 600 }}>
-                        Method
-                      </div>
-                      <div style={{ fontSize: "16px", fontWeight: 600, color: "#374151" }}>
-                        {report.method === "online" ? "🌐" : "🏢"} {report.method}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "4px", fontWeight: 600 }}>
-                        Submitted
-                      </div>
-                      <div style={{ fontSize: "16px", fontWeight: 600, color: "#374151" }}>
-                        {new Date(report.submittedAt).toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    {report.decisionAt && (
-                      <>
-                        <div>
-                          <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "4px", fontWeight: 600 }}>
-                            Decision
+            {/* Processing Time Distribution */}
+            {Object.keys(timeDistribution).length > 0 && (
+              <div style={{
+                background: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                marginBottom: "32px",
+                border: "1px solid #f3f4f6",
+              }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                  ⏱️ Processing Time Distribution
+                </h2>
+                <div style={{ display: "grid", gap: "16px" }}>
+                  {Object.entries(timeDistribution)
+                    .sort((a, b) => {
+                      const order = ["0-30 days", "31-60 days", "61-90 days", "91-120 days", "120+ days"];
+                      return order.indexOf(a[0]) - order.indexOf(b[0]);
+                    })
+                    .map(([range, count]) => {
+                      const percentage = Math.round((count / waitingDays.length) * 100);
+                      return (
+                        <div key={range}>
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            color: "#374151",
+                          }}>
+                            <span>{range}</span>
+                            <span>{count} reports ({percentage}%)</span>
                           </div>
-                          <div style={{ fontSize: "16px", fontWeight: 600, color: "#374151" }}>
-                            {new Date(report.decisionAt).toLocaleDateString()}
+                          <div style={{
+                            width: "100%",
+                            height: "32px",
+                            background: "#f3f4f6",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                            position: "relative",
+                          }}>
+                            <div style={{
+                              width: `${percentage}%`,
+                              height: "100%",
+                              background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "flex-end",
+                              paddingRight: "12px",
+                              color: "white",
+                              fontSize: "13px",
+                              fontWeight: 700,
+                              minWidth: percentage > 10 ? "auto" : "0",
+                            }}>
+                              {percentage > 10 && `${percentage}%`}
+                            </div>
                           </div>
                         </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
 
-                        <div>
-                          <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "4px", fontWeight: 600 }}>
-                            Processing Time
-                          </div>
-                          <div style={{ fontSize: "20px", fontWeight: 800, color: "#667eea" }}>
-                            {days} days
-                          </div>
-                        </div>
-                      </>
-                    )}
+            {/* Submission Method Breakdown */}
+            <div style={{
+              background: "white",
+              padding: "32px",
+              borderRadius: "16px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              marginBottom: "32px",
+              border: "1px solid #f3f4f6",
+            }}>
+              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                📬 Submission Methods
+              </h2>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "24px",
+              }}>
+                <div style={{
+                  padding: "24px",
+                  background: "#f9fafb",
+                  borderRadius: "12px",
+                  border: "2px solid #e5e7eb",
+                }}>
+                  <div style={{ fontSize: "32px", marginBottom: "8px" }}>🌐</div>
+                  <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "#667eea" }}>
+                    {onlineCount}
                   </div>
-
-                  <div style={{ fontSize: "12px", color: "#9ca3af", textAlign: "right" }}>
-                    Reported {new Date(report.createdAt).toLocaleDateString()}
+                  <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+                    Online Submissions
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "8px" }}>
+                    {Math.round((onlineCount / filteredReports.length) * 100)}% of total
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                <div style={{
+                  padding: "24px",
+                  background: "#f9fafb",
+                  borderRadius: "12px",
+                  border: "2px solid #e5e7eb",
+                }}>
+                  <div style={{ fontSize: "32px", marginBottom: "8px" }}>🏢</div>
+                  <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "#10b981" }}>
+                    {inPersonCount}
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+                    In-Person Submissions
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "8px" }}>
+                    {Math.round((inPersonCount / filteredReports.length) * 100)}% of total
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* City Breakdown */}
+            {!cityFilter && cities.length > 0 && (
+              <div style={{
+                background: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                marginBottom: "32px",
+                border: "1px solid #f3f4f6",
+              }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                  📍 Processing Times by City
+                </h2>
+                <div className="reports-grid" style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "20px",
+                }}>
+                  {cities
+                    .filter(city => cityStats[city].avgDays !== null)
+                    .sort((a, b) => (cityStats[a].avgDays || 0) - (cityStats[b].avgDays || 0))
+                    .map(city => {
+                      const stats = cityStats[city];
+                      return (
+                        <div
+                          key={city}
+                          className="report-card"
+                          style={{
+                            padding: "20px",
+                            background: "#f9fafb",
+                            borderRadius: "12px",
+                            border: "2px solid #e5e7eb",
+                            transition: "all 0.2s",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setCityFilter(city)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#667eea";
+                            e.currentTarget.style.background = "#f0f4ff";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "#e5e7eb";
+                            e.currentTarget.style.background = "#f9fafb";
+                          }}
+                        >
+                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+                            {city}
+                          </div>
+                          <div style={{ fontSize: "28px", fontWeight: 800, color: "#667eea", marginBottom: "4px" }}>
+                            ~{stats.avgDays} days
+                          </div>
+                          <div style={{ fontSize: "13px", color: "#6b7280" }}>
+                            Based on {stats.count} {stats.count === 1 ? "report" : "reports"}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Process Type Breakdown */}
+            {!processFilter && processTypes.length > 0 && (
+              <div style={{
+                background: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                marginBottom: "32px",
+                border: "1px solid #f3f4f6",
+              }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                  📋 Processing Times by Type
+                </h2>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "20px",
+                }}>
+                  {processTypes
+                    .filter(process => processStats[process].avgDays !== null)
+                    .sort((a, b) => (processStats[a].avgDays || 0) - (processStats[b].avgDays || 0))
+                    .map(process => {
+                      const stats = processStats[process];
+                      return (
+                        <div
+                          key={process}
+                          style={{
+                            padding: "20px",
+                            background: "#f9fafb",
+                            borderRadius: "12px",
+                            border: "2px solid #e5e7eb",
+                            transition: "all 0.2s",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setProcessFilter(process)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#10b981";
+                            e.currentTarget.style.background = "#f0fdf4";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "#e5e7eb";
+                            e.currentTarget.style.background = "#f9fafb";
+                          }}
+                        >
+                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+                            {process}
+                          </div>
+                          <div style={{ fontSize: "28px", fontWeight: 800, color: "#10b981", marginBottom: "4px" }}>
+                            ~{stats.avgDays} days
+                          </div>
+                          <div style={{ fontSize: "13px", color: "#6b7280" }}>
+                            Based on {stats.count} {stats.count === 1 ? "report" : "reports"}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Info Banner */}
+            <div style={{
+              background: "#fffbeb",
+              border: "2px solid #fbbf24",
+              borderRadius: "12px",
+              padding: "20px",
+              display: "flex",
+              gap: "16px",
+              alignItems: "flex-start",
+            }}>
+              <div style={{ fontSize: "24px" }}>ℹ️</div>
+              <div>
+                <div style={{ fontSize: "16px", fontWeight: 700, marginBottom: "8px", color: "#92400e" }}>
+                  About This Data
+                </div>
+                <div style={{ fontSize: "14px", color: "#78350f", lineHeight: 1.6 }}>
+                  All statistics show aggregated ranges and averages from community reports, not exact individual values. 
+                  Times may vary based on specific circumstances. This data is for informational purposes only and 
+                  reflects recent community experiences.
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </main>
     </>

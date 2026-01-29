@@ -14,23 +14,29 @@ export default function Logo() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        display: "inline-block",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
         transform: isHovered ? "scale(1.05)" : "scale(1)",
         opacity: isHovered ? "0.9" : "1",
         transition: "all 0.2s ease",
+        background: "transparent",
+        minHeight: "44px",
       }}
     >
       <Image
         src="/logo.png"
         alt="TerminTacho"
-        width={300}
-        height={80}
+        width={180}
+        height={45}
         priority
         style={{
-          width: "100%",
-          height: "auto",
-          maxWidth: "300px",
-          minWidth: "200px",
+          width: "auto",
+          height: "40px",
+          maxWidth: "180px",
+          minWidth: "100px",
+          background: "transparent",
+          objectFit: "contain",
         }}
       />
     </Link>

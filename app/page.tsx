@@ -1,6 +1,7 @@
 "use client";
 
 import GermanyMap from "./components/GermanyMap";
+import NewsletterSignup from "./components/NewsletterSignup";
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -19,15 +20,174 @@ export default function Home() {
 
   return (
     <>
+      <style>{`
+        @media (max-width: 768px) {
+          .map-button {
+            display: none !important;
+          }
+          .hero-section {
+            padding: 32px 16px !important;
+          }
+          .hero-heading {
+            font-size: 24px !important;
+            margin-bottom: 16px !important;
+          }
+          .hero-text {
+            font-size: 15px !important;
+            margin-bottom: 24px !important;
+          }
+          .hero-buttons {
+            gap: 12px !important;
+          }
+          .hero-buttons a {
+            padding: 12px 20px !important;
+            font-size: 14px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .map-button {
+            display: none !important;
+          }
+          .hero-section {
+            padding: 24px 12px !important;
+          }
+          .hero-heading {
+            font-size: 20px !important;
+            margin-bottom: 12px !important;
+            line-height: 1.3 !important;
+          }
+          .hero-text {
+            font-size: 13px !important;
+            margin-bottom: 20px !important;
+          }
+          .hero-buttons {
+            flex-direction: column !important;
+            gap: 10px !important;
+          }
+          .hero-buttons a {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            font-size: 13px !important;
+            min-height: 44px !important;
+          }
+        }
+      `}</style>
+      {/* Floating Map Button - Hidden on mobile */}
+      <button
+        onClick={() => setShowMap(!showMap)}
+        className="map-button"
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          zIndex: 500,
+          padding: "12px 20px",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          border: "none",
+          borderRadius: "12px",
+          fontSize: "14px",
+          fontWeight: 700,
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+          transition: "all 0.2s",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-2px)";
+          e.currentTarget.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+        }}
+      >
+        � {showMap ? "Hide Map" : "Search in Map"}
+      </button>
+
+      {/* Full Page Map Overlay */}
+      {showMap && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.8)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            paddingTop: "80px",
+          }}
+          onClick={() => setShowMap(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "1400px",
+              maxHeight: "calc(90vh - 80px)",
+              background: "white",
+              borderRadius: "16px",
+              padding: "20px",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}>
+              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0 }}>
+                🗺️ Interactive City Map
+              </h2>
+              <button
+                onClick={() => setShowMap(false)}
+                style={{
+                  background: "#f3f4f6",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: "#6b7280",
+                }}
+              >
+                ✕ Close
+              </button>
+            </div>
+            <GermanyMap />
+            <div style={{
+              marginTop: "12px",
+              padding: "12px",
+              background: "#f9fafb",
+              borderRadius: "8px",
+              fontSize: "13px",
+              color: "#6b7280",
+              textAlign: "center",
+            }}>
+              💡 Click on city markers to view processing time statistics and details
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section with Gradient Background */}
-      <div style={{
+      <div className="hero-section" style={{
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         color: "white",
-        padding: "80px 20px",
+        padding: "60px 20px",
         textAlign: "center",
       }}>
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <h1 style={{
+          <h1 className="hero-heading" style={{
             fontSize: "56px",
             fontWeight: 800,
             marginBottom: "24px",
@@ -36,7 +196,7 @@ export default function Home() {
           }}>
             Real Processing Times for<br/>German Bureaucracy
           </h1>
-          <p style={{
+          <p className="hero-text" style={{
             fontSize: "22px",
             opacity: 0.95,
             lineHeight: 1.6,
@@ -48,7 +208,7 @@ export default function Home() {
             Know what to expect. Plan your life with confidence.
           </p>
           
-          <div style={{
+          <div className="hero-buttons" style={{
             display: "flex",
             gap: "16px",
             justifyContent: "center",
@@ -61,20 +221,23 @@ export default function Home() {
                 background: "white",
                 color: "#667eea",
                 borderRadius: "12px",
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                transition: "transform 0.2s, box-shadow 0.2s",
-                display: "inline-block",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
+                transition: "all 0.2s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                minHeight: "48px",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.2)";
+                e.currentTarget.style.boxShadow = "0 12px 28px rgba(0,0,0,0.18)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.12)";
               }}
             >
               📊 Browse Timelines
@@ -84,24 +247,29 @@ export default function Home() {
               href="/submit"
               style={{
                 padding: "16px 32px",
-                background: "rgba(255,255,255,0.2)",
+                background: "rgba(255,255,255,0.15)",
                 color: "white",
                 borderRadius: "12px",
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
                 textDecoration: "none",
-                border: "2px solid white",
+                border: "2px solid rgba(255,255,255,0.5)",
                 backdropFilter: "blur(10px)",
-                transition: "transform 0.2s, background 0.2s",
-                display: "inline-block",
+                transition: "all 0.2s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                minHeight: "48px",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.background = "rgba(255,255,255,0.3)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.25)";
+                e.currentTarget.style.border = "2px solid rgba(255,255,255,0.7)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+                e.currentTarget.style.border = "2px solid rgba(255,255,255,0.5)";
               }}
             >
               ✍️ Share Your Timeline
@@ -380,69 +548,6 @@ export default function Home() {
             )}
           </div>
         </div>
-        {/* Interactive Map Section */}
-        <div style={{
-          background: "white",
-          borderRadius: "16px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          overflow: "hidden",
-          border: "1px solid #f3f4f6",
-        }}>
-          <div style={{
-            padding: "40px",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            textAlign: "center",
-          }}>
-            <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "12px" }}>
-              🗺️ Explore Offices on Map
-            </h2>
-            <p style={{ fontSize: "18px", opacity: 0.95, marginBottom: "24px", maxWidth: "600px", margin: "0 auto 24px" }}>
-              Click on any city to see detailed statistics and processing time reports
-            </p>
-            <button
-              onClick={() => setShowMap(!showMap)}
-              style={{
-                padding: "14px 32px",
-                background: "white",
-                color: "#667eea",
-                border: "none",
-                borderRadius: "10px",
-                fontSize: "16px",
-                fontWeight: 700,
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                transition: "transform 0.2s, box-shadow 0.2s"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 6px 16px rgba(0,0,0,0.2)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-              }}
-            >
-              {showMap ? "Hide Map 🔼" : "Show Interactive Map 🔍"}
-            </button>
-          </div>
-
-          {showMap && (
-            <div>
-              <GermanyMap />
-              <div style={{
-                padding: "20px",
-                background: "#f9fafb",
-                borderTop: "1px solid #e5e7eb",
-                fontSize: "14px",
-                color: "#6b7280",
-                textAlign: "center"
-              }}>
-                💡 <strong>Tip:</strong> Click markers for details • Zoom in/out to explore • Hover for quick info
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Testimonials Section */}
         <div style={{ marginTop: "80px" }}>
@@ -536,6 +641,33 @@ export default function Home() {
                 Anonymous User • Hamburg
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Newsletter Section */}
+        <div style={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          padding: "60px 20px",
+          marginTop: "80px",
+          textAlign: "center",
+        }}>
+          <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+            <h2 style={{
+              fontSize: "36px",
+              fontWeight: 800,
+              marginBottom: "16px",
+            }}>
+              📬 Stay Updated
+            </h2>
+            <p style={{
+              fontSize: "18px",
+              marginBottom: "40px",
+              opacity: 0.95,
+            }}>
+              Get notified when new processing times are submitted for your city or process.
+            </p>
+            <NewsletterSignup />
           </div>
         </div>
       </main>

@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     },
     include: { office: true, processType: true },
     orderBy: { createdAt: "desc" },
-    take: 200,
+    // Removed take limit to show all reports for dashboard statistics
   });
 
   return NextResponse.json({ reports });

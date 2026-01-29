@@ -290,7 +290,7 @@ export default function ContactPage() {
               Email
             </h3>
             <p style={{ fontSize: "14px", color: "#6b7280" }}>
-              [your-email@termintacho.com]
+              lankalasharan@gmail.com
             </p>
           </div>
 

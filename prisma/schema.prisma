@@ -80,6 +80,7 @@ model Report {
   decisionAt    DateTime?
   status        String
   notes         String?
+  userEmail     String?
   createdAt     DateTime    @default(now())
   helpful       Int         @default(0)
   notHelpful    Int         @default(0)
@@ -94,6 +95,7 @@ model Review {
   id              String   @id @default(cuid())
   officeId        String
   userId          String?
+  userEmail       String?
   overallRating   Int      // 1-5 stars
   serviceRating   Int?     // 1-5 stars
   staffRating     Int?     // 1-5 stars
@@ -108,4 +110,26 @@ model Review {
 
   @@index([officeId])
   @@index([createdAt])
+}
+
+model Newsletter {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([subscribedAt])
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([email])
 }

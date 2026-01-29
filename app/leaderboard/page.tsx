@@ -1,0 +1,197 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type Contributor = {
+  id: string;
+  email: string;
+  reportsCount: number;
+  rank: number;
+};
+
+export default function LeaderboardPage() {
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadLeaderboard() {
+      try {
+        const res = await fetch("/api/leaderboard");
+        const data = await res.json();
+        setContributors(data.contributors || []);
+      } catch (error) {
+        console.error("Error loading leaderboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadLeaderboard();
+  }, []);
+
+  const medals = ["🥇", "🥈", "🥉"];
+
+  return (
+    <>
+      <div style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "60px 20px",
+        textAlign: "center",
+      }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h1 style={{
+            fontSize: "48px",
+            fontWeight: 800,
+            marginBottom: "16px",
+          }}>
+            🏆 Top Contributors
+          </h1>
+          <p style={{
+            fontSize: "20px",
+            opacity: 0.9,
+          }}>
+            Recognizing our most active community members
+          </p>
+        </div>
+      </div>
+
+      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
+            <p>Loading leaderboard...</p>
+          </div>
+        ) : contributors.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
+            <p>No contributions yet. Be the first to submit!</p>
+          </div>
+        ) : (
+          <div style={{
+            display: "grid",
+            gap: "16px",
+          }}>
+            {contributors.map((contributor, index) => (
+              <div
+                key={contributor.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "20px",
+                  padding: "24px",
+                  background: "white",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "12px",
+                  boxShadow: index < 3 ? "0 4px 12px rgba(0,0,0,0.08)" : "none",
+                }}
+              >
+                <div style={{
+                  fontSize: "32px",
+                  minWidth: "50px",
+                  textAlign: "center",
+                }}>
+                  {index < 3 ? medals[index] : `#${index + 1}`}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <h3 style={{
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: "#1a1a1a",
+                    marginBottom: "4px",
+                  }}>
+                    Anonymous Contributor
+                  </h3>
+                  <p style={{
+                    fontSize: "14px",
+                    color: "#6b7280",
+                  }}>
+                    {contributor.email.substring(0, 3)}***@***
+                  </p>
+                </div>
+
+                <div style={{
+                  textAlign: "right",
+                }}>
+                  <div style={{
+                    fontSize: "24px",
+                    fontWeight: 800,
+                    color: "#667eea",
+                  }}>
+                    {contributor.reportsCount}
+                  </div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#9ca3af",
+                  }}>
+                    Reports Submitted
+                  </div>
+                </div>
+
+                {index < 3 && (
+                  <div style={{
+                    padding: "8px 16px",
+                    background: `${index === 0 ? "#FCD34D" : index === 1 ? "#D1D5DB" : "#FED7AA"}`,
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#1a1a1a",
+                  }}>
+                    {index === 0 ? "🌟 TOP" : index === 1 ? "⭐ SILVER" : "🔶 BRONZE"}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div style={{
+          marginTop: "60px",
+          padding: "40px",
+          background: "#f9fafb",
+          borderRadius: "12px",
+          textAlign: "center",
+        }}>
+          <h2 style={{
+            fontSize: "24px",
+            fontWeight: 700,
+            marginBottom: "16px",
+            color: "#1a1a1a",
+          }}>
+            Want to join the leaderboard?
+          </h2>
+          <p style={{
+            fontSize: "16px",
+            color: "#6b7280",
+            marginBottom: "24px",
+          }}>
+            Every submission helps the community. Share your experience and become a top contributor!
+          </p>
+          <a
+            href="/submit"
+            style={{
+              display: "inline-block",
+              padding: "12px 32px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "white",
+              borderRadius: "8px",
+              textDecoration: "none",
+              fontWeight: 600,
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 20px rgba(102, 126, 234, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            Submit Your Timeline
+          </a>
+        </div>
+      </main>
+    </>
+  );
+}

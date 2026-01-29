@@ -10,22 +10,49 @@ export default function Footer() {
       padding: "60px 20px 30px",
       marginTop: "80px",
     }}>
+      <style>{`
+        @media (max-width: 768px) {
+          footer {
+            padding: 40px 16px 24px !important;
+            margin-top: 40px !important;
+          }
+          .footer-grid {
+            gap: 24px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          footer {
+            padding: 24px 12px 16px !important;
+            margin-top: 24px !important;
+          }
+          .footer-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+          .footer-section h3 {
+            font-size: 16px !important;
+          }
+          .footer-section p, .footer-section a {
+            font-size: 13px !important;
+          }
+        }
+      `}</style>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{
+        <div className="footer-grid" style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
           gap: "40px",
           marginBottom: "40px",
         }}>
           {/* About Section */}
-          <div>
+          <div className="footer-section">
             <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>
               TerminTacho
             </h3>
             <p style={{ fontSize: "14px", color: "#9ca3af", lineHeight: 1.7, marginBottom: "16px" }}>
               Real, anonymous processing times for German bureaucracy. Crowdsourced by the community, for the community.
             </p>
-            <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
+            <div style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
               {/* Trust Badges */}
               <div style={{
                 padding: "8px 12px",
@@ -55,7 +82,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="footer-section">
             <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>
               Quick Links
             </h3>
