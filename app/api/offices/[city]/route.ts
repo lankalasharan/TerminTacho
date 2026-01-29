@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: { city: string } }
+  { params }: { params: Promise<{ city: string }> }
 ) {
   try {
-    const city = decodeURIComponent(params.city);
+    const { city: rawCity } = await params;
+    const city = decodeURIComponent(rawCity);
 
     // Get office info
     const office = await prisma.office.findFirst({
