@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import GermanyMap from "../components/GermanyMap";
 import ShareButtons from "../components/ShareButtons";
+import {
+  calculateRelevanceWeight,
+  calculateWeightedAverage,
+  getDataAgeLabel,
+  getRelevanceBadgeStyle,
+} from "@/lib/relevance";
 
 type Report = {
   id: string;
@@ -82,7 +88,7 @@ export default function TimelinesPage() {
     return true;
   });
 
-  // Calculate comprehensive statistics
+  // Calculate comprehensive statistics with relevance weighting
   const completedReports = filteredReports.filter(r => r.decisionAt);
   const pendingReports = filteredReports.filter(r => !r.decisionAt);
   const approvedReports = filteredReports.filter(r => r.status === "approved");
@@ -92,9 +98,19 @@ export default function TimelinesPage() {
     .map(r => calculateDays(r.submittedAt, r.decisionAt))
     .filter(d => d !== null) as number[];
 
-  const avgDays = waitingDays.length > 0 
-    ? Math.round(waitingDays.reduce((a, b) => a + b, 0) / waitingDays.length) 
+  // Calculate weighted average based on data age
+  const weightsForAverage = completedReports
+    .map(r => {
+      const days = calculateDays(r.submittedAt, r.decisionAt);
+      if (days === null) return 0;
+      return calculateRelevanceWeight(r.submittedAt).weight;
+    });
+
+  const weightedAvgDays = waitingDays.length > 0
+    ? calculateWeightedAverage(waitingDays, weightsForAverage)
     : null;
+
+  const avgDays = weightedAvgDays; // Use weighted average instead of simple average
   const medianDays = waitingDays.length > 0 ? getPercentile(waitingDays, 50) : null;
   const p25Days = waitingDays.length > 0 ? getPercentile(waitingDays, 25) : null;
   const p75Days = waitingDays.length > 0 ? getPercentile(waitingDays, 75) : null;
@@ -116,7 +132,7 @@ export default function TimelinesPage() {
   const onlineCount = filteredReports.filter(r => r.method === "online").length;
   const inPersonCount = filteredReports.filter(r => r.method === "in-person").length;
 
-  // City statistics
+  // City statistics (with weighted averages)
   const cityStats: { [city: string]: { count: number; avgDays: number | null } } = {};
   cities.forEach(city => {
     const cityReports = filteredReports.filter(r => r.office.city === city);
@@ -124,13 +140,17 @@ export default function TimelinesPage() {
     const cityDays = cityCompleted
       .map(r => calculateDays(r.submittedAt, r.decisionAt))
       .filter(d => d !== null) as number[];
+    
+    const cityWeights = cityCompleted
+      .map(r => calculateRelevanceWeight(r.submittedAt).weight);
+    
     const avg = cityDays.length > 0 
-      ? Math.round(cityDays.reduce((a, b) => a + b, 0) / cityDays.length) 
+      ? calculateWeightedAverage(cityDays, cityWeights)
       : null;
     cityStats[city] = { count: cityReports.length, avgDays: avg };
   });
 
-  // Process type statistics
+  // Process type statistics (with weighted averages)
   const processStats: { [process: string]: { count: number; avgDays: number | null } } = {};
   processTypes.forEach(process => {
     const processReports = filteredReports.filter(r => r.processType.name === process);
@@ -138,8 +158,12 @@ export default function TimelinesPage() {
     const processDays = processCompleted
       .map(r => calculateDays(r.submittedAt, r.decisionAt))
       .filter(d => d !== null) as number[];
+    
+    const processWeights = processCompleted
+      .map(r => calculateRelevanceWeight(r.submittedAt).weight);
+    
     const avg = processDays.length > 0 
-      ? Math.round(processDays.reduce((a, b) => a + b, 0) / processDays.length) 
+      ? calculateWeightedAverage(processDays, processWeights)
       : null;
     processStats[process] = { count: processReports.length, avgDays: avg };
   });
@@ -849,7 +873,7 @@ export default function TimelinesPage() {
               </div>
             )}
 
-            {/* Info Banner */}
+            {/* Info Banner - Updated with Relevance Explanation */}
             <div style={{
               background: "#fffbeb",
               border: "2px solid #fbbf24",
@@ -862,13 +886,156 @@ export default function TimelinesPage() {
               <div style={{ fontSize: "24px" }}>ℹ️</div>
               <div>
                 <div style={{ fontSize: "16px", fontWeight: 700, marginBottom: "8px", color: "#92400e" }}>
-                  About This Data
+                  About This Data & Relevance Weighting
                 </div>
-                <div style={{ fontSize: "14px", color: "#78350f", lineHeight: 1.6 }}>
+                <div style={{ fontSize: "14px", color: "#78350f", lineHeight: 1.6, marginBottom: "12px" }}>
                   All statistics show aggregated ranges and averages from community reports, not exact individual values. 
-                  Times may vary based on specific circumstances. This data is for informational purposes only and 
-                  reflects recent community experiences.
+                  Times may vary based on specific circumstances. This data is for informational purposes only.
                 </div>
+                <div style={{ fontSize: "13px", color: "#78350f", fontStyle: "italic", paddingTop: "12px", borderTop: "1px solid rgba(251, 191, 36, 0.3)" }}>
+                  <strong>🎯 Data Relevance:</strong> Recent submissions ({"<"} 6 months) have full weight. Data 1-2 years old has reduced weight. 
+                  Data older than 2 years may not reflect current processing times and has minimal impact on averages.
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Submissions with Relevance Badges */}
+            <div style={{
+              background: "white",
+              padding: "32px",
+              borderRadius: "16px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              marginTop: "32px",
+              border: "1px solid #f3f4f6",
+            }}>
+              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                🕐 Recent Submissions (with Data Relevance)
+              </h2>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gap: "16px",
+              }}>
+                {filteredReports
+                  .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+                  .slice(0, 12) // Show latest 12
+                  .map(report => {
+                    const relevance = calculateRelevanceWeight(report.submittedAt);
+                    const badgeStyle = getRelevanceBadgeStyle(relevance.category);
+                    const waitTime = calculateDays(report.submittedAt, report.decisionAt);
+                    
+                    return (
+                      <div
+                        key={report.id}
+                        style={{
+                          padding: "16px",
+                          background: "#f9fafb",
+                          borderRadius: "12px",
+                          border: "1px solid #e5e7eb",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = "#d1d5db";
+                          e.currentTarget.style.background = "#ffffff";
+                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "#e5e7eb";
+                          e.currentTarget.style.background = "#f9fafb";
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
+                      >
+                        {/* Relevance Badge */}
+                        <div style={{
+                          display: "inline-block",
+                          padding: "4px 12px",
+                          background: badgeStyle.bg,
+                          color: badgeStyle.text,
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          marginBottom: "12px",
+                        }}>
+                          {badgeStyle.emoji} {relevance.category === "recent" ? "Recent" : relevance.category === "relevant" ? "Relevant" : "Older Data"}
+                          {" "} ({getDataAgeLabel(relevance.ageInDays)})
+                        </div>
+
+                        {/* City & Process */}
+                        <div style={{ marginBottom: "12px" }}>
+                          <div style={{ fontSize: "13px", color: "#9ca3af", fontWeight: 600 }}>
+                            📍 {report.office.city}
+                          </div>
+                          <div style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", marginTop: "4px" }}>
+                            {report.processType.name}
+                          </div>
+                        </div>
+
+                        {/* Status & Waiting Time */}
+                        <div style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "12px",
+                          paddingTop: "12px",
+                          borderTop: "1px solid #e5e7eb",
+                        }}>
+                          <div>
+                            <div style={{ fontSize: "12px", color: "#9ca3af", fontWeight: 600 }}>
+                              Status
+                            </div>
+                            <div style={{
+                              fontSize: "14px",
+                              fontWeight: 700,
+                              marginTop: "4px",
+                              color: report.status === "approved" ? "#10b981" : report.status === "rejected" ? "#ef4444" : "#f59e0b",
+                            }}>
+                              {report.status === "approved" ? "✅ Approved" : report.status === "rejected" ? "❌ Rejected" : "⏳ Pending"}
+                            </div>
+                          </div>
+                          {waitTime !== null && (
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontSize: "12px", color: "#9ca3af", fontWeight: 600 }}>
+                                Processing Time
+                              </div>
+                              <div style={{ fontSize: "18px", fontWeight: 800, color: "#667eea", marginTop: "4px" }}>
+                                {waitTime}d
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Relevance Weight Indicator */}
+                        <div style={{
+                          fontSize: "11px",
+                          color: "#9ca3af",
+                          paddingTop: "12px",
+                          borderTop: "1px solid #e5e7eb",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}>
+                          <span>Data Weight: </span>
+                          <div style={{
+                            width: "60px",
+                            height: "4px",
+                            background: "#e5e7eb",
+                            borderRadius: "2px",
+                            overflow: "hidden",
+                          }}>
+                            <div style={{
+                              width: `${relevance.weight * 100}%`,
+                              height: "100%",
+                              background: relevance.weight >= 0.9 ? "#10b981" : relevance.weight >= 0.6 ? "#f59e0b" : "#ef4444",
+                              transition: "width 0.3s",
+                            }} />
+                          </div>
+                          <span style={{ fontWeight: 700 }}>
+                            {Math.round(relevance.weight * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           </>
