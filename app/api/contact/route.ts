@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { PrismaClient } from "@prisma/client";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting: 5 submissions per IP per hour
+    const clientIp = getClientIp(request);
+    const rateLimitResult = rateLimit(clientIp, 5, 3600000); // 5 requests per hour
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const { name, email, subject, message } = await request.json();
 
     // Validate inputs

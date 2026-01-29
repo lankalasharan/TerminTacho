@@ -248,6 +248,26 @@ export default function MenuBar() {
             </Link>
 
             <Link
+              href="/blog"
+              onClick={() => setIsOpen(false)}
+              className="menu-link"
+              style={{
+                padding: "12px 16px",
+                fontSize: "16px",
+                fontWeight: 600,
+                color: "#1a1a1a",
+                textDecoration: "none",
+                borderRadius: "8px",
+                transition: "background 0.2s",
+                display: "block",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              📝 Blog
+            </Link>
+
+            <Link
               href="/leaderboard"
               onClick={() => setIsOpen(false)}
               style={{
