@@ -1,10 +1,6 @@
-import Link from "next/link";
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Blog - German Bureaucracy Tips & Guides",
-  description: "Expert guides, tips, and updates about navigating German bureaucracy, visa applications, and residence permits.",
-};
+import Link from "next/link";
 
 // This will be replaced with database/CMS content later
 const blogPosts = [
