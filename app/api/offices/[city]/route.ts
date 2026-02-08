@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { calculateWeightedAverage, getReportWeight } from "@/lib/relevance";
 
 export async function GET(
   request: Request,
@@ -24,13 +25,40 @@ export async function GET(
     // Get all reports for this office
     const reports = await prisma.report.findMany({
       where: { officeId: office.id },
-      include: { processType: true },
+      select: {
+        id: true,
+        officeId: true,
+        processTypeId: true,
+        method: true,
+        submittedAt: true,
+        decisionAt: true,
+        status: true,
+        createdAt: true,
+        isOfficial: true,
+        processType: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 
     // Get all reviews
     const reviews = await prisma.review.findMany({
       where: { officeId: office.id },
+      select: {
+        id: true,
+        officeId: true,
+        overallRating: true,
+        serviceRating: true,
+        staffRating: true,
+        speedRating: true,
+        title: true,
+        content: true,
+        createdAt: true,
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -42,11 +70,17 @@ export async function GET(
 
     // Calculate average processing time
     const completedReports = reports.filter(r => r.decisionAt);
-    const avgProcessingDays = completedReports.length > 0
-      ? completedReports.reduce((sum, r) => {
-          const days = Math.floor((r.decisionAt!.getTime() - r.submittedAt.getTime()) / (1000 * 60 * 60 * 24));
-          return sum + days;
-        }, 0) / completedReports.length
+    const completedDays: number[] = [];
+    const completedWeights: number[] = [];
+    completedReports.forEach(report => {
+      const days = Math.floor((report.decisionAt!.getTime() - report.submittedAt.getTime()) / (1000 * 60 * 60 * 24));
+      if (days >= 0) {
+        completedDays.push(days);
+        completedWeights.push(getReportWeight({ submittedAt: report.submittedAt, isOfficial: report.isOfficial }));
+      }
+    });
+    const avgProcessingDays = completedDays.length > 0
+      ? calculateWeightedAverage(completedDays, completedWeights)
       : 0;
 
     // Calculate average ratings
@@ -54,30 +88,30 @@ export async function GET(
       ? reviews.reduce((sum, r) => sum + r.overallRating, 0) / reviews.length
       : 0;
 
-    // Group by process type
-    const byProcess = reports.reduce((acc, report) => {
+    const processGroups = reports.reduce((acc, report) => {
       const processName = report.processType.name;
-      if (!acc[processName]) {
-        acc[processName] = {
-          count: 0,
-          totalDays: 0,
-          completed: 0,
-        };
-      }
-      acc[processName].count++;
-      if (report.decisionAt) {
-        const days = Math.floor((report.decisionAt.getTime() - report.submittedAt.getTime()) / (1000 * 60 * 60 * 24));
-        acc[processName].totalDays += days;
-        acc[processName].completed++;
-      }
+      if (!acc[processName]) acc[processName] = [];
+      acc[processName].push(report);
       return acc;
-    }, {} as Record<string, { count: number; totalDays: number; completed: number }>);
+    }, {} as Record<string, typeof reports>);
 
-    const processStats = Object.entries(byProcess).map(([name, stats]) => ({
-      name,
-      count: stats.count,
-      avgDays: stats.completed > 0 ? Math.round(stats.totalDays / stats.completed) : null,
-    }));
+    const processStats = Object.entries(processGroups).map(([name, group]) => {
+      const completed = group.filter(r => r.decisionAt);
+      const days: number[] = [];
+      const weights: number[] = [];
+      completed.forEach(report => {
+        const diff = Math.floor((report.decisionAt!.getTime() - report.submittedAt.getTime()) / (1000 * 60 * 60 * 24));
+        if (diff >= 0) {
+          days.push(diff);
+          weights.push(getReportWeight({ submittedAt: report.submittedAt, isOfficial: report.isOfficial }));
+        }
+      });
+      return {
+        name,
+        count: group.length,
+        avgDays: days.length > 0 ? calculateWeightedAverage(days, weights) : null,
+      };
+    });
 
     return NextResponse.json({
       office: {

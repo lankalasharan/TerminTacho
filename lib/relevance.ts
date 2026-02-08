@@ -10,6 +10,8 @@ export interface RelevanceScore {
   daysAgo: number;
 }
 
+export const OFFICIAL_BASELINE_WEIGHT = 0.7;
+
 /**
  * Calculate relevance weight based on data age
  * - Data < 6 months old: weight = 1.0 (most relevant)
@@ -55,6 +57,14 @@ export function calculateRelevanceWeight(
     category,
     daysAgo: ageInDays,
   };
+}
+
+export function getReportWeight(
+  report: { submittedAt: Date | string; isOfficial?: boolean },
+  officialWeight: number = OFFICIAL_BASELINE_WEIGHT
+): number {
+  if (report.isOfficial) return officialWeight;
+  return calculateRelevanceWeight(report.submittedAt).weight;
 }
 
 /**

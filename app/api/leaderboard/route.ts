@@ -17,12 +17,10 @@ export async function GET() {
     const contributors = await prisma.$queryRaw`
       SELECT 
         u.id,
-        u.email,
         COUNT(r.id) as "reportsCount"
       FROM "User" u
       LEFT JOIN "Report" r ON u.id = r."userId"
-      WHERE u.email IS NOT NULL
-      GROUP BY u.id, u.email
+      GROUP BY u.id
       HAVING COUNT(r.id) > 0
       ORDER BY COUNT(r.id) DESC
       LIMIT 100
@@ -32,7 +30,6 @@ export async function GET() {
     // (means Report table doesn't have userId field yet)
     const formattedContributors = (contributors as any[]).map((c, index) => ({
       id: c.id,
-      email: c.email,
       reportsCount: parseInt(c.reportsCount) || 0,
       rank: index + 1,
     }));

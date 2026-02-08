@@ -2,12 +2,20 @@ import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
+import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { sendVerificationRequest } from "../sendVerificationRequest";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
+    EmailProvider({
+      server: "", // Not used, but required by type
+      from: "noreply@termintacho.de",
+      maxAge: 24 * 60 * 60,
+      sendVerificationRequest,
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "dummy-client-id",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "dummy-secret",

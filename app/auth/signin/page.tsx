@@ -2,8 +2,12 @@
 
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function SignIn() {
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -49,7 +53,7 @@ export default function SignIn() {
           Sign in to share your timeline or view detailed insights
         </p>
 
-        {/* Social Sign In */}
+        {/* Social & Email Sign In */}
         <div style={{
           display: "flex",
           flexDirection: "column",
@@ -121,6 +125,69 @@ export default function SignIn() {
             </svg>
             Continue with Facebook
           </button>
+
+          <div style={{ display: "grid", gap: "10px" }}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError(null);
+              }}
+              placeholder="you@example.com"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "2px solid #e5e7eb",
+                borderRadius: "8px",
+                fontSize: "14px",
+                outline: "none",
+              }}
+            />
+            {emailError ? (
+              <div style={{ color: "#ef4444", fontSize: "12px", fontWeight: 600 }}>
+                {emailError}
+              </div>
+            ) : null}
+            <button
+              onClick={() => {
+                if (!email.trim()) {
+                  setEmailError("Please enter your email address.");
+                  return;
+                }
+                signIn("resend", { email: email.trim(), callbackUrl: "/" });
+              }}
+              style={{
+                width: "100%",
+                padding: "14px",
+                border: "2px solid #e5e7eb",
+                borderRadius: "8px",
+                background: "white",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#667eea";
+                e.currentTarget.style.background = "#f9fafb";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.background = "white";
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" fill="#667eea" />
+                <text x="12" y="16" textAnchor="middle" fontSize="12" fill="white">@</text>
+              </svg>
+              Sign in with Email
+            </button>
+          </div>
         </div>
 
         <p style={{

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DataAccessGate from "../components/DataAccessGate";
 
 type Contributor = {
   id: string;
@@ -31,7 +32,8 @@ export default function LeaderboardPage() {
   const medals = ["🥇", "🥈", "🥉"];
 
   return (
-    <>
+    <DataAccessGate>
+      <>
       <div style={{
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         color: "white",
@@ -192,6 +194,7 @@ export default function LeaderboardPage() {
           </a>
         </div>
       </main>
-    </>
+      </>
+    </DataAccessGate>
   );
 }

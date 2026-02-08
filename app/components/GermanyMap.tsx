@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import Link from "next/link";
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(
@@ -22,7 +24,7 @@ const Popup = dynamic(
   { ssr: false }
 );
 
-// City coordinates
+// City coordinates (seed list) + dynamic geocoding fallback for new cities
 const cityCoordinates: { [key: string]: { lat: number; lng: number } } = {
   "Berlin": { lat: 52.52, lng: 13.405 },
   "Hamburg": { lat: 53.5511, lng: 9.9937 },
@@ -58,10 +60,52 @@ interface CityStats {
   lng: number;
 }
 
+type CoordCache = Record<string, { lat: number; lng: number }>;
+
+function MapInstanceTracker({ onReady }: { onReady: (map: any) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    onReady(map);
+  }, [map, onReady]);
+  return null;
+}
+
+function loadCoordCache(): CoordCache {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem("tt_city_coords_v1");
+    return raw ? (JSON.parse(raw) as CoordCache) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCoordCache(cache: CoordCache) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem("tt_city_coords_v1", JSON.stringify(cache));
+  } catch {
+    // ignore quota errors
+  }
+}
+
+async function geocodeCity(city: string): Promise<{ lat: number; lng: number } | null> {
+  const query = encodeURIComponent(`${city}, Germany`);
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${query}`;
+  const res = await fetch(url, { headers: { "Accept": "application/json" } });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const first = Array.isArray(data) ? data[0] : null;
+  if (!first?.lat || !first?.lon) return null;
+  return { lat: parseFloat(first.lat), lng: parseFloat(first.lon) };
+}
+
 export default function GermanyMap() {
   const [isMounted, setIsMounted] = useState(false);
   const [cityStats, setCityStats] = useState<CityStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mapQuery, setMapQuery] = useState("");
+  const [mapInstance, setMapInstance] = useState<any>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -104,10 +148,43 @@ export default function GermanyMap() {
           }
         });
 
-        // Convert to array with coordinates - INCLUDE ALL CITIES FROM COORDINATES
-        const stats: CityStats[] = Object.entries(cityCoordinates)
-          .map(([city, coords]) => {
+        // Build city list from reports + seed coordinates
+        const citySet = new Set<string>([
+          ...Object.keys(cityCoordinates),
+          ...Object.keys(statsMap),
+        ]);
+
+        const coordCache = loadCoordCache();
+        const coordsMap: CoordCache = {
+          ...cityCoordinates,
+          ...coordCache,
+        };
+
+        const missingCities = Array.from(citySet).filter((city) => !coordsMap[city]);
+
+        if (missingCities.length > 0) {
+          const results = await Promise.all(
+            missingCities.map(async (city) => ({
+              city,
+              coords: await geocodeCity(city),
+            }))
+          );
+
+          results.forEach(({ city, coords }) => {
+            if (coords) {
+              coordsMap[city] = coords;
+              coordCache[city] = coords;
+            }
+          });
+
+          saveCoordCache(coordCache);
+        }
+
+        const stats: CityStats[] = Array.from(citySet)
+          .map((city) => {
             const data = statsMap[city];
+            const coords = coordsMap[city];
+            if (!coords) return null;
             return {
               city,
               count: data?.count || 0,
@@ -115,7 +192,8 @@ export default function GermanyMap() {
               lat: coords.lat,
               lng: coords.lng,
             };
-          });
+          })
+          .filter((item): item is CityStats => Boolean(item));
 
         setCityStats(stats);
         setLoading(false);
@@ -162,13 +240,185 @@ export default function GermanyMap() {
     );
   }
 
+  const normalizedQuery = mapQuery.trim().toLowerCase();
+  const matches = normalizedQuery
+    ? cityStats.filter((stat) => stat.city.toLowerCase().includes(normalizedQuery))
+    : [];
+
+  const handleMapSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mapInstance || matches.length === 0) return;
+    const target = matches[0];
+    mapInstance.flyTo([target.lat, target.lng], 10, { duration: 0.6 });
+  };
+
   return (
     <div style={{ position: "relative", zIndex: 0 }}>
+      <style>{`
+        .map-toolbar {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          right: 16px;
+          z-index: 500;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          pointer-events: auto;
+        }
+        .map-search-form {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 8px 10px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+        .map-search-icon {
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .map-search-input {
+          border: none;
+          outline: none;
+          flex: 1;
+          font-size: 14px;
+          padding: 6px 4px;
+          font-family: inherit;
+          color: #111827;
+        }
+        .map-search-button {
+          background: #111827;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12px;
+          font-weight: 700;
+          min-height: 36px;
+        }
+        .map-toolbar-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .map-toolbar-link {
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 999px;
+          padding: 6px 12px;
+          font-size: 12px;
+          font-weight: 700;
+          text-decoration: none;
+          color: #111827;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+        .map-search-results {
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 6px;
+          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+          max-height: 220px;
+          overflow: auto;
+        }
+        .map-search-result {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 10px;
+          border-radius: 8px;
+          text-decoration: none;
+          color: #111827;
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .map-search-result:hover {
+          background: #f3f4f6;
+        }
+        .map-search-meta {
+          color: #6b7280;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        .map-search-empty {
+          padding: 10px 12px;
+          font-size: 12px;
+          color: #6b7280;
+        }
+        @media (max-width: 768px) {
+          .map-toolbar {
+            top: 12px;
+            left: 12px;
+            right: 12px;
+          }
+          .map-search-form {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .map-search-button {
+            width: 100%;
+          }
+        }
+      `}</style>
+
+      <div className="map-toolbar">
+        <form onSubmit={handleMapSearch} className="map-search-form">
+          <span className="map-search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </span>
+          <input
+            type="text"
+            value={mapQuery}
+            onChange={(e) => setMapQuery(e.target.value)}
+            placeholder="Search a city"
+            className="map-search-input"
+            aria-label="Search cities on map"
+          />
+          <button type="submit" className="map-search-button">
+            Find
+          </button>
+        </form>
+        <div className="map-toolbar-actions">
+          <Link href="/offices" className="map-toolbar-link">
+            Browse Offices
+          </Link>
+          <Link href="/submit" className="map-toolbar-link">
+            Submit Timeline
+          </Link>
+        </div>
+        {normalizedQuery && (
+          <div className="map-search-results" role="listbox">
+            {matches.length > 0 ? (
+              matches.slice(0, 6).map((stat) => (
+                <Link
+                  key={stat.city}
+                  href={`/offices/${encodeURIComponent(stat.city)}`}
+                  className="map-search-result"
+                >
+                  <span>{stat.city}</span>
+                  <span className="map-search-meta">{stat.count} reports</span>
+                </Link>
+              ))
+            ) : (
+              <div className="map-search-empty">No matching cities found.</div>
+            )}
+          </div>
+        )}
+      </div>
       <MapContainer
         center={[51.1657, 10.4515]} // Center of Germany
         zoom={6}
         style={{ height: "600px", width: "100%", borderRadius: "12px" }}
       >
+        <MapInstanceTracker onReady={setMapInstance} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -202,7 +452,7 @@ export default function GermanyMap() {
                       No reports yet. Be the first to submit! 📝
                     </div>
                   )}
-                  <a 
+                  <Link
                     href={`/offices/${encodeURIComponent(stat.city)}`}
                     style={{
                       display: "inline-block",
@@ -217,7 +467,7 @@ export default function GermanyMap() {
                     }}
                   >
                     View Details →
-                  </a>
+                  </Link>
                 </div>
               </div>
             </Popup>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import DataAccessGate from "../../components/DataAccessGate";
+import TurnstileWidget from "../../components/Turnstile";
 
 interface OfficeData {
   office: {
@@ -38,6 +40,10 @@ export default function OfficePage() {
   const [data, setData] = useState<OfficeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewMsg, setReviewMsg] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
   const [reviewForm, setReviewForm] = useState({
     overallRating: 5,
     serviceRating: 5,
@@ -60,6 +66,15 @@ export default function OfficePage() {
     e.preventDefault();
     if (!data) return;
 
+    setReviewMsg(null);
+    setCaptchaError(null);
+
+    if (siteKey && !turnstileToken) {
+      setReviewMsg("❌ Please complete the CAPTCHA.");
+      setCaptchaError("Please complete the CAPTCHA.");
+      return;
+    }
+
     try {
       const response = await fetch("/api/reviews", {
         method: "POST",
@@ -67,8 +82,23 @@ export default function OfficePage() {
         body: JSON.stringify({
           officeId: data.office.id,
           ...reviewForm,
+          turnstileToken,
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const detail = Array.isArray(errorData?.details)
+          ? errorData.details.map((d: any) => d.message).join(" ")
+          : "";
+        const reasons = Array.isArray(errorData?.reasons)
+          ? errorData.reasons.join(" ")
+          : "";
+        setReviewMsg(
+          `❌ ${errorData?.error || "Failed to submit review"}${detail ? ` — ${detail}` : ""}${reasons ? ` — ${reasons}` : ""}`
+        );
+        return;
+      }
 
       if (response.ok) {
         setShowReviewForm(false);
@@ -81,12 +111,15 @@ export default function OfficePage() {
           content: "",
           processType: "",
         });
+        setTurnstileToken("");
+        setReviewMsg("✅ Review submitted successfully!");
         // Refresh data
         const newData = await fetch(`/api/offices/${city}`).then(r => r.json());
         setData(newData);
       }
     } catch (error) {
       console.error("Error submitting review:", error);
+      setReviewMsg("❌ Failed to submit review. Please try again.");
     }
   };
 
@@ -114,7 +147,8 @@ export default function OfficePage() {
   };
 
   return (
-    <>
+    <DataAccessGate>
+      <>
       {/* Hero Section */}
       <div style={{
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -133,6 +167,25 @@ export default function OfficePage() {
           <p style={{ fontSize: "20px", opacity: 0.95, marginBottom: "24px" }}>
             {data.office.name}
           </p>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <Link
+              href="/submit"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 18px",
+                borderRadius: "10px",
+                background: "white",
+                color: "#4f46e5",
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+              }}
+            >
+              ➕ Submit Timeline
+            </Link>
+          </div>
 
           {/* Quick Stats */}
           <div style={{
@@ -257,6 +310,19 @@ export default function OfficePage() {
               borderRadius: "12px",
               marginBottom: "24px",
             }}>
+              {reviewMsg && (
+                <div style={{
+                  marginBottom: "16px",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: reviewMsg.startsWith("✅") ? "#d1fae5" : "#fee2e2",
+                  border: `1px solid ${reviewMsg.startsWith("✅") ? "#a7f3d0" : "#fecaca"}`,
+                  fontSize: "13px",
+                  fontWeight: 600,
+                }}>
+                  {reviewMsg}
+                </div>
+              )}
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontWeight: 600 }}>Overall Rating *</label>
                 <select
@@ -324,6 +390,22 @@ export default function OfficePage() {
                   required
                 />
               </div>
+
+              {siteKey && (
+                <div style={{ marginBottom: "16px" }}>
+                  <TurnstileWidget
+                    siteKey={siteKey}
+                    onVerify={setTurnstileToken}
+                    onExpire={() => setCaptchaError("CAPTCHA expired. Please try again.")}
+                    onError={() => setCaptchaError("CAPTCHA failed. Please try again.")}
+                  />
+                  {captchaError && (
+                    <div style={{ marginTop: "8px", fontSize: "12px", color: "#991b1b" }}>
+                      {captchaError}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div style={{ display: "flex", gap: "12px" }}>
                 <button
@@ -446,6 +528,11 @@ export default function OfficePage() {
                     <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "8px" }}>
                       Submitted {new Date(report.submittedAt).toLocaleDateString()}
                     </div>
+                    {report.notes && (
+                      <div style={{ marginTop: "10px", fontSize: "13px", color: "#374151" }}>
+                        💬 {report.notes}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -453,6 +540,7 @@ export default function OfficePage() {
           )}
         </div>
       </main>
-    </>
+      </>
+    </DataAccessGate>
   );
 }

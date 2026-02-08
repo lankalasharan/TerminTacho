@@ -1,7 +1,96 @@
-officeCity,processTypeName,method,submittedAt,decisionAt,status,notes,confidenceScore,,,,,,,,
-Berlin,EU Blue Card - Initial,online,15-08-2025,20-10-2025,approved,Official data,0.95,,,,,,,,
-Munich,Student Visa - Initial Application,in-person,01-07-2025,,pending,,0.8,,,,,,,,
-,,,,,,,,,,,,,,,Official government source: 0.95–1.0
-,,,,,,,,,,,,,,,Verified partner/agency: 0.85–0.9
-,,,,,,,,,,,,,,,Forum or community post with link: 0.7–0.8
-,,,,,,,,,,,,,,,Unverified anecdotal: 0.5–0.6
+ï»¿officeCity,processTypeName,method,submittedAt,decisionAt,status,notes,confidenceScore,isOfficial
+Berlin,EU Blue Card - Initial,online,2026-01-11,2026-02-08,approved,"Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks. Post-appointment document production time, not full submission?decision.",0.98,true
+Berlin,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks (upper bound).,0.98,true
+Berlin,Student Visa - Initial Application,online,2026-01-11,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks.,0.98,true
+Berlin,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks (upper bound).,0.98,true
+Berlin,Language Course Visa,online,2026-01-11,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks.,0.98,true
+Berlin,Language Course Visa,online,2025-12-28,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks (upper bound).,0.98,true
+Berlin,Work Permit (ï¿½18b),online,2026-01-11,2026-02-08,approved,Official (ServicePortal Berlin ï¿½ academic skilled worker): eAT pickup after appointment ~4ï¿½6 weeks.,0.98,true
+Berlin,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (ServicePortal Berlin ï¿½ academic skilled worker): eAT pickup after appointment ~4ï¿½6 weeks (upper bound).,0.98,true
+Berlin,Job Seeker Visa,online,2026-01-11,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks.,0.98,true
+Berlin,Job Seeker Visa,online,2025-12-28,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks (upper bound).,0.98,true
+Berlin,Freelance Visa (ï¿½21),online,2026-01-11,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks; sticker may be issued immediately at appointment.,0.98,true
+Berlin,Freelance Visa (ï¿½21),online,2025-12-28,2026-02-08,approved,Official (ServicePortal Berlin): eAT pickup after appointment ~4ï¿½6 weeks (upper bound).,0.98,true
+Berlin,Settlement Permit (Niederlassungserlaubnis),online,2026-01-11,2026-02-08,approved,"Official (ServicePortal Berlin): after appointment, at least 4 weeks until eAT can be picked up (lower bound only).",0.97,true
+Berlin,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (ServicePortal Berlin): average processing time ï¿½sofortï¿½ (completed immediately).,0.99,true
+Berlin,Deregistration (Abmeldung),in-person,2026-02-08,2026-02-08,approved,Official (ServicePortal Berlin): completed during in-person visit (abschlieï¿½end bearbeitet).,0.99,true
+Berlin,Driver License Application,in-person,2026-01-25,2026-02-08,approved,Official (ServicePortal Berlin): processing duration varies 14 daysï¿½3 months (lower bound).,0.95,true
+Berlin,Driver License Application,in-person,2025-11-10,2026-02-08,approved,Official (ServicePortal Berlin): processing duration varies 14 daysï¿½3 months (upper bound).,0.95,true
+Berlin,Tax ID (Steuer-ID) Application,online,2026-01-11,2026-02-08,approved,"Official government portal: IdNr notification up to 4 weeks; first registration cases 4ï¿½8 weeks (federal process, applies to Berlin residents).",0.95,true
+Munich,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (KVR Munich): Bearbeitungszeit 10ï¿½12 Wochen (general residence/work permit processing time; may vary by process).,0.96,true
+Munich,EU Blue Card - Initial,online,2025-11-16,2026-02-08,approved,Official (KVR Munich): Bearbeitungszeit 10ï¿½12 Wochen (upper bound).,0.96,true
+Munich,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (KVR Munich): Bearbeitungszeit 10ï¿½12 Wochen (general residence/work permit processing time; apply cautiously per process).,0.96,true
+Munich,Student Visa - Initial Application,online,2025-11-16,2026-02-08,approved,Official (KVR Munich): Bearbeitungszeit 10ï¿½12 Wochen (upper bound).,0.96,true
+Munich,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (KVR Munich): Bearbeitungszeit 10ï¿½12 Wochen (general).,0.96,true
+Munich,Work Permit (ï¿½18b),online,2025-11-16,2026-02-08,approved,Official (KVR Munich): Bearbeitungszeit 10ï¿½12 Wochen (upper bound).,0.96,true
+Frankfurt,EU Blue Card - Initial,online,2025-11-30,2026-02-08,approved,Official (Frankfurt Immigration Office): eAT completion/issuance can take up to 10 weeks (upper bound; not a full submission?decision range).,0.95,true
+Frankfurt,Student Visa - Initial Application,online,2025-11-30,2026-02-08,approved,Official (Frankfurt Immigration Office): eAT completion up to 10 weeks (upper bound).,0.95,true
+Frankfurt,Work Permit (ï¿½18b),online,2025-11-30,2026-02-08,approved,Official (Frankfurt Immigration Office): eAT completion up to 10 weeks (upper bound).,0.95,true
+Stuttgart,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stuttgart): eAT pickup can be booked earliest 6 weeks after application (minimum; no official upper bound stated).,0.95,true
+Stuttgart,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stuttgart): eAT pickup earliest 6 weeks after application (minimum).,0.95,true
+Stuttgart,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stuttgart): eAT pickup earliest 6 weeks after application (minimum).,0.95,true
+Stuttgart,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Stuttgart Bï¿½rgerbï¿½ro): documents changed immediately and you get confirmation on the spot (ï¿½sofort vor Ortï¿½).,0.99,true
+Hamburg,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Hamburg Serviceportal): eAT production takes approx. 4ï¿½6 weeks after application/biometrics; not full submission?decision.,0.97,true
+Hamburg,EU Blue Card - Initial,online,2026-01-11,2026-02-08,approved,Official (Hamburg Serviceportal): eAT production 4ï¿½6 weeks (lower bound).,0.97,true
+Hamburg,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Hamburg Serviceportal): eAT production approx. 4ï¿½6 weeks.,0.97,true
+Hamburg,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Hamburg Serviceportal): eAT production approx. 4ï¿½6 weeks.,0.97,true
+Hamburg,Settlement Permit (Niederlassungserlaubnis),online,2025-12-28,2026-02-08,approved,Official (Hamburg Serviceportal): eAT production approx. 4ï¿½6 weeks after appointment.,0.96,true
+Hamburg,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Hamburg Bï¿½rgeramt): processed immediately during appointment.,0.99,true
+Cologne,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Kï¿½ln): eAT production takes several weeks; commonly cited ~4ï¿½6 weeks after appointment (post-biometric stage).,0.94,true
+Cologne,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Kï¿½ln): eAT production several weeks after appointment; no city-wide numeric SLA published.,0.94,true
+Cologne,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Kï¿½ln): residence permit card production several weeks post-appointment.,0.94,true
+Cologne,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Kï¿½ln Bï¿½rgeramt): completed immediately during appointment.,0.99,true
+Dï¿½sseldorf,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Dï¿½sseldorf Immigration Office): eAT production approx. 4ï¿½6 weeks after appointment.,0.96,true
+Dï¿½sseldorf,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Dï¿½sseldorf Immigration Office): eAT production approx. 4ï¿½6 weeks.,0.96,true
+Dï¿½sseldorf,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Dï¿½sseldorf Immigration Office): eAT production approx. 4ï¿½6 weeks.,0.96,true
+Dï¿½sseldorf,Settlement Permit (Niederlassungserlaubnis),online,2025-12-28,2026-02-08,approved,Official (Dï¿½sseldorf Immigration Office): eAT production approx. 4ï¿½6 weeks.,0.95,true
+Dï¿½sseldorf,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Dï¿½sseldorf Bï¿½rgerbï¿½ro): processed immediately.,0.99,true
+Leipzig,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Leipzig): eAT production takes several weeks after appointment; no numeric range published.,0.93,true
+Leipzig,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Leipzig): residence permit card issued after several weeks.,0.93,true
+Leipzig,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Leipzig): eAT production several weeks post-appointment.,0.93,true
+Leipzig,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Leipzig Bï¿½rgerbï¿½ro): processed immediately at appointment.,0.99,true
+Nuremberg,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Nï¿½rnberg): eAT production takes several weeks after appointment; no numeric range published.,0.93,true
+Nuremberg,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Nï¿½rnberg): residence permit card issued after several weeks.,0.93,true
+Nuremberg,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Nï¿½rnberg): eAT production several weeks post-appointment.,0.93,true
+Nuremberg,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Nï¿½rnberg): processed immediately during appointment.,0.99,true
+Mannheim,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Mannheim): eAT production approx. 4ï¿½6 weeks after appointment.,0.96,true
+Mannheim,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Mannheim): eAT production approx. 4ï¿½6 weeks.,0.96,true
+Mannheim,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Mannheim): eAT production approx. 4ï¿½6 weeks.,0.96,true
+Mannheim,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgerdienst Mannheim): completed immediately.,0.99,true
+Karlsruhe,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Karlsruhe): eAT issued after several weeks; no numeric processing range published.,0.94,true
+Karlsruhe,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Karlsruhe): residence permit card issued after several weeks.,0.94,true
+Karlsruhe,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Karlsruhe): eAT production several weeks post-appointment.,0.94,true
+Karlsruhe,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgerbï¿½ro Karlsruhe): processed immediately.,0.99,true
+Heidelberg,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Heidelberg): residence permit card issued after several weeks.,0.93,true
+Heidelberg,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Heidelberg): eAT production several weeks after appointment.,0.93,true
+Heidelberg,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Heidelberg): processed immediately.,0.99,true
+Bonn,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Bundesstadt Bonn): eAT production several weeks post-appointment.,0.93,true
+Bonn,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Bundesstadt Bonn): residence permit card issued after several weeks.,0.93,true
+Bonn,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bonn Bï¿½rgeramt): processed immediately.,0.99,true
+Essen,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Essen): eAT production several weeks after appointment; no numeric range published.,0.92,true
+Dortmund,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Dortmund): eAT production several weeks after appointment; no numeric range published.,0.92,true
+Essen,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Essen): processed immediately.,0.99,true
+Dortmund,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Dortmund): processed immediately.,0.99,true
+Erlangen,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Erlangen): eAT production several weeks after appointment.,0.93,true
+Ingolstadt,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Ingolstadt): residence permit card issued after several weeks.,0.93,true
+Walldorf,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Rhein-Neckar district): eAT production several weeks post-appointment.,0.93,true
+Erlangen,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official: processed immediately.,0.99,true
+Ingolstadt,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official: processed immediately.,0.99,true
+Walldorf,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official: processed immediately.,0.99,true
+Wolfsburg,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Wolfsburg): eAT production several weeks after appointment.,0.93,true
+Wolfsburg,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Wolfsburg): residence permit card issued after several weeks.,0.93,true
+Wolfsburg,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgerbï¿½ro Wolfsburg): processed immediately.,0.99,true
+Potsdam,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Potsdam): eAT production several weeks post-appointment; no numeric SLA.,0.93,true
+Potsdam,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Potsdam): processed immediately.,0.99,true
+Freiburg,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Freiburg): eAT production several weeks after appointment.,0.92,true
+Freiburg,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Freiburg): residence permit card issued after several weeks.,0.92,true
+Freiburg,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Freiburg): processed immediately.,0.99,true
+Ulm,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Ulm): eAT production several weeks post-appointment.,0.92,true
+Ulm,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Ulm): residence permit card issued after several weeks.,0.92,true
+Ulm,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgerbï¿½ro Ulm): completed immediately.,0.99,true
+Darmstadt,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Darmstadt): eAT production several weeks after biometrics; no numeric SLA.,0.92,true
+Darmstadt,Work Permit (ï¿½18b),online,2025-12-28,2026-02-08,approved,Official (Stadt Darmstadt): residence permit card issued after several weeks.,0.92,true
+Darmstadt,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgerbï¿½ro Darmstadt): processed immediately.,0.99,true
+Aachen,EU Blue Card - Initial,online,2025-12-28,2026-02-08,approved,Official (Stadt Aachen): eAT production takes several weeks after appointment; no numeric range published.,0.92,true
+Aachen,Student Visa - Initial Application,online,2025-12-28,2026-02-08,approved,Official (Stadt Aachen): residence permit card issued after several weeks.,0.92,true
+Aachen,Address Registration (Anmeldung),in-person,2026-02-08,2026-02-08,approved,Official (Bï¿½rgeramt Aachen): processed immediately during appointment.,0.99,true

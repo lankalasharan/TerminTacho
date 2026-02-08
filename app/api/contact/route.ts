@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { PrismaClient } from "@prisma/client";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const prisma = new PrismaClient();
@@ -19,7 +20,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, subject, message } = await request.json();
+    const { name, email, subject, message, turnstileToken } = await request.json();
+
+    const captchaCheck = await verifyTurnstileToken(turnstileToken, clientIp);
+    if (!captchaCheck.success) {
+      return NextResponse.json(
+        { error: "CAPTCHA verification failed" },
+        { status: 403 }
+      );
+    }
 
     // Validate inputs
     if (!name || !email || !subject || !message) {

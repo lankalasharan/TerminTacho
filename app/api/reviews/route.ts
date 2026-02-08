@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { canSubmitReview } from "@/lib/antifraud";
+import { validateReview } from "@/lib/dataValidation";
+import { checkTextSimilarity, detectSpamPatterns } from "@/lib/textSimilarity";
+import { getClientIp, trackIpAddress } from "@/lib/ipTracking";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function GET(request: Request) {
   try {
@@ -56,7 +63,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
+    const ipAddress = getClientIp(request);
     const {
       officeId,
       overallRating,
@@ -66,7 +75,16 @@ export async function POST(request: Request) {
       title,
       content,
       processType,
+      turnstileToken,
     } = body;
+
+    const captchaCheck = await verifyTurnstileToken(turnstileToken, ipAddress);
+    if (!captchaCheck.success) {
+      return NextResponse.json(
+        { error: "CAPTCHA verification failed" },
+        { status: 403 }
+      );
+    }
 
     if (!officeId || !overallRating || !content) {
       return NextResponse.json(
@@ -75,11 +93,77 @@ export async function POST(request: Request) {
       );
     }
 
-    if (overallRating < 1 || overallRating > 5) {
+    // Validate review data
+    const validationErrors = validateReview({
+      overallRating,
+      serviceRating,
+      staffRating,
+      speedRating,
+      title,
+      content,
+    });
+
+    if (validationErrors.length > 0) {
       return NextResponse.json(
-        { error: "Ratings must be between 1 and 5" },
+        { error: "Validation failed", details: validationErrors },
         { status: 400 }
       );
+    }
+
+    // Check for spam patterns
+    const spamPatterns = detectSpamPatterns(content);
+    if (spamPatterns.isSpam) {
+      return NextResponse.json(
+        { error: "Review appears to contain spam", reasons: spamPatterns.reasons },
+        { status: 400 }
+      );
+    }
+
+    // Check for similar reviews (copy-paste detection)
+    const existingReviews = await prisma.review.findMany({
+      where: { officeId },
+      select: { content: true },
+    });
+
+    const existingTexts = existingReviews.map((r) => r.content);
+    const similarityCheck = await checkTextSimilarity(content, existingTexts, 0.85);
+
+    if (similarityCheck.isSimilar) {
+      return NextResponse.json(
+        {
+          error: "Your review is too similar to an existing review. Please write original content.",
+          similarity: Math.round(similarityCheck.similarity * 100),
+        },
+        { status: 400 }
+      );
+    }
+
+    // Rate limiting: 1 review per day per user
+    let userId: string | undefined;
+    let userEmail: string | undefined;
+    if (session?.user?.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+
+      if (user) {
+        userId = user.id;
+        userEmail = session.user.email;
+
+        // Track IP address
+        if (ipAddress) {
+          await trackIpAddress(user.id, ipAddress);
+        }
+
+        const reviewCheck = await canSubmitReview(user.id);
+        if (!reviewCheck.allowed) {
+          return NextResponse.json(
+            { error: reviewCheck.message },
+            { status: 429 }
+          );
+        }
+      }
     }
 
     const review = await prisma.review.create({
@@ -92,6 +176,9 @@ export async function POST(request: Request) {
         title,
         content,
         processType,
+        userId,
+        userEmail,
+        ipAddress,
       },
     });
 

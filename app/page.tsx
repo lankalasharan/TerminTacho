@@ -9,13 +9,30 @@ import Link from "next/link";
 export default function Home() {
   const [showMap, setShowMap] = useState(false);
   const { data: session } = useSession();
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState({
+    cities: 0,
+    processes: 0,
+    reports: 0,
+    users: 0,
+  });
 
   useEffect(() => {
-    fetch("/api/activity?limit=5")
-      .then(res => res.json())
-      .then(data => setRecentActivity(data))
-      .catch(console.error);
+    async function loadMetrics() {
+      try {
+        const res = await fetch("/api/metrics");
+        const data = await res.json();
+        setMetrics({
+          cities: data.cities || 0,
+          processes: data.processes || 0,
+          reports: data.reports || 0,
+          users: data.users || 0,
+        });
+      } catch (error) {
+        console.error("Failed to load metrics:", error);
+      }
+    }
+
+    loadMetrics();
   }, []);
 
   return (
@@ -104,7 +121,18 @@ export default function Home() {
           e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
         }}
       >
-        � {showMap ? "Hide Map" : "Search in Map"}
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          style={{ display: "block" }}
+        >
+          <path d="M12 2.5c-3.31 0-6 2.63-6 5.88 0 4.41 5.02 11.07 5.24 11.35a.95.95 0 0 0 1.52 0c.22-.28 5.24-6.94 5.24-11.35C18 5.13 15.31 2.5 12 2.5zm0 8.46a2.58 2.58 0 1 1 0-5.16 2.58 2.58 0 0 1 0 5.16z" />
+          <path d="M3 21.5 10.2 18.5l3.8 1.6 7-3.2v-2l-7 3.2-3.8-1.6L3 19.5v2z" />
+        </svg>
+        {showMap ? "Hide Map" : "Search in Map"}
       </button>
 
       {/* Full Page Map Overlay */}
@@ -144,8 +172,12 @@ export default function Home() {
               alignItems: "center",
               marginBottom: "16px",
             }}>
-              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0 }}>
-                🗺️ Interactive City Map
+              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ display: "block" }}>
+                  <path d="M12 2.5c-3.31 0-6 2.63-6 5.88 0 4.41 5.02 11.07 5.24 11.35a.95.95 0 0 0 1.52 0c.22-.28 5.24-6.94 5.24-11.35C18 5.13 15.31 2.5 12 2.5zm0 8.46a2.58 2.58 0 1 1 0-5.16 2.58 2.58 0 0 1 0 5.16z" />
+                  <path d="M3 21.5 10.2 18.5l3.8 1.6 7-3.2v-2l-7 3.2-3.8-1.6L3 19.5v2z" />
+                </svg>
+                Interactive City Map
               </h2>
               <button
                 onClick={() => setShowMap(false)}
@@ -315,7 +347,7 @@ export default function Home() {
             border: "1px solid #f3f4f6",
           }}>
             <div style={{ fontSize: "48px", fontWeight: 800, color: "#667eea", marginBottom: "8px" }}>
-              74
+              {metrics.cities}
             </div>
             <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
               Cities Covered
@@ -331,7 +363,7 @@ export default function Home() {
             border: "1px solid #f3f4f6",
           }}>
             <div style={{ fontSize: "48px", fontWeight: 800, color: "#764ba2", marginBottom: "8px" }}>
-              47
+              {metrics.processes}
             </div>
             <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
               Process Types
@@ -347,10 +379,26 @@ export default function Home() {
             border: "1px solid #f3f4f6",
           }}>
             <div style={{ fontSize: "48px", fontWeight: 800, color: "#10b981", marginBottom: "8px" }}>
-              100%
+              {metrics.reports}
             </div>
             <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
-              Anonymous
+              Total Submissions
+            </div>
+          </div>
+
+          <div style={{
+            background: "white",
+            padding: "32px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            textAlign: "center",
+            border: "1px solid #f3f4f6",
+          }}>
+            <div style={{ fontSize: "48px", fontWeight: 800, color: "#0ea5e9", marginBottom: "8px" }}>
+              {metrics.users}
+            </div>
+            <div style={{ fontSize: "16px", color: "#6b7280", fontWeight: 600 }}>
+              Accounts
             </div>
           </div>
         </div>
@@ -433,119 +481,8 @@ export default function Home() {
               All Germany
             </h3>
             <p style={{ fontSize: "16px", lineHeight: 1.7, color: "#6b7280" }}>
-              Coverage across 74 German cities. From Berlin to Munich, Hamburg to Stuttgart. Find your local office.
+              Coverage across {metrics.cities} German cities. From Berlin to Munich, Hamburg to Stuttgart. Find your local office.
             </p>
-          </div>
-        </div>
-        {/* Recent Activity Feed */}
-        <div style={{ marginTop: "80px" }}>
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "32px",
-          }}>
-            <div>
-              <h2 style={{
-                fontSize: "36px",
-                fontWeight: 800,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}>
-                🔔 Recent Activity
-              </h2>
-              <p style={{ fontSize: "16px", color: "#6b7280" }}>
-                Latest reports and reviews from the community
-              </p>
-            </div>
-            <Link
-              href="/timelines"
-              style={{
-                padding: "12px 24px",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                color: "white",
-                borderRadius: "8px",
-                textDecoration: "none",
-                fontWeight: 600,
-                fontSize: "14px",
-              }}
-            >
-              View All →
-            </Link>
-          </div>
-
-          <div style={{
-            background: "white",
-            borderRadius: "16px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            border: "1px solid #f3f4f6",
-            overflow: "hidden",
-          }}>
-            {recentActivity.length === 0 ? (
-              <div style={{ padding: "40px", textAlign: "center", color: "#9ca3af" }}>
-                Loading recent activity...
-              </div>
-            ) : (
-              <div>
-                {recentActivity.map((activity, index) => (
-                  <div
-                    key={activity.id}
-                    style={{
-                      padding: "20px 24px",
-                      borderBottom: index < recentActivity.length - 1 ? "1px solid #f3f4f6" : "none",
-                      transition: "background 0.2s",
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = "#f9fafb"}
-                    onMouseLeave={(e) => e.currentTarget.style.background = "white"}
-                  >
-                    {activity.type === "report" ? (
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "14px", color: "#667eea", fontWeight: 600, marginBottom: "4px" }}>
-                            📊 New Timeline Report
-                          </div>
-                          <div style={{ fontSize: "16px", color: "#1a1a1a", fontWeight: 600, marginBottom: "4px" }}>
-                            {activity.process} in {activity.city}
-                          </div>
-                          <div style={{ fontSize: "14px", color: "#6b7280" }}>
-                            Status: <span style={{
-                              padding: "2px 8px",
-                              background: activity.status === "approved" ? "#d1fae5" : activity.status === "rejected" ? "#fee2e2" : "#fef3c7",
-                              color: activity.status === "approved" ? "#065f46" : activity.status === "rejected" ? "#991b1b" : "#92400e",
-                              borderRadius: "4px",
-                              fontSize: "12px",
-                              fontWeight: 600,
-                            }}>
-                              {activity.status}
-                            </span>
-                          </div>
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#9ca3af", whiteSpace: "nowrap" }}>
-                          {new Date(activity.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "14px", color: "#f59e0b", fontWeight: 600, marginBottom: "4px" }}>
-                            ⭐ New Review
-                          </div>
-                          <div style={{ fontSize: "16px", color: "#1a1a1a", fontWeight: 600, marginBottom: "4px" }}>
-                            {activity.title || "Review for " + activity.city}
-                          </div>
-                          <div style={{ fontSize: "14px", color: "#6b7280" }}>
-                            {"⭐".repeat(activity.rating)} • {activity.city}
-                          </div>
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#9ca3af", whiteSpace: "nowrap" }}>
-                          {new Date(activity.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 

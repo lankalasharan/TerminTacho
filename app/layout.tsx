@@ -11,6 +11,7 @@ import CookieConsent from "./components/CookieConsent";
 import DarkModeToggle from "./components/DarkModeToggle";
 import SearchBar from "./components/SearchBar";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import PageTransition from "./components/PageTransition";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -161,7 +162,7 @@ export default function RootLayout({
 
           {/* Main Content */}
           <main id="main-content">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
           <CookieConsent />

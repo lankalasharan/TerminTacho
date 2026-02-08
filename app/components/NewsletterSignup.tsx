@@ -1,22 +1,33 @@
 "use client";
 
 import { useState } from "react";
+import TurnstileWidget from "./Turnstile";
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+    setCaptchaError(null);
+
+    if (siteKey && !turnstileToken) {
+      setLoading(false);
+      setCaptchaError("Please complete the CAPTCHA.");
+      return;
+    }
 
     try {
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, turnstileToken }),
       });
 
       const data = await res.json();
@@ -25,6 +36,7 @@ export default function NewsletterSignup() {
 
       setMessage({ type: "success", text: "✅ Successfully subscribed!" });
       setEmail("");
+      setTurnstileToken("");
     } catch (error: any) {
       setMessage({ type: "error", text: `❌ ${error.message || "Error subscribing"}` });
     } finally {
@@ -84,6 +96,22 @@ export default function NewsletterSignup() {
           {loading ? "..." : "Subscribe"}
         </button>
       </form>
+
+      {siteKey && (
+        <div style={{ marginTop: "16px" }}>
+          <TurnstileWidget
+            siteKey={siteKey}
+            onVerify={setTurnstileToken}
+            onExpire={() => setCaptchaError("CAPTCHA expired. Please try again.")}
+            onError={() => setCaptchaError("CAPTCHA failed. Please try again.")}
+          />
+          {captchaError && (
+            <p style={{ marginTop: "8px", fontSize: "13px", color: "#fee2e2" }}>
+              {captchaError}
+            </p>
+          )}
+        </div>
+      )}
 
       {message && (
         <p style={{

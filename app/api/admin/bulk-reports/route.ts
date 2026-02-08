@@ -16,6 +16,7 @@ type BulkReportInput = {
   caseNumber?: string | null;
   userEmail?: string | null;
   confidenceScore?: number;
+  isOfficial?: boolean;
 };
 
 const csvHeaders = new Set([
@@ -32,6 +33,7 @@ const csvHeaders = new Set([
   "caseNumber",
   "userEmail",
   "confidenceScore",
+  "isOfficial",
 ]);
 
 function splitCsvLine(line: string): string[] {
@@ -65,6 +67,14 @@ function splitCsvLine(line: string): string[] {
   return values.map((value) => value.trim());
 }
 
+function parseBoolean(value: string | undefined): boolean | undefined {
+  if (!value) return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (["true", "1", "yes", "y"].includes(normalized)) return true;
+  if (["false", "0", "no", "n"].includes(normalized)) return false;
+  return undefined;
+}
+
 function parseCsvBody(csvText: string): BulkReportInput[] {
   const lines = csvText
     .split(/\r?\n/)
@@ -90,6 +100,7 @@ function parseCsvBody(csvText: string): BulkReportInput[] {
 
     const confidenceRaw = row.confidenceScore?.trim();
     const confidenceScore = confidenceRaw ? Number(confidenceRaw) : undefined;
+    const isOfficial = parseBoolean(row.isOfficial);
 
     entries.push({
       officeId: row.officeId || undefined,
@@ -105,6 +116,7 @@ function parseCsvBody(csvText: string): BulkReportInput[] {
       caseNumber: row.caseNumber || undefined,
       userEmail: row.userEmail || undefined,
       confidenceScore: Number.isFinite(confidenceScore) ? confidenceScore : undefined,
+      isOfficial,
     });
   }
 
@@ -266,6 +278,7 @@ export async function POST(req: Request) {
 
       const rawConfidence = typeof raw.confidenceScore === "number" ? raw.confidenceScore : 0.9;
       const confidenceScore = clampConfidence(rawConfidence);
+      const isOfficial = typeof raw.isOfficial === "boolean" ? raw.isOfficial : false;
 
       await prisma.report.create({
         data: {
@@ -281,6 +294,7 @@ export async function POST(req: Request) {
           userId: null,
           ipAddress: null,
           confidenceScore,
+          isOfficial,
         },
       });
 

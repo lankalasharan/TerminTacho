@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import GermanyMap from "../components/GermanyMap";
 import ShareButtons from "../components/ShareButtons";
+import DataAccessGate from "../components/DataAccessGate";
 import {
   calculateRelevanceWeight,
   calculateWeightedAverage,
   getDataAgeLabel,
+  getReportWeight,
   getRelevanceBadgeStyle,
 } from "@/lib/relevance";
 
@@ -18,6 +20,7 @@ type Report = {
   decisionAt: string | null;
   status: string;
   createdAt: string;
+  isOfficial?: boolean;
   office: { city: string; name: string };
   processType: { name: string };
 };
@@ -43,6 +46,69 @@ function getDayRange(days: number): string {
   return "120+ days";
 }
 
+function getWeightedAverageDays(reports: Report[]): number | null {
+  const days: number[] = [];
+  const weights: number[] = [];
+
+  reports.forEach((report) => {
+    if (!report.decisionAt) return;
+    const diff = calculateDays(report.submittedAt, report.decisionAt);
+    if (diff === null || diff < 0) return;
+    days.push(diff);
+    weights.push(getReportWeight({ submittedAt: report.submittedAt, isOfficial: report.isOfficial }));
+  });
+
+  return days.length > 0 ? calculateWeightedAverage(days, weights) : null;
+}
+
+function normalizeProcessLabel(label: string): string {
+  return label
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function getProcessCategory(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes("student") || l.includes("phd") || l.includes("language course")) return "student";
+  if (l.includes("work") || l.includes("blue card") || l.includes("employment") || l.includes("ict")) return "work";
+  if (l.includes("family") || l.includes("spouse") || l.includes("child") || l.includes("parent")) return "family";
+  if (l.includes("residence") || l.includes("settlement") || l.includes("address")) return "residence";
+  if (l.includes("bank") || l.includes("tax") || l.includes("financial") || l.includes("blocked account")) return "finance";
+  if (l.includes("citizenship") || l.includes("naturalization")) return "citizenship";
+  if (l.includes("driver") || l.includes("vehicle")) return "transport";
+  if (l.includes("business") || l.includes("entrepreneur") || l.includes("startup") || l.includes("investor")) return "business";
+  return "document";
+}
+
+function getCategoryIconSvg(category: string): string {
+  switch (category) {
+    case "student":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#4f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 10 12 4 2 10l10 6 10-6Z'/><path d='M6 12v5c0 .8 3 2 6 2s6-1.2 6-2v-5'/></svg>";
+    case "work":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/></svg>";
+    case "family":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#db2777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-3-3.87'/><path d='M4 21v-2a4 4 0 0 1 3-3.87'/><circle cx='12' cy='7' r='4'/></svg>";
+    case "residence":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#2563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11 12 3l9 8'/><path d='M5 10v11h14V10'/></svg>";
+    case "finance":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#0ea5e9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 10h18'/></svg>";
+    case "citizenship":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/></svg>";
+    case "transport":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#f97316' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 16l1-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2l1 4'/><circle cx='7.5' cy='18.5' r='1.5'/><circle cx='16.5' cy='18.5' r='1.5'/></svg>";
+    case "business":
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#f59e0b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/></svg>";
+    default:
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#6b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6'/></svg>";
+  }
+}
+
+function getProcessIcon(label: string): string {
+  const svg = getCategoryIconSvg(getProcessCategory(label));
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 export default function TimelinesPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [allCities, setAllCities] = useState<string[]>([]);
@@ -52,6 +118,7 @@ export default function TimelinesPage() {
   const [processFilter, setProcessFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showMap, setShowMap] = useState(false);
+  const [processOpen, setProcessOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -78,6 +145,17 @@ export default function TimelinesPage() {
     load();
   }, []);
 
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest("[data-process-dropdown]")) {
+        setProcessOpen(false);
+      }
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, []);
+
   const cities = allCities;
   const processTypes = allProcessTypes;
 
@@ -94,17 +172,14 @@ export default function TimelinesPage() {
   const approvedReports = filteredReports.filter(r => r.status === "approved");
   const rejectedReports = filteredReports.filter(r => r.status === "rejected");
 
-  const waitingDays = completedReports
-    .map(r => calculateDays(r.submittedAt, r.decisionAt))
-    .filter(d => d !== null) as number[];
-
-  // Calculate weighted average based on data age
-  const weightsForAverage = completedReports
-    .map(r => {
-      const days = calculateDays(r.submittedAt, r.decisionAt);
-      if (days === null) return 0;
-      return calculateRelevanceWeight(r.submittedAt).weight;
-    });
+  const waitingDays: number[] = [];
+  const weightsForAverage: number[] = [];
+  completedReports.forEach((report) => {
+    const days = calculateDays(report.submittedAt, report.decisionAt);
+    if (days === null || days < 0) return;
+    waitingDays.push(days);
+    weightsForAverage.push(getReportWeight({ submittedAt: report.submittedAt, isOfficial: report.isOfficial }));
+  });
 
   const weightedAvgDays = waitingDays.length > 0
     ? calculateWeightedAverage(waitingDays, weightsForAverage)
@@ -136,17 +211,7 @@ export default function TimelinesPage() {
   const cityStats: { [city: string]: { count: number; avgDays: number | null } } = {};
   cities.forEach(city => {
     const cityReports = filteredReports.filter(r => r.office.city === city);
-    const cityCompleted = cityReports.filter(r => r.decisionAt);
-    const cityDays = cityCompleted
-      .map(r => calculateDays(r.submittedAt, r.decisionAt))
-      .filter(d => d !== null) as number[];
-    
-    const cityWeights = cityCompleted
-      .map(r => calculateRelevanceWeight(r.submittedAt).weight);
-    
-    const avg = cityDays.length > 0 
-      ? calculateWeightedAverage(cityDays, cityWeights)
-      : null;
+    const avg = getWeightedAverageDays(cityReports);
     cityStats[city] = { count: cityReports.length, avgDays: avg };
   });
 
@@ -154,22 +219,13 @@ export default function TimelinesPage() {
   const processStats: { [process: string]: { count: number; avgDays: number | null } } = {};
   processTypes.forEach(process => {
     const processReports = filteredReports.filter(r => r.processType.name === process);
-    const processCompleted = processReports.filter(r => r.decisionAt);
-    const processDays = processCompleted
-      .map(r => calculateDays(r.submittedAt, r.decisionAt))
-      .filter(d => d !== null) as number[];
-    
-    const processWeights = processCompleted
-      .map(r => calculateRelevanceWeight(r.submittedAt).weight);
-    
-    const avg = processDays.length > 0 
-      ? calculateWeightedAverage(processDays, processWeights)
-      : null;
+    const avg = getWeightedAverageDays(processReports);
     processStats[process] = { count: processReports.length, avgDays: avg };
   });
 
   return (
-    <>
+    <DataAccessGate>
+      <>
       <style>{`
         @media (max-width: 768px) {
           .timeline-map-btn {
@@ -269,7 +325,18 @@ export default function TimelinesPage() {
           e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
         }}
       >
-        � {showMap ? "Hide Map" : "Search in Map"}
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          style={{ display: "block" }}
+        >
+          <path d="M12 2.5c-3.31 0-6 2.63-6 5.88 0 4.41 5.02 11.07 5.24 11.35a.95.95 0 0 0 1.52 0c.22-.28 5.24-6.94 5.24-11.35C18 5.13 15.31 2.5 12 2.5zm0 8.46a2.58 2.58 0 1 1 0-5.16 2.58 2.58 0 0 1 0 5.16z" />
+          <path d="M3 21.5 10.2 18.5l3.8 1.6 7-3.2v-2l-7 3.2-3.8-1.6L3 19.5v2z" />
+        </svg>
+        {showMap ? "Hide Map" : "Search in Map"}
       </button>
 
       {/* Full Page Map Overlay */}
@@ -309,8 +376,12 @@ export default function TimelinesPage() {
               alignItems: "center",
               marginBottom: "16px",
             }}>
-              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0 }}>
-                🗺️ Interactive City Map
+              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ display: "block" }}>
+                  <path d="M12 2.5c-3.31 0-6 2.63-6 5.88 0 4.41 5.02 11.07 5.24 11.35a.95.95 0 0 0 1.52 0c.22-.28 5.24-6.94 5.24-11.35C18 5.13 15.31 2.5 12 2.5zm0 8.46a2.58 2.58 0 1 1 0-5.16 2.58 2.58 0 0 1 0 5.16z" />
+                  <path d="M3 21.5 10.2 18.5l3.8 1.6 7-3.2v-2l-7 3.2-3.8-1.6L3 19.5v2z" />
+                </svg>
+                Interactive City Map
               </h2>
               <button
                 onClick={() => setShowMap(false)}
@@ -384,6 +455,30 @@ export default function TimelinesPage() {
       </div>
 
       <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "40px 20px" }}>
+        <div style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "16px",
+        }}>
+          <Link
+            href="/offices"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 16px",
+              borderRadius: "10px",
+              background: "white",
+              border: "1px solid #e5e7eb",
+              color: "#1f2937",
+              fontWeight: 700,
+              textDecoration: "none",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            }}
+          >
+            🏢 Browse Offices
+          </Link>
+        </div>
         {/* Filters */}
         <div style={{
           background: "white",
@@ -438,7 +533,7 @@ export default function TimelinesPage() {
               </select>
             </div>
 
-            <div>
+            <div data-process-dropdown style={{ position: "relative" }}>
               <label style={{
                 display: "block",
                 marginBottom: "8px",
@@ -448,9 +543,9 @@ export default function TimelinesPage() {
               }}>
                 Process Type
               </label>
-              <select
-                value={processFilter}
-                onChange={(e) => setProcessFilter(e.target.value)}
+              <button
+                type="button"
+                onClick={() => setProcessOpen(!processOpen)}
                 style={{
                   width: "100%",
                   padding: "12px",
@@ -461,17 +556,107 @@ export default function TimelinesPage() {
                   cursor: "pointer",
                   background: "white",
                   transition: "border-color 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
                 }}
                 onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
                 onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
               >
-                <option value="">All Processes</option>
-                {processTypes.map(pt => (
-                  <option key={pt} value={pt}>
-                    {pt} ({processStats[pt]?.count || 0} reports)
-                  </option>
-                ))}
-              </select>
+                <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <img
+                    src={getProcessIcon(processFilter || "All Processes")}
+                    alt=""
+                    width={18}
+                    height={18}
+                    style={{ display: "block" }}
+                  />
+                  <span>
+                    {processFilter ? normalizeProcessLabel(processFilter) : "All Processes"}
+                  </span>
+                </span>
+                <span style={{ color: "#9ca3af" }}>▾</span>
+              </button>
+
+              {processOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    zIndex: 50,
+                    marginTop: "8px",
+                    width: "100%",
+                    background: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "10px",
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
+                    maxHeight: "320px",
+                    overflowY: "auto",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProcessFilter("");
+                      setProcessOpen(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      background: "white",
+                      border: "none",
+                      borderBottom: "1px solid #f3f4f6",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <img
+                      src={getProcessIcon("All Processes")}
+                      alt=""
+                      width={18}
+                      height={18}
+                      style={{ display: "block" }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: 600 }}>All Processes</span>
+                  </button>
+                  {processTypes.map((pt) => (
+                    <button
+                      key={pt}
+                      type="button"
+                      onClick={() => {
+                        setProcessFilter(pt);
+                        setProcessOpen(false);
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        background: "white",
+                        border: "none",
+                        borderBottom: "1px solid #f3f4f6",
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                    >
+                      <img
+                        src={getProcessIcon(pt)}
+                        alt=""
+                        width={18}
+                        height={18}
+                        style={{ display: "block" }}
+                      />
+                      <span style={{ fontSize: "14px" }}>
+                        {normalizeProcessLabel(pt)} ({processStats[pt]?.count || 0} reports)
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
@@ -858,7 +1043,7 @@ export default function TimelinesPage() {
                           }}
                         >
                           <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
-                            {process}
+                            {normalizeProcessLabel(process)}
                           </div>
                           <div style={{ fontSize: "28px", fontWeight: 800, color: "#10b981", marginBottom: "4px" }}>
                             ~{stats.avgDays} days
@@ -1041,6 +1226,7 @@ export default function TimelinesPage() {
           </>
         )}
       </main>
-    </>
+      </>
+    </DataAccessGate>
   );
 }

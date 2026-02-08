@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getClientIp } from "@/lib/rateLimit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const { email, turnstileToken } = await req.json();
+    const clientIp = getClientIp(req);
+
+    const captchaCheck = await verifyTurnstileToken(turnstileToken, clientIp);
+    if (!captchaCheck.success) {
+      return NextResponse.json(
+        { error: "CAPTCHA verification failed" },
+        { status: 403 }
+      );
+    }
 
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import TurnstileWidget from "../components/Turnstile";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -9,22 +10,33 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
+    setCaptchaError(null);
+
+    if (siteKey && !turnstileToken) {
+      setStatus("idle");
+      setCaptchaError("Please complete the CAPTCHA.");
+      return;
+    }
 
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, turnstileToken }),
       });
 
       if (response.ok) {
         setStatus("success");
         setFormData({ name: "", email: "", subject: "", message: "" });
+        setTurnstileToken("");
       } else {
         setStatus("error");
       }
@@ -226,6 +238,26 @@ export default function ContactPage() {
                   fontSize: "14px",
                 }}>
                   ❌ Failed to send message. Please try again later.
+                </div>
+              )}
+
+              {siteKey && (
+                <div style={{ marginBottom: "16px" }}>
+                  <TurnstileWidget
+                    siteKey={siteKey}
+                    onVerify={setTurnstileToken}
+                    onExpire={() => setCaptchaError("CAPTCHA expired. Please try again.")}
+                    onError={() => setCaptchaError("CAPTCHA failed. Please try again.")}
+                  />
+                  {captchaError && (
+                    <div style={{
+                      marginTop: "8px",
+                      fontSize: "13px",
+                      color: "#991b1b",
+                    }}>
+                      {captchaError}
+                    </div>
+                  )}
                 </div>
               )}
 
