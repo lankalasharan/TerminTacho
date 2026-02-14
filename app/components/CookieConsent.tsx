@@ -49,15 +49,15 @@ export default function CookieConsent() {
         <div style={{ flex: 1, minWidth: "300px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
             <span style={{ fontSize: "24px" }}>🍪</span>
-            <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#1a1a1a", margin: 0 }}>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--tt-text)", margin: 0 }}>
               We Use Cookies
             </h3>
           </div>
-          <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", lineHeight: 1.6, margin: 0 }}>
             We use essential cookies to keep you signed in and make our website work. Optional cookies help us improve your experience. 
             You can choose to accept or decline optional cookies. See our{" "}
-            <a href="/cookies" style={{ color: "#667eea", textDecoration: "underline" }}>Cookie Policy</a> and{" "}
-            <a href="/privacy" style={{ color: "#667eea", textDecoration: "underline" }}>Privacy Policy</a> for details.
+            <a href="/cookies" style={{ color: "var(--tt-primary-strong)", textDecoration: "underline" }}>Cookie Policy</a> and{" "}
+            <a href="/privacy" style={{ color: "var(--tt-primary-strong)", textDecoration: "underline" }}>Privacy Policy</a> for details.
           </p>
         </div>
         
@@ -71,21 +71,21 @@ export default function CookieConsent() {
             style={{
               padding: "12px 24px",
               background: "white",
-              border: "2px solid #e5e7eb",
+              border: "2px solid var(--tt-border)",
               borderRadius: "8px",
               fontSize: "14px",
               fontWeight: 600,
-              color: "#6b7280",
+              color: "var(--tt-text-muted)",
               cursor: "pointer",
               transition: "all 0.2s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#9ca3af";
-              e.currentTarget.style.color = "#1a1a1a";
+              e.currentTarget.style.borderColor = "var(--tt-muted)";
+              e.currentTarget.style.color = "var(--tt-text)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#e5e7eb";
-              e.currentTarget.style.color = "#6b7280";
+              e.currentTarget.style.borderColor = "var(--tt-border)";
+              e.currentTarget.style.color = "var(--tt-text-muted)";
             }}
           >
             Decline Optional
@@ -94,7 +94,7 @@ export default function CookieConsent() {
             onClick={handleAccept}
             style={{
               padding: "12px 24px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
               border: "none",
               borderRadius: "8px",
               fontSize: "14px",
@@ -105,7 +105,7 @@ export default function CookieConsent() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(28, 144, 216, 0.4)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
@@ -132,3 +132,5 @@ export default function CookieConsent() {
     </div>
   );
 }
+
+

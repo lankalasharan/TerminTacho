@@ -45,50 +45,36 @@ export default function NewsletterSignup() {
   }
 
   return (
-    <div style={{
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      borderRadius: "12px",
-      padding: "40px 24px",
-      textAlign: "center",
-      color: "white",
-    }}>
-      <h3 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "12px" }}>
-        📧 Stay Updated
-      </h3>
-      <p style={{ fontSize: "16px", marginBottom: "24px", opacity: 0.9 }}>
+    <div className="tt-newsletter">
+      <div className="tt-newsletter-header">
+        <span className="tt-newsletter-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="3" />
+            <path d="m4 7 8 6 8-6" />
+          </svg>
+        </span>
+        <h3 className="tt-newsletter-title">Stay Updated</h3>
+      </div>
+      <p className="tt-newsletter-subtitle">
         Get notified when new processing time data is available
       </p>
 
-      <form onSubmit={handleSubscribe} style={{ display: "flex", gap: "12px", maxWidth: "500px", margin: "0 auto" }}>
+      <form onSubmit={handleSubscribe} className="tt-newsletter-form">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com"
           required
-          style={{
-            flex: 1,
-            padding: "12px 16px",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "14px",
-            outline: "none",
-          }}
+          className="tt-newsletter-input"
         />
         <button
           type="submit"
           disabled={loading}
+          className="tt-newsletter-button"
           style={{
-            padding: "12px 24px",
-            background: "white",
-            color: "#667eea",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: 600,
             cursor: loading ? "not-allowed" : "pointer",
             opacity: loading ? 0.7 : 1,
-            transition: "all 0.2s",
           }}
           onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -106,7 +92,7 @@ export default function NewsletterSignup() {
             onError={() => setCaptchaError("CAPTCHA failed. Please try again.")}
           />
           {captchaError && (
-            <p style={{ marginTop: "8px", fontSize: "13px", color: "#fee2e2" }}>
+            <p className="tt-newsletter-message" style={{ color: "#fee2e2" }}>
               {captchaError}
             </p>
           )}
@@ -114,14 +100,14 @@ export default function NewsletterSignup() {
       )}
 
       {message && (
-        <p style={{
-          marginTop: "12px",
-          fontSize: "14px",
-          color: message.type === "success" ? "#d1fae5" : "#fee2e2",
-        }}>
+        <p
+          className="tt-newsletter-message"
+          style={{ color: message.type === "success" ? "#d1fae5" : "#fee2e2" }}
+        >
           {message.text}
         </p>
       )}
     </div>
   );
 }
+

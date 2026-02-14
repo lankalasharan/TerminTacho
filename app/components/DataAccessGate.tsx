@@ -79,8 +79,8 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
         margin: "0 auto"
       }}>
         <div style={{
-          background: "#f3f4f6",
-          border: "1px solid #d1d5db",
+          background: "var(--tt-surface-muted)",
+          border: "1px solid var(--tt-border-strong)",
           borderRadius: "8px",
           padding: "32px 24px"
         }}>
@@ -105,7 +105,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
               href="/api/auth/signin"
               style={{
                 padding: "12px 24px",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                 color: "white",
                 borderRadius: "6px",
                 textDecoration: "none",
@@ -117,7 +117,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(28, 144, 216, 0.4)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -171,7 +171,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
             fontSize: "14px",
             color: "#666"
           }}>
-            If you didn't receive an email, check your spam folder or <Link href="/api/auth/signin" style={{ color: "#667eea", textDecoration: "none", fontWeight: 600 }}>sign in again</Link>.
+            If you didn't receive an email, check your spam folder or <Link href="/api/auth/signin" style={{ color: "var(--tt-primary-strong)", textDecoration: "none", fontWeight: 600 }}>sign in again</Link>.
           </div>
           <p style={{
             fontSize: "14px",
@@ -221,7 +221,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
             style={{
               display: "inline-block",
               padding: "12px 24px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
               color: "white",
               borderRadius: "6px",
               textDecoration: "none",
@@ -233,7 +233,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(28, 144, 216, 0.4)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
@@ -291,7 +291,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
             style={{
               display: "inline-block",
               padding: "12px 24px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
               color: "white",
               borderRadius: "6px",
               textDecoration: "none",
@@ -303,7 +303,7 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(28, 144, 216, 0.4)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
@@ -327,3 +327,5 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
   // Fallback - shouldn't reach here but just in case
   return <>{children}</>;
 }
+
+

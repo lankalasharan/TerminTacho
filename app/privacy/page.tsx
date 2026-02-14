@@ -1,16 +1,17 @@
 export default function PrivacyPolicy() {
   return (
-    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "60px 20px" }}>
-      <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "#1a1a1a" }}>
-        Privacy Policy
-      </h1>
-      <p style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "40px" }}>
-        Last Updated: January 25, 2026
-      </p>
+    <main className="tt-section">
+      <div className="tt-container" style={{ maxWidth: "900px" }}>
+        <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "var(--tt-text)" }}>
+          Privacy Policy
+        </h1>
+        <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
+          Last Updated: January 25, 2026
+        </p>
 
-      <div style={{ fontSize: "16px", lineHeight: 1.8, color: "#374151" }}>
+        <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             1. Introduction
           </h2>
           <p>
@@ -19,7 +20,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             2. Data Controller
           </h2>
           <p>
@@ -27,16 +28,16 @@ export default function PrivacyPolicy() {
             TerminTacho<br/>
             [Your Complete Address]<br/>
             Email: [your-email@termintacho.com]<br/>
-            <em style={{ fontSize: "14px", color: "#9ca3af" }}>(Please update with actual contact information)</em>
+            <em style={{ fontSize: "14px", color: "var(--tt-muted)" }}>(Please update with actual contact information)</em>
           </p>
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             3. Information We Collect
           </h2>
           
-          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "var(--tt-text)" }}>
             3.1 Personal Data You Provide
           </h3>
           <ul style={{ paddingLeft: "24px", marginBottom: "16px" }}>
@@ -45,7 +46,7 @@ export default function PrivacyPolicy() {
             <li><strong>Contact Form:</strong> Name, email address, message content when you contact us</li>
           </ul>
 
-          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "var(--tt-text)" }}>
             3.2 Automatically Collected Data
           </h3>
           <ul style={{ paddingLeft: "24px" }}>
@@ -56,7 +57,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             4. Legal Basis for Processing (GDPR Art. 6)
           </h2>
           <p>We process your personal data based on:</p>
@@ -68,7 +69,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             5. How We Use Your Information
           </h2>
           <ul style={{ paddingLeft: "24px" }}>
@@ -82,7 +83,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             6. Data Retention
           </h2>
           <ul style={{ paddingLeft: "24px" }}>
@@ -94,7 +95,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             7. Your GDPR Rights
           </h2>
           <p>Under GDPR, you have the following rights:</p>
@@ -113,7 +114,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             8. Data Sharing and Third Parties
           </h2>
           <p>We may share your data with:</p>
@@ -128,7 +129,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             9. International Data Transfers
           </h2>
           <p>
@@ -142,7 +143,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             10. Data Security
           </h2>
           <p>
@@ -157,7 +158,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             11. Children's Privacy
           </h2>
           <p>
@@ -166,7 +167,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             12. Changes to This Policy
           </h2>
           <p>
@@ -175,7 +176,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             13. Contact & Complaints
           </h2>
           <p>
@@ -185,7 +186,9 @@ export default function PrivacyPolicy() {
             You also have the right to lodge a complaint with your local data protection authority.
           </p>
         </section>
+        </div>
       </div>
     </main>
   );
 }
+

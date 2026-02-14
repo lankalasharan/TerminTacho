@@ -210,13 +210,13 @@ export default function GermanyMap() {
     return (
       <div style={{
         height: "600px",
-        background: "#f3f4f6",
+        background: "var(--tt-surface-muted)",
         borderRadius: "12px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         fontSize: "18px",
-        color: "#6b7280"
+        color: "var(--tt-text-muted)"
       }}>
         Loading map...
       </div>
@@ -227,13 +227,13 @@ export default function GermanyMap() {
     return (
       <div style={{
         height: "600px",
-        background: "#f3f4f6",
+        background: "var(--tt-surface-muted)",
         borderRadius: "12px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         fontSize: "18px",
-        color: "#6b7280"
+        color: "var(--tt-text-muted)"
       }}>
         Loading map data...
       </div>
@@ -265,19 +265,21 @@ export default function GermanyMap() {
           flex-direction: column;
           gap: 8px;
           pointer-events: auto;
+          max-width: 100%;
         }
         .map-search-form {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
+          background: var(--tt-surface);
+          border: 1px solid var(--tt-border);
           border-radius: 12px;
           padding: 8px 10px;
           box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+          width: 100%;
         }
         .map-search-icon {
-          color: #6b7280;
+          color: var(--tt-text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -286,18 +288,19 @@ export default function GermanyMap() {
           border: none;
           outline: none;
           flex: 1;
-          font-size: 14px;
+          font-size: clamp(13px, 2.6vw, 14px);
           padding: 6px 4px;
           font-family: inherit;
-          color: #111827;
+          color: var(--tt-text);
+          min-width: 0;
         }
         .map-search-button {
-          background: #111827;
+          background: var(--tt-text);
           color: #ffffff;
           border: none;
           border-radius: 8px;
           padding: 8px 12px;
-          font-size: 12px;
+          font-size: clamp(12px, 2.4vw, 13px);
           font-weight: 700;
           min-height: 36px;
         }
@@ -305,26 +308,28 @@ export default function GermanyMap() {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
+          width: 100%;
         }
         .map-toolbar-link {
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
+          background: var(--tt-surface);
+          border: 1px solid var(--tt-border);
           border-radius: 999px;
           padding: 6px 12px;
-          font-size: 12px;
+          font-size: clamp(12px, 2.4vw, 13px);
           font-weight: 700;
           text-decoration: none;
-          color: #111827;
+          color: var(--tt-text);
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
         }
         .map-search-results {
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
+          background: var(--tt-surface);
+          border: 1px solid var(--tt-border);
           border-radius: 12px;
           padding: 6px;
           box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
           max-height: 220px;
           overflow: auto;
+          max-width: 100%;
         }
         .map-search-result {
           display: flex;
@@ -333,22 +338,22 @@ export default function GermanyMap() {
           padding: 8px 10px;
           border-radius: 8px;
           text-decoration: none;
-          color: #111827;
+          color: var(--tt-text);
           font-size: 13px;
           font-weight: 600;
         }
         .map-search-result:hover {
-          background: #f3f4f6;
+          background: var(--tt-surface-muted);
         }
         .map-search-meta {
-          color: #6b7280;
+          color: var(--tt-text-muted);
           font-size: 12px;
           font-weight: 500;
         }
         .map-search-empty {
           padding: 10px 12px;
           font-size: 12px;
-          color: #6b7280;
+          color: var(--tt-text-muted);
         }
         @media (max-width: 768px) {
           .map-toolbar {
@@ -362,6 +367,25 @@ export default function GermanyMap() {
           }
           .map-search-button {
             width: 100%;
+          }
+          .map-toolbar-actions {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .map-toolbar-link {
+            width: 100%;
+            text-align: center;
+          }
+        }
+        @media (max-width: 480px) {
+          .map-search-form {
+            padding: 8px;
+          }
+          .map-search-button {
+            min-height: 40px;
+          }
+          .map-toolbar-link {
+            padding: 8px 10px;
           }
         }
       `}</style>
@@ -416,7 +440,7 @@ export default function GermanyMap() {
       <MapContainer
         center={[51.1657, 10.4515]} // Center of Germany
         zoom={6}
-        style={{ height: "600px", width: "100%", borderRadius: "12px" }}
+        style={{ height: "min(600px, 70vh)", width: "100%", borderRadius: "12px" }}
       >
         <MapInstanceTracker onReady={setMapInstance} />
         <TileLayer
@@ -448,7 +472,7 @@ export default function GermanyMap() {
                       )}
                     </>
                   ) : (
-                    <div style={{ marginBottom: "8px", color: "#9ca3af", fontSize: "13px" }}>
+                    <div style={{ marginBottom: "8px", color: "var(--tt-muted)", fontSize: "13px" }}>
                       No reports yet. Be the first to submit! 📝
                     </div>
                   )}
@@ -458,7 +482,7 @@ export default function GermanyMap() {
                       display: "inline-block",
                       marginTop: "8px",
                       padding: "6px 12px",
-                      background: "#667eea",
+                      background: "var(--tt-primary-strong)",
                       color: "white",
                       borderRadius: "6px",
                       textDecoration: "none",
@@ -477,3 +501,4 @@ export default function GermanyMap() {
     </div>
   );
 }
+

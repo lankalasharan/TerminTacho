@@ -127,7 +127,7 @@ export default function OfficePage() {
     return (
       <div style={{ textAlign: "center", padding: "80px 20px" }}>
         <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
-        <p style={{ color: "#6b7280" }}>Loading office details...</p>
+        <p style={{ color: "var(--tt-text-muted)" }}>Loading office details...</p>
       </div>
     );
   }
@@ -137,7 +137,7 @@ export default function OfficePage() {
       <div style={{ textAlign: "center", padding: "80px 20px" }}>
         <div style={{ fontSize: "48px", marginBottom: "16px" }}>❌</div>
         <h1 style={{ fontSize: "24px", marginBottom: "16px" }}>Office Not Found</h1>
-        <Link href="/timelines" style={{ color: "#667eea" }}>← Back to Timelines</Link>
+        <Link href="/timelines" style={{ color: "var(--tt-primary-strong)" }}>← Back to Timelines</Link>
       </div>
     );
   }
@@ -149,70 +149,49 @@ export default function OfficePage() {
   return (
     <DataAccessGate>
       <>
-      {/* Hero Section */}
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ marginBottom: "16px" }}>
-            <Link href="/timelines" style={{ color: "white", opacity: 0.9, textDecoration: "none", fontSize: "14px" }}>
+      <section className="tt-hero">
+        <div className="tt-container">
+          <div style={{ marginBottom: "12px" }}>
+            <Link href="/timelines" style={{ color: "var(--tt-text-muted)", textDecoration: "none", fontSize: "14px" }}>
               ← Back to All Offices
             </Link>
           </div>
-          <h1 style={{ fontSize: "48px", fontWeight: 800, marginBottom: "12px" }}>
-            📍 {data.office.city}
+          <h1 className="tt-hero-title">
+            {data.office.city}
           </h1>
-          <p style={{ fontSize: "20px", opacity: 0.95, marginBottom: "24px" }}>
+          <p className="tt-hero-subtitle" style={{ marginLeft: 0, marginRight: 0 }}>
             {data.office.name}
           </p>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <Link
               href="/submit"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "10px 18px",
-                borderRadius: "10px",
-                background: "white",
-                color: "#4f46e5",
-                fontWeight: 700,
-                textDecoration: "none",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-              }}
+              className="tt-btn-primary"
+              style={{ padding: "12px 20px", borderRadius: "12px", textDecoration: "none" }}
             >
-              ➕ Submit Timeline
+              Submit Timeline
             </Link>
           </div>
 
-          {/* Quick Stats */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            gap: "16px",
-            marginTop: "32px",
-          }}>
-            <div style={{ background: "rgba(255,255,255,0.2)", padding: "20px", borderRadius: "12px", backdropFilter: "blur(10px)" }}>
-              <div style={{ fontSize: "32px", fontWeight: 800 }}>{data.statistics.avgProcessingDays}</div>
-              <div style={{ fontSize: "14px", opacity: 0.9 }}>Avg. Days</div>
+          <div className="tt-stat-grid" style={{ marginTop: "32px" }}>
+            <div className="tt-stat-card">
+              <h3>Avg. Days</h3>
+              <strong>{data.statistics.avgProcessingDays}</strong>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.2)", padding: "20px", borderRadius: "12px", backdropFilter: "blur(10px)" }}>
-              <div style={{ fontSize: "32px", fontWeight: 800 }}>{data.statistics.successRate}%</div>
-              <div style={{ fontSize: "14px", opacity: 0.9 }}>Success Rate</div>
+            <div className="tt-stat-card">
+              <h3>Success Rate</h3>
+              <strong>{data.statistics.successRate}%</strong>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.2)", padding: "20px", borderRadius: "12px", backdropFilter: "blur(10px)" }}>
-              <div style={{ fontSize: "32px", fontWeight: 800 }}>{data.statistics.avgRating.toFixed(1)}</div>
-              <div style={{ fontSize: "14px", opacity: 0.9 }}>Avg. Rating</div>
+            <div className="tt-stat-card">
+              <h3>Avg. Rating</h3>
+              <strong>{data.statistics.avgRating.toFixed(1)}</strong>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.2)", padding: "20px", borderRadius: "12px", backdropFilter: "blur(10px)" }}>
-              <div style={{ fontSize: "32px", fontWeight: 800 }}>{data.statistics.totalReports}</div>
-              <div style={{ fontSize: "14px", opacity: 0.9 }}>Reports</div>
+            <div className="tt-stat-card">
+              <h3>Reports</h3>
+              <strong>{data.statistics.totalReports}</strong>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
         {/* Contact Information */}
@@ -223,16 +202,16 @@ export default function OfficePage() {
             borderRadius: "16px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
             marginBottom: "40px",
-            border: "1px solid #f3f4f6",
+            border: "1px solid var(--tt-surface-muted)",
           }}>
-            <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "#1a1a1a" }}>
+            <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)" }}>
               📞 Contact Information
             </h2>
-            {data.office.address && <p style={{ marginBottom: "8px", color: "#374151" }}>📍 {data.office.address}</p>}
-            {data.office.phone && <p style={{ marginBottom: "8px", color: "#374151" }}>☎️ {data.office.phone}</p>}
+            {data.office.address && <p style={{ marginBottom: "8px", color: "var(--tt-text-strong)" }}>📍 {data.office.address}</p>}
+            {data.office.phone && <p style={{ marginBottom: "8px", color: "var(--tt-text-strong)" }}>☎️ {data.office.phone}</p>}
             {data.office.website && (
-              <p style={{ color: "#374151" }}>
-                🌐 <a href={data.office.website} target="_blank" rel="noopener noreferrer" style={{ color: "#667eea" }}>
+              <p style={{ color: "var(--tt-text-strong)" }}>
+                🌐 <a href={data.office.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--tt-primary-strong)" }}>
                   {data.office.website}
                 </a>
               </p>
@@ -247,9 +226,9 @@ export default function OfficePage() {
           borderRadius: "16px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           marginBottom: "40px",
-          border: "1px solid #f3f4f6",
+          border: "1px solid var(--tt-surface-muted)",
         }}>
-          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)" }}>
             📊 Processing Times by Type
           </h2>
           <div style={{ display: "grid", gap: "16px" }}>
@@ -259,14 +238,14 @@ export default function OfficePage() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "16px",
-                background: "#f9fafb",
+                background: "var(--tt-surface-soft)",
                 borderRadius: "8px",
               }}>
                 <div>
-                  <div style={{ fontWeight: 600, color: "#1a1a1a" }}>{stat.name}</div>
-                  <div style={{ fontSize: "14px", color: "#6b7280" }}>{stat.count} reports</div>
+                  <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{stat.name}</div>
+                  <div style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>{stat.count} reports</div>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 800, color: "#667eea" }}>
+                <div style={{ fontSize: "24px", fontWeight: 800, color: "var(--tt-primary-strong)" }}>
                   {stat.avgDays !== null ? `${stat.avgDays} days` : "N/A"}
                 </div>
               </div>
@@ -281,17 +260,17 @@ export default function OfficePage() {
           borderRadius: "16px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           marginBottom: "40px",
-          border: "1px solid #f3f4f6",
+          border: "1px solid var(--tt-surface-muted)",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-            <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a" }}>
+            <h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--tt-text)" }}>
               ⭐ Reviews ({data.statistics.totalReviews})
             </h2>
             <button
               onClick={() => setShowReviewForm(!showReviewForm)}
               style={{
                 padding: "10px 20px",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
@@ -306,7 +285,7 @@ export default function OfficePage() {
           {showReviewForm && (
             <form onSubmit={handleSubmitReview} style={{
               padding: "24px",
-              background: "#f9fafb",
+              background: "var(--tt-surface-soft)",
               borderRadius: "12px",
               marginBottom: "24px",
             }}>
@@ -328,7 +307,7 @@ export default function OfficePage() {
                 <select
                   value={reviewForm.overallRating}
                   onChange={(e) => setReviewForm({ ...reviewForm, overallRating: parseInt(e.target.value) })}
-                  style={{ padding: "8px", borderRadius: "6px", border: "2px solid #e5e7eb", width: "100%" }}
+                  style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   required
                 >
                   {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{renderStars(n)} {n} Star{n > 1 ? 's' : ''}</option>)}
@@ -341,7 +320,7 @@ export default function OfficePage() {
                   <select
                     value={reviewForm.serviceRating}
                     onChange={(e) => setReviewForm({ ...reviewForm, serviceRating: parseInt(e.target.value) })}
-                    style={{ padding: "8px", borderRadius: "6px", border: "2px solid #e5e7eb", width: "100%" }}
+                    style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   >
                     {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
                   </select>
@@ -351,7 +330,7 @@ export default function OfficePage() {
                   <select
                     value={reviewForm.staffRating}
                     onChange={(e) => setReviewForm({ ...reviewForm, staffRating: parseInt(e.target.value) })}
-                    style={{ padding: "8px", borderRadius: "6px", border: "2px solid #e5e7eb", width: "100%" }}
+                    style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   >
                     {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
                   </select>
@@ -361,7 +340,7 @@ export default function OfficePage() {
                   <select
                     value={reviewForm.speedRating}
                     onChange={(e) => setReviewForm({ ...reviewForm, speedRating: parseInt(e.target.value) })}
-                    style={{ padding: "8px", borderRadius: "6px", border: "2px solid #e5e7eb", width: "100%" }}
+                    style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   >
                     {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
                   </select>
@@ -374,7 +353,7 @@ export default function OfficePage() {
                   type="text"
                   value={reviewForm.title}
                   onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
-                  style={{ padding: "10px", borderRadius: "6px", border: "2px solid #e5e7eb", width: "100%", fontSize: "14px" }}
+                  style={{ padding: "10px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%", fontSize: "14px" }}
                   placeholder="e.g., Quick and helpful service"
                 />
               </div>
@@ -385,7 +364,7 @@ export default function OfficePage() {
                   value={reviewForm.content}
                   onChange={(e) => setReviewForm({ ...reviewForm, content: e.target.value })}
                   rows={4}
-                  style={{ padding: "10px", borderRadius: "6px", border: "2px solid #e5e7eb", width: "100%", fontSize: "14px", fontFamily: "inherit" }}
+                  style={{ padding: "10px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%", fontSize: "14px", fontFamily: "inherit" }}
                   placeholder="Share your experience with this office..."
                   required
                 />
@@ -412,7 +391,7 @@ export default function OfficePage() {
                   type="submit"
                   style={{
                     padding: "12px 24px",
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                     color: "white",
                     border: "none",
                     borderRadius: "8px",
@@ -428,8 +407,8 @@ export default function OfficePage() {
                   style={{
                     padding: "12px 24px",
                     background: "white",
-                    color: "#6b7280",
-                    border: "2px solid #e5e7eb",
+                    color: "var(--tt-text-muted)",
+                    border: "2px solid var(--tt-border)",
                     borderRadius: "8px",
                     fontWeight: 600,
                     cursor: "pointer",
@@ -442,7 +421,7 @@ export default function OfficePage() {
           )}
 
           {data.recentReviews.length === 0 ? (
-            <p style={{ color: "#6b7280", textAlign: "center", padding: "40px 20px" }}>
+            <p style={{ color: "var(--tt-text-muted)", textAlign: "center", padding: "40px 20px" }}>
               No reviews yet. Be the first to review this office!
             </p>
           ) : (
@@ -450,7 +429,7 @@ export default function OfficePage() {
               {data.recentReviews.map((review: any) => (
                 <div key={review.id} style={{
                   padding: "20px",
-                  border: "1px solid #e5e7eb",
+                  border: "1px solid var(--tt-border)",
                   borderRadius: "12px",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
@@ -459,18 +438,18 @@ export default function OfficePage() {
                         {renderStars(review.overallRating)}
                       </div>
                       {review.title && (
-                        <div style={{ fontWeight: 600, color: "#1a1a1a", marginBottom: "4px" }}>
+                        <div style={{ fontWeight: 600, color: "var(--tt-text)", marginBottom: "4px" }}>
                           {review.title}
                         </div>
                       )}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#9ca3af" }}>
+                    <div style={{ fontSize: "12px", color: "var(--tt-muted)" }}>
                       {new Date(review.createdAt).toLocaleDateString()}
                     </div>
                   </div>
-                  <p style={{ color: "#374151", lineHeight: 1.6 }}>{review.content}</p>
+                  <p style={{ color: "var(--tt-text-strong)", lineHeight: 1.6 }}>{review.content}</p>
                   {review.processType && (
-                    <div style={{ marginTop: "12px", fontSize: "14px", color: "#667eea" }}>
+                    <div style={{ marginTop: "12px", fontSize: "14px", color: "var(--tt-primary-strong)" }}>
                       Process: {review.processType}
                     </div>
                   )}
@@ -486,13 +465,13 @@ export default function OfficePage() {
           padding: "32px",
           borderRadius: "16px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          border: "1px solid #f3f4f6",
+          border: "1px solid var(--tt-surface-muted)",
         }}>
-          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)" }}>
             📝 Recent Timeline Reports
           </h2>
           {data.recentReports.length === 0 ? (
-            <p style={{ color: "#6b7280", textAlign: "center", padding: "20px" }}>No reports yet</p>
+            <p style={{ color: "var(--tt-text-muted)", textAlign: "center", padding: "20px" }}>No reports yet</p>
           ) : (
             <div style={{ display: "grid", gap: "16px" }}>
               {data.recentReports.map((report: any) => {
@@ -503,12 +482,12 @@ export default function OfficePage() {
                 return (
                   <div key={report.id} style={{
                     padding: "16px",
-                    background: "#f9fafb",
+                    background: "var(--tt-surface-soft)",
                     borderRadius: "8px",
-                    borderLeft: `4px solid ${report.status === 'approved' ? '#10b981' : report.status === 'rejected' ? '#ef4444' : '#f59e0b'}`,
+                    borderLeft: `4px solid ${report.status === 'approved' ? 'var(--tt-success)' : report.status === 'rejected' ? '#ef4444' : '#f59e0b'}`,
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                      <div style={{ fontWeight: 600, color: "#1a1a1a" }}>{report.processType.name}</div>
+                      <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{report.processType.name}</div>
                       <div style={{
                         padding: "4px 12px",
                         background: report.status === 'approved' ? '#d1fae5' : report.status === 'rejected' ? '#fee2e2' : '#fef3c7',
@@ -521,15 +500,15 @@ export default function OfficePage() {
                       </div>
                     </div>
                     {processingDays !== null && (
-                      <div style={{ fontSize: "14px", color: "#667eea", fontWeight: 600 }}>
+                      <div style={{ fontSize: "14px", color: "var(--tt-primary-strong)", fontWeight: 600 }}>
                         ⏱️ {processingDays} days processing time
                       </div>
                     )}
-                    <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "8px" }}>
+                    <div style={{ fontSize: "12px", color: "var(--tt-muted)", marginTop: "8px" }}>
                       Submitted {new Date(report.submittedAt).toLocaleDateString()}
                     </div>
                     {report.notes && (
-                      <div style={{ marginTop: "10px", fontSize: "13px", color: "#374151" }}>
+                      <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--tt-text-strong)" }}>
                         💬 {report.notes}
                       </div>
                     )}
@@ -544,3 +523,4 @@ export default function OfficePage() {
     </DataAccessGate>
   );
 }
+

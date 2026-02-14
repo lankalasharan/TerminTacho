@@ -47,30 +47,17 @@ export default function ContactPage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "16px",
-            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
-          }}>
-            📧 Contact Us
-          </h1>
-          <p style={{
-            fontSize: "20px",
-            opacity: 0.95,
-          }}>
-            Have questions, feedback, or suggestions? We'd love to hear from you!
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            Contact
+          </div>
+          <h1 className="tt-hero-title">Talk to us.</h1>
+          <p className="tt-hero-subtitle">
+            Have questions, feedback, or suggestions? We would love to hear from you.
           </p>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "800px", margin: "0 auto", padding: "60px 20px" }}>
         <div style={{
@@ -78,7 +65,7 @@ export default function ContactPage() {
           padding: "48px",
           borderRadius: "16px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          border: "1px solid #f3f4f6",
+          border: "1px solid var(--tt-surface-muted)",
         }}>
           {status === "success" ? (
             <div style={{
@@ -86,17 +73,17 @@ export default function ContactPage() {
               padding: "40px 20px",
             }}>
               <div style={{ fontSize: "64px", marginBottom: "24px" }}>✅</div>
-              <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "12px", color: "#1a1a1a" }}>
+              <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "12px", color: "var(--tt-text)" }}>
                 Message Sent Successfully!
               </h2>
-              <p style={{ fontSize: "16px", color: "#6b7280", marginBottom: "24px" }}>
+              <p style={{ fontSize: "16px", color: "var(--tt-text-muted)", marginBottom: "24px" }}>
                 Thank you for contacting us. We'll get back to you as soon as possible.
               </p>
               <button
                 onClick={() => setStatus("idle")}
                 style={{
                   padding: "12px 24px",
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                   color: "white",
                   border: "none",
                   borderRadius: "8px",
@@ -116,7 +103,7 @@ export default function ContactPage() {
                   marginBottom: "8px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#374151"
+                  color: "var(--tt-text-strong)"
                 }}>
                   Your Name *
                 </label>
@@ -128,14 +115,14 @@ export default function ContactPage() {
                   style={{
                     width: "100%",
                     padding: "14px",
-                    border: "2px solid #e5e7eb",
+                    border: "2px solid var(--tt-border)",
                     borderRadius: "8px",
                     fontSize: "16px",
                     outline: "none",
                     transition: "border-color 0.2s",
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                  onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                  onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                  onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
                 />
               </div>
 
@@ -145,7 +132,7 @@ export default function ContactPage() {
                   marginBottom: "8px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#374151"
+                  color: "var(--tt-text-strong)"
                 }}>
                   Email Address *
                 </label>
@@ -157,14 +144,14 @@ export default function ContactPage() {
                   style={{
                     width: "100%",
                     padding: "14px",
-                    border: "2px solid #e5e7eb",
+                    border: "2px solid var(--tt-border)",
                     borderRadius: "8px",
                     fontSize: "16px",
                     outline: "none",
                     transition: "border-color 0.2s",
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                  onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                  onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                  onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
                 />
               </div>
 
@@ -174,7 +161,7 @@ export default function ContactPage() {
                   marginBottom: "8px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#374151"
+                  color: "var(--tt-text-strong)"
                 }}>
                   Subject *
                 </label>
@@ -186,14 +173,14 @@ export default function ContactPage() {
                   style={{
                     width: "100%",
                     padding: "14px",
-                    border: "2px solid #e5e7eb",
+                    border: "2px solid var(--tt-border)",
                     borderRadius: "8px",
                     fontSize: "16px",
                     outline: "none",
                     transition: "border-color 0.2s",
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                  onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                  onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                  onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
                 />
               </div>
 
@@ -203,7 +190,7 @@ export default function ContactPage() {
                   marginBottom: "8px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#374151"
+                  color: "var(--tt-text-strong)"
                 }}>
                   Message *
                 </label>
@@ -215,7 +202,7 @@ export default function ContactPage() {
                   style={{
                     width: "100%",
                     padding: "14px",
-                    border: "2px solid #e5e7eb",
+                    border: "2px solid var(--tt-border)",
                     borderRadius: "8px",
                     fontSize: "16px",
                     outline: "none",
@@ -223,8 +210,8 @@ export default function ContactPage() {
                     fontFamily: "inherit",
                     resize: "vertical",
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                  onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                  onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                  onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
                 />
               </div>
 
@@ -267,7 +254,7 @@ export default function ContactPage() {
                 style={{
                   width: "100%",
                   padding: "16px",
-                  background: status === "sending" ? "#9ca3af" : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background: status === "sending" ? "var(--tt-muted)" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                   color: "white",
                   border: "none",
                   borderRadius: "8px",
@@ -279,7 +266,7 @@ export default function ContactPage() {
                 onMouseEnter={(e) => {
                   if (status !== "sending") {
                     e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 8px 16px rgba(102, 126, 234, 0.4)";
+                    e.currentTarget.style.boxShadow = "0 8px 16px rgba(28, 144, 216, 0.4)";
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -293,7 +280,7 @@ export default function ContactPage() {
               <p style={{
                 marginTop: "16px",
                 fontSize: "12px",
-                color: "#9ca3af",
+                color: "var(--tt-muted)",
                 textAlign: "center",
               }}>
                 By submitting this form, you agree to our Privacy Policy and Terms of Service.
@@ -314,14 +301,14 @@ export default function ContactPage() {
             background: "white",
             borderRadius: "12px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            border: "1px solid #f3f4f6",
+            border: "1px solid var(--tt-surface-muted)",
             textAlign: "center",
           }}>
             <div style={{ fontSize: "40px", marginBottom: "12px" }}>📧</div>
-            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               Email
             </h3>
-            <p style={{ fontSize: "14px", color: "#6b7280" }}>
+            <p style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>
               lankalasharan@gmail.com
             </p>
           </div>
@@ -331,14 +318,14 @@ export default function ContactPage() {
             background: "white",
             borderRadius: "12px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            border: "1px solid #f3f4f6",
+            border: "1px solid var(--tt-surface-muted)",
             textAlign: "center",
           }}>
             <div style={{ fontSize: "40px", marginBottom: "12px" }}>⏱️</div>
-            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               Response Time
             </h3>
-            <p style={{ fontSize: "14px", color: "#6b7280" }}>
+            <p style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>
               Within 2-3 business days
             </p>
           </div>
@@ -348,14 +335,14 @@ export default function ContactPage() {
             background: "white",
             borderRadius: "12px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            border: "1px solid #f3f4f6",
+            border: "1px solid var(--tt-surface-muted)",
             textAlign: "center",
           }}>
             <div style={{ fontSize: "40px", marginBottom: "12px" }}>🇩🇪</div>
-            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               Location
             </h3>
-            <p style={{ fontSize: "14px", color: "#6b7280" }}>
+            <p style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>
               Based in Germany
             </p>
           </div>
@@ -364,3 +351,5 @@ export default function ContactPage() {
     </>
   );
 }
+
+

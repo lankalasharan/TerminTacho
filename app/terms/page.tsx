@@ -1,16 +1,17 @@
 export default function TermsOfService() {
   return (
-    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "60px 20px" }}>
-      <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "#1a1a1a" }}>
-        Terms of Service
-      </h1>
-      <p style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "40px" }}>
-        Last Updated: January 25, 2026
-      </p>
+    <main className="tt-section">
+      <div className="tt-container" style={{ maxWidth: "900px" }}>
+        <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "var(--tt-text)" }}>
+          Terms of Service
+        </h1>
+        <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
+          Last Updated: January 25, 2026
+        </p>
 
-      <div style={{ fontSize: "16px", lineHeight: 1.8, color: "#374151" }}>
+        <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             1. Acceptance of Terms
           </h2>
           <p>
@@ -19,7 +20,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             2. Service Description
           </h2>
           <p>
@@ -28,7 +29,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             3. User Obligations
           </h2>
           <p>You agree to:</p>
@@ -43,7 +44,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             4. User-Generated Content
           </h2>
           <p>
@@ -55,7 +56,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             5. Disclaimer of Warranties
           </h2>
           <p>
@@ -72,7 +73,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             6. Limitation of Liability
           </h2>
           <p>
@@ -87,7 +88,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             7. Intellectual Property
           </h2>
           <p>
@@ -96,7 +97,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             8. Account Termination
           </h2>
           <p>
@@ -105,7 +106,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             9. Modifications to Service
           </h2>
           <p>
@@ -114,7 +115,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             10. Governing Law
           </h2>
           <p>
@@ -123,7 +124,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             11. Changes to Terms
           </h2>
           <p>
@@ -132,7 +133,7 @@ export default function TermsOfService() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             12. Contact Information
           </h2>
           <p>
@@ -140,7 +141,9 @@ export default function TermsOfService() {
             Email: [your-email@termintacho.com]
           </p>
         </section>
+        </div>
       </div>
     </main>
   );
 }
+

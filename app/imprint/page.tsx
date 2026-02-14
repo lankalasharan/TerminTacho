@@ -1,19 +1,20 @@
 export default function Imprint() {
   return (
-    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "60px 20px" }}>
-      <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "#1a1a1a" }}>
-        Impressum (Imprint)
-      </h1>
-      <p style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "40px" }}>
-        Legal Disclosure as required by German law (§5 TMG)
-      </p>
+    <main className="tt-section">
+      <div className="tt-container" style={{ maxWidth: "900px" }}>
+        <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "var(--tt-text)" }}>
+          Impressum (Imprint)
+        </h1>
+        <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
+          Legal Disclosure as required by German law (§5 TMG)
+        </p>
 
-      <div style={{ fontSize: "16px", lineHeight: 1.8, color: "#374151" }}>
+        <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             Information According to § 5 TMG
           </h2>
-          <div style={{ padding: "24px", background: "#f9fafb", borderRadius: "12px", border: "1px solid #e5e7eb" }}>
+          <div style={{ padding: "24px", background: "var(--tt-surface-soft)", borderRadius: "12px", border: "1px solid var(--tt-border)" }}>
             <p style={{ marginBottom: "16px" }}>
               <strong>Operator / Publisher:</strong><br/>
               [Your Full Legal Name or Company Name]<br/>
@@ -52,7 +53,7 @@ export default function Imprint() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             Responsible for Content (§ 55 Abs. 2 RStV)
           </h2>
           <p>
@@ -62,12 +63,12 @@ export default function Imprint() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             Dispute Resolution
           </h2>
           <p>
             The European Commission provides a platform for online dispute resolution (ODR): 
-            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" style={{ color: "#667eea", marginLeft: "4px" }}>
+            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" style={{ color: "var(--tt-primary-strong)", marginLeft: "4px" }}>
               https://ec.europa.eu/consumers/odr
             </a>
           </p>
@@ -80,7 +81,7 @@ export default function Imprint() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             Liability for Content
           </h2>
           <p>
@@ -92,7 +93,7 @@ export default function Imprint() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             Liability for Links
           </h2>
           <p>
@@ -104,7 +105,7 @@ export default function Imprint() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             Copyright
           </h2>
           <p>
@@ -116,7 +117,7 @@ export default function Imprint() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             User-Generated Content Disclaimer
           </h2>
           <p>
@@ -126,7 +127,9 @@ export default function Imprint() {
             All processing times displayed are estimates based on community reports and may not reflect actual processing times at German government offices.
           </p>
         </section>
+        </div>
       </div>
     </main>
   );
 }
+

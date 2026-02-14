@@ -14,7 +14,7 @@ export default function SignIn() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
       padding: "20px",
     }}>
       <div style={{
@@ -28,7 +28,7 @@ export default function SignIn() {
         <Link href="/" style={{
           display: "inline-block",
           marginBottom: "32px",
-          color: "#667eea",
+          color: "var(--tt-primary-strong)",
           textDecoration: "none",
           fontSize: "14px",
           fontWeight: 600,
@@ -40,7 +40,7 @@ export default function SignIn() {
           fontSize: "32px",
           fontWeight: 700,
           marginBottom: "8px",
-          color: "#1a1a1a",
+          color: "var(--tt-text)",
         }}>
           Welcome to TerminTacho
         </h1>
@@ -65,7 +65,7 @@ export default function SignIn() {
             style={{
               width: "100%",
               padding: "14px",
-              border: "2px solid #e5e7eb",
+              border: "2px solid var(--tt-border)",
               borderRadius: "8px",
               background: "white",
               fontSize: "16px",
@@ -78,11 +78,11 @@ export default function SignIn() {
               transition: "all 0.2s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#667eea";
-              e.currentTarget.style.background = "#f9fafb";
+              e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
+              e.currentTarget.style.background = "var(--tt-surface-soft)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#e5e7eb";
+              e.currentTarget.style.borderColor = "var(--tt-border)";
               e.currentTarget.style.background = "white";
             }}
           >
@@ -138,7 +138,7 @@ export default function SignIn() {
               style={{
                 width: "100%",
                 padding: "12px 14px",
-                border: "2px solid #e5e7eb",
+                border: "2px solid var(--tt-border)",
                 borderRadius: "8px",
                 fontSize: "14px",
                 outline: "none",
@@ -160,7 +160,7 @@ export default function SignIn() {
               style={{
                 width: "100%",
                 padding: "14px",
-                border: "2px solid #e5e7eb",
+                border: "2px solid var(--tt-border)",
                 borderRadius: "8px",
                 background: "white",
                 fontSize: "16px",
@@ -173,16 +173,16 @@ export default function SignIn() {
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#667eea";
-                e.currentTarget.style.background = "#f9fafb";
+                e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
+                e.currentTarget.style.background = "var(--tt-surface-soft)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.borderColor = "var(--tt-border)";
                 e.currentTarget.style.background = "white";
               }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="#667eea" />
+                <circle cx="12" cy="12" r="10" fill="var(--tt-primary-strong)" />
                 <text x="12" y="16" textAnchor="middle" fontSize="12" fill="white">@</text>
               </svg>
               Sign in with Email
@@ -193,7 +193,7 @@ export default function SignIn() {
         <p style={{
           marginTop: "24px",
           fontSize: "12px",
-          color: "#9ca3af",
+          color: "var(--tt-muted)",
           textAlign: "center",
           lineHeight: 1.6,
         }}>
@@ -204,3 +204,4 @@ export default function SignIn() {
     </div>
   );
 }
+

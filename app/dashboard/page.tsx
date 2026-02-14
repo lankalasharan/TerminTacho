@@ -50,28 +50,17 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "24px",
-          }}>
-            👤 My Dashboard
-          </h1>
-          <p style={{
-            fontSize: "20px",
-            opacity: 0.9,
-          }}>
-            Welcome, {session.user?.email || "User"}!
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            Account overview
+          </div>
+          <h1 className="tt-hero-title">My dashboard.</h1>
+          <p className="tt-hero-subtitle">
+            Welcome, {session.user?.email || "User"}! Track your contributions and next steps.
           </p>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
         {loading ? (
@@ -87,19 +76,19 @@ export default function DashboardPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
               textAlign: "center",
             }}>
               <div style={{ fontSize: "48px", marginBottom: "12px" }}>📊</div>
               <div style={{
                 fontSize: "32px",
                 fontWeight: 800,
-                color: "#667eea",
+                color: "var(--tt-primary-strong)",
                 marginBottom: "8px",
               }}>
                 {stats.totalSubmissions}
               </div>
-              <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+              <div style={{ fontSize: "14px", color: "var(--tt-text-muted)", fontWeight: 600 }}>
                 Total Submissions
               </div>
             </div>
@@ -108,19 +97,19 @@ export default function DashboardPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
               textAlign: "center",
             }}>
               <div style={{ fontSize: "48px", marginBottom: "12px" }}>⭐</div>
               <div style={{
                 fontSize: "32px",
                 fontWeight: 800,
-                color: "#10b981",
+                color: "var(--tt-success)",
                 marginBottom: "8px",
               }}>
                 {stats.totalReviews}
               </div>
-              <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+              <div style={{ fontSize: "14px", color: "var(--tt-text-muted)", fontWeight: 600 }}>
                 Total Reviews
               </div>
             </div>
@@ -129,21 +118,21 @@ export default function DashboardPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
               textAlign: "center",
             }}>
               <div style={{ fontSize: "48px", marginBottom: "12px" }}>📅</div>
               <div style={{
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 marginBottom: "8px",
               }}>
                 {stats.lastSubmission
                   ? new Date(stats.lastSubmission).toLocaleDateString()
                   : "Never"}
               </div>
-              <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+              <div style={{ fontSize: "14px", color: "var(--tt-text-muted)", fontWeight: 600 }}>
                 Last Submission
               </div>
             </div>
@@ -154,13 +143,13 @@ export default function DashboardPage() {
           background: "white",
           padding: "40px",
           borderRadius: "16px",
-          border: "1px solid #e5e7eb",
+          border: "1px solid var(--tt-border)",
         }}>
           <h2 style={{
             fontSize: "24px",
             fontWeight: 700,
             marginBottom: "24px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
           }}>
             Quick Actions
           </h2>
@@ -178,23 +167,23 @@ export default function DashboardPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "32px",
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
+                background: "var(--tt-surface-soft)",
+                border: "1px solid var(--tt-border)",
                 borderRadius: "12px",
                 textDecoration: "none",
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "#f0f4ff";
-                e.currentTarget.style.borderColor = "#667eea";
+                e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#f9fafb";
-                e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.background = "var(--tt-surface-soft)";
+                e.currentTarget.style.borderColor = "var(--tt-border)";
               }}
             >
               <div style={{ fontSize: "36px", marginBottom: "12px" }}>✍️</div>
-              <div style={{ fontSize: "16px", fontWeight: 600, color: "#1a1a1a" }}>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--tt-text)" }}>
                 Submit Timeline
               </div>
             </a>
@@ -207,23 +196,23 @@ export default function DashboardPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "32px",
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
+                background: "var(--tt-surface-soft)",
+                border: "1px solid var(--tt-border)",
                 borderRadius: "12px",
                 textDecoration: "none",
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "#f0fdf4";
-                e.currentTarget.style.borderColor = "#10b981";
+                e.currentTarget.style.borderColor = "var(--tt-success)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#f9fafb";
-                e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.background = "var(--tt-surface-soft)";
+                e.currentTarget.style.borderColor = "var(--tt-border)";
               }}
             >
               <div style={{ fontSize: "36px", marginBottom: "12px" }}>📊</div>
-              <div style={{ fontSize: "16px", fontWeight: 600, color: "#1a1a1a" }}>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--tt-text)" }}>
                 Browse Timelines
               </div>
             </a>
@@ -236,8 +225,8 @@ export default function DashboardPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "32px",
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
+                background: "var(--tt-surface-soft)",
+                border: "1px solid var(--tt-border)",
                 borderRadius: "12px",
                 textDecoration: "none",
                 transition: "all 0.2s",
@@ -247,12 +236,12 @@ export default function DashboardPage() {
                 e.currentTarget.style.borderColor = "#f59e0b";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#f9fafb";
-                e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.background = "var(--tt-surface-soft)";
+                e.currentTarget.style.borderColor = "var(--tt-border)";
               }}
             >
               <div style={{ fontSize: "36px", marginBottom: "12px" }}>🏆</div>
-              <div style={{ fontSize: "16px", fontWeight: 600, color: "#1a1a1a" }}>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--tt-text)" }}>
                 View Leaderboard
               </div>
             </a>
@@ -262,3 +251,4 @@ export default function DashboardPage() {
     </>
   );
 }
+

@@ -84,15 +84,15 @@ function getProcessCategory(label: string): string {
 function getCategoryIconSvg(category: string): string {
   switch (category) {
     case "student":
-      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#4f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 10 12 4 2 10l10 6 10-6Z'/><path d='M6 12v5c0 .8 3 2 6 2s6-1.2 6-2v-5'/></svg>";
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='var(--tt-primary-strong)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 10 12 4 2 10l10 6 10-6Z'/><path d='M6 12v5c0 .8 3 2 6 2s6-1.2 6-2v-5'/></svg>";
     case "work":
       return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/></svg>";
     case "family":
       return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#db2777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-3-3.87'/><path d='M4 21v-2a4 4 0 0 1 3-3.87'/><circle cx='12' cy='7' r='4'/></svg>";
     case "residence":
-      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#2563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11 12 3l9 8'/><path d='M5 10v11h14V10'/></svg>";
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='var(--tt-primary-strong)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11 12 3l9 8'/><path d='M5 10v11h14V10'/></svg>";
     case "finance":
-      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#0ea5e9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 10h18'/></svg>";
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='var(--tt-primary)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 10h18'/></svg>";
     case "citizenship":
       return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/></svg>";
     case "transport":
@@ -100,7 +100,7 @@ function getCategoryIconSvg(category: string): string {
     case "business":
       return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#f59e0b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/></svg>";
     default:
-      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#6b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6'/></svg>";
+      return "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='var(--tt-text-muted)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6'/></svg>";
   }
 }
 
@@ -303,14 +303,14 @@ export default function TimelinesPage() {
           right: "20px",
           zIndex: 500,
           padding: "12px 20px",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
           color: "white",
           border: "none",
           borderRadius: "12px",
           fontSize: "14px",
           fontWeight: 700,
           cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+          boxShadow: "0 4px 12px rgba(28, 144, 216, 0.4)",
           transition: "all 0.2s",
           display: "flex",
           alignItems: "center",
@@ -318,11 +318,11 @@ export default function TimelinesPage() {
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
+          e.currentTarget.style.boxShadow = "0 6px 20px rgba(28, 144, 216, 0.5)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+          e.currentTarget.style.boxShadow = "0 4px 12px rgba(28, 144, 216, 0.4)";
         }}
       >
         <svg
@@ -376,7 +376,7 @@ export default function TimelinesPage() {
               alignItems: "center",
               marginBottom: "16px",
             }}>
-              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+              <h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--tt-text)", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ display: "block" }}>
                   <path d="M12 2.5c-3.31 0-6 2.63-6 5.88 0 4.41 5.02 11.07 5.24 11.35a.95.95 0 0 0 1.52 0c.22-.28 5.24-6.94 5.24-11.35C18 5.13 15.31 2.5 12 2.5zm0 8.46a2.58 2.58 0 1 1 0-5.16 2.58 2.58 0 0 1 0 5.16z" />
                   <path d="M3 21.5 10.2 18.5l3.8 1.6 7-3.2v-2l-7 3.2-3.8-1.6L3 19.5v2z" />
@@ -386,14 +386,14 @@ export default function TimelinesPage() {
               <button
                 onClick={() => setShowMap(false)}
                 style={{
-                  background: "#f3f4f6",
+                  background: "var(--tt-surface-muted)",
                   border: "none",
                   borderRadius: "8px",
                   padding: "8px 16px",
                   fontSize: "14px",
                   fontWeight: 600,
                   cursor: "pointer",
-                  color: "#6b7280",
+                  color: "var(--tt-text-muted)",
                 }}
               >
                 ✕ Close
@@ -403,10 +403,10 @@ export default function TimelinesPage() {
             <div style={{
               marginTop: "12px",
               padding: "12px",
-              background: "#f9fafb",
+              background: "var(--tt-surface-soft)",
               borderRadius: "8px",
               fontSize: "13px",
-              color: "#6b7280",
+              color: "var(--tt-text-muted)",
               textAlign: "center",
             }}>
               💡 Click on city markers to view processing time statistics and details
@@ -415,46 +415,27 @@ export default function TimelinesPage() {
         </div>
       )}
 
-      {/* Hero Section */}
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "16px",
-            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
-          }}>
-            📊 Processing Times Dashboard
-          </h1>
-          <p style={{
-            fontSize: "20px",
-            opacity: 0.95,
-            marginBottom: "8px",
-          }}>
-            Aggregated insights from <strong>{filteredReports.length}</strong> community reports
-          </p>
-          <p style={{
-            fontSize: "16px",
-            opacity: 0.85,
-          }}>
-            Real data ranges • Not exact values • Community driven
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            Processing intelligence
+          </div>
+          <h1 className="tt-hero-title">Processing Times Dashboard</h1>
+          <p className="tt-hero-subtitle">
+            Aggregated insights from {filteredReports.length} community reports. Real data ranges, not exact values.
           </p>
           <div style={{ marginTop: "24px" }}>
-            <ShareButtons 
-              title="Check out TerminTacho - Real processing times for German bureaucracy" 
+            <ShareButtons
+              title="Check out TerminTacho - Real processing times for German bureaucracy"
               url="/timelines"
               description="Crowdsourced processing times for German bureaucratic processes"
             />
           </div>
         </div>
-      </div>
+      </section>
 
-      <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "40px 20px" }}>
+      <main className="tt-section">
+        <div className="tt-container" style={{ maxWidth: "1400px" }}>
         <div style={{
           display: "flex",
           justifyContent: "flex-end",
@@ -469,7 +450,7 @@ export default function TimelinesPage() {
               padding: "10px 16px",
               borderRadius: "10px",
               background: "white",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
               color: "#1f2937",
               fontWeight: 700,
               textDecoration: "none",
@@ -481,14 +462,14 @@ export default function TimelinesPage() {
         </div>
         {/* Filters */}
         <div style={{
-          background: "white",
+          background: "var(--tt-surface)",
           padding: "32px",
           borderRadius: "16px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
           marginBottom: "32px",
-          border: "1px solid #f3f4f6",
+          border: "1px solid var(--tt-border)",
         }}>
-          <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
             🔍 Filter Data
           </h2>
           
@@ -503,7 +484,7 @@ export default function TimelinesPage() {
                 marginBottom: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#374151"
+                color: "var(--tt-text-strong)"
               }}>
                 City
               </label>
@@ -513,7 +494,7 @@ export default function TimelinesPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  border: "2px solid #e5e7eb",
+                  border: "2px solid var(--tt-border)",
                   borderRadius: "8px",
                   fontSize: "16px",
                   outline: "none",
@@ -521,8 +502,8 @@ export default function TimelinesPage() {
                   background: "white",
                   transition: "border-color 0.2s",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
               >
                 <option value="">All Cities</option>
                 {cities.map(city => (
@@ -539,7 +520,7 @@ export default function TimelinesPage() {
                 marginBottom: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#374151"
+                color: "var(--tt-text-strong)"
               }}>
                 Process Type
               </label>
@@ -549,7 +530,7 @@ export default function TimelinesPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  border: "2px solid #e5e7eb",
+                  border: "2px solid var(--tt-border)",
                   borderRadius: "8px",
                   fontSize: "16px",
                   outline: "none",
@@ -561,8 +542,8 @@ export default function TimelinesPage() {
                   justifyContent: "space-between",
                   gap: "12px",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
               >
                 <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <img
@@ -576,7 +557,7 @@ export default function TimelinesPage() {
                     {processFilter ? normalizeProcessLabel(processFilter) : "All Processes"}
                   </span>
                 </span>
-                <span style={{ color: "#9ca3af" }}>▾</span>
+                <span style={{ color: "var(--tt-muted)" }}>▾</span>
               </button>
 
               {processOpen && (
@@ -587,7 +568,7 @@ export default function TimelinesPage() {
                     marginTop: "8px",
                     width: "100%",
                     background: "white",
-                    border: "1px solid #e5e7eb",
+                    border: "1px solid var(--tt-border)",
                     borderRadius: "10px",
                     boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
                     maxHeight: "320px",
@@ -608,7 +589,7 @@ export default function TimelinesPage() {
                       gap: "10px",
                       background: "white",
                       border: "none",
-                      borderBottom: "1px solid #f3f4f6",
+                      borderBottom: "1px solid var(--tt-surface-muted)",
                       cursor: "pointer",
                       textAlign: "left",
                     }}
@@ -638,7 +619,7 @@ export default function TimelinesPage() {
                         gap: "10px",
                         background: "white",
                         border: "none",
-                        borderBottom: "1px solid #f3f4f6",
+                        borderBottom: "1px solid var(--tt-surface-muted)",
                         cursor: "pointer",
                         textAlign: "left",
                       }}
@@ -665,7 +646,7 @@ export default function TimelinesPage() {
                 marginBottom: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#374151"
+                color: "var(--tt-text-strong)"
               }}>
                 Status
               </label>
@@ -675,7 +656,7 @@ export default function TimelinesPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  border: "2px solid #e5e7eb",
+                  border: "2px solid var(--tt-border)",
                   borderRadius: "8px",
                   fontSize: "16px",
                   outline: "none",
@@ -683,8 +664,8 @@ export default function TimelinesPage() {
                   background: "white",
                   transition: "border-color 0.2s",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "#e5e7eb"}
+                onFocus={(e) => e.currentTarget.style.borderColor = "var(--tt-primary-strong)"}
+                onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
               >
                 <option value="">All Statuses</option>
                 <option value="approved">✅ Approved</option>
@@ -704,17 +685,17 @@ export default function TimelinesPage() {
               style={{
                 marginTop: "16px",
                 padding: "10px 20px",
-                background: "#f3f4f6",
+                background: "var(--tt-surface-muted)",
                 border: "none",
                 borderRadius: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor: "pointer",
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#e5e7eb"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-border)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
             >
               Clear All Filters
             </button>
@@ -722,7 +703,7 @@ export default function TimelinesPage() {
         </div>
         {/* Dashboard Content */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 20px", color: "#9ca3af" }}>
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--tt-muted)" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
             <div style={{ fontSize: "18px" }}>Loading dashboard data...</div>
           </div>
@@ -732,13 +713,13 @@ export default function TimelinesPage() {
             padding: "60px 20px",
             background: "white",
             borderRadius: "16px",
-            border: "1px solid #f3f4f6",
+            border: "1px solid var(--tt-surface-muted)",
           }}>
             <div style={{ fontSize: "64px", marginBottom: "16px" }}>📭</div>
-            <div style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+            <div style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               No data available
             </div>
-            <div style={{ fontSize: "16px", color: "#6b7280" }}>
+            <div style={{ fontSize: "16px", color: "var(--tt-text-muted)" }}>
               Try adjusting your filters or be the first to share your experience!
             </div>
           </div>
@@ -753,11 +734,11 @@ export default function TimelinesPage() {
             }}>
               {/* Processing Time Range Card */}
               <div className="stat-card" style={{
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                 color: "white",
                 padding: "32px",
                 borderRadius: "16px",
-                boxShadow: "0 8px 24px rgba(102, 126, 234, 0.25)",
+                boxShadow: "0 8px 24px rgba(28, 144, 216, 0.25)",
               }}>
                 <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
                   📅 TYPICAL PROCESSING TIME
@@ -775,7 +756,7 @@ export default function TimelinesPage() {
 
               {/* Approval Rate Card */}
               <div style={{
-                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                background: "linear-gradient(135deg, var(--tt-success) 0%, #059669 100%)",
                 color: "white",
                 padding: "32px",
                 borderRadius: "16px",
@@ -826,9 +807,9 @@ export default function TimelinesPage() {
                 borderRadius: "16px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 marginBottom: "32px",
-                border: "1px solid #f3f4f6",
+                border: "1px solid var(--tt-surface-muted)",
               }}>
-                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
                   ⏱️ Processing Time Distribution
                 </h2>
                 <div style={{ display: "grid", gap: "16px" }}>
@@ -847,7 +828,7 @@ export default function TimelinesPage() {
                             marginBottom: "8px",
                             fontSize: "14px",
                             fontWeight: 600,
-                            color: "#374151",
+                            color: "var(--tt-text-strong)",
                           }}>
                             <span>{range}</span>
                             <span>{count} reports ({percentage}%)</span>
@@ -855,7 +836,7 @@ export default function TimelinesPage() {
                           <div style={{
                             width: "100%",
                             height: "32px",
-                            background: "#f3f4f6",
+                            background: "var(--tt-surface-muted)",
                             borderRadius: "8px",
                             overflow: "hidden",
                             position: "relative",
@@ -863,7 +844,7 @@ export default function TimelinesPage() {
                             <div style={{
                               width: `${percentage}%`,
                               height: "100%",
-                              background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+                              background: "linear-gradient(90deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "flex-end",
@@ -890,9 +871,9 @@ export default function TimelinesPage() {
               borderRadius: "16px",
               boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               marginBottom: "32px",
-              border: "1px solid #f3f4f6",
+              border: "1px solid var(--tt-surface-muted)",
             }}>
-              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
                 📬 Submission Methods
               </h2>
               <div style={{
@@ -902,35 +883,35 @@ export default function TimelinesPage() {
               }}>
                 <div style={{
                   padding: "24px",
-                  background: "#f9fafb",
+                  background: "var(--tt-surface-soft)",
                   borderRadius: "12px",
-                  border: "2px solid #e5e7eb",
+                  border: "2px solid var(--tt-border)",
                 }}>
                   <div style={{ fontSize: "32px", marginBottom: "8px" }}>🌐</div>
-                  <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "#667eea" }}>
+                  <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "var(--tt-primary-strong)" }}>
                     {onlineCount}
                   </div>
-                  <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+                  <div style={{ fontSize: "14px", color: "var(--tt-text-muted)", fontWeight: 600 }}>
                     Online Submissions
                   </div>
-                  <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "8px" }}>
+                  <div style={{ fontSize: "13px", color: "var(--tt-muted)", marginTop: "8px" }}>
                     {Math.round((onlineCount / filteredReports.length) * 100)}% of total
                   </div>
                 </div>
                 <div style={{
                   padding: "24px",
-                  background: "#f9fafb",
+                  background: "var(--tt-surface-soft)",
                   borderRadius: "12px",
-                  border: "2px solid #e5e7eb",
+                  border: "2px solid var(--tt-border)",
                 }}>
                   <div style={{ fontSize: "32px", marginBottom: "8px" }}>🏢</div>
-                  <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "#10b981" }}>
+                  <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "var(--tt-success)" }}>
                     {inPersonCount}
                   </div>
-                  <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+                  <div style={{ fontSize: "14px", color: "var(--tt-text-muted)", fontWeight: 600 }}>
                     In-Person Submissions
                   </div>
-                  <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "8px" }}>
+                  <div style={{ fontSize: "13px", color: "var(--tt-muted)", marginTop: "8px" }}>
                     {Math.round((inPersonCount / filteredReports.length) * 100)}% of total
                   </div>
                 </div>
@@ -945,9 +926,9 @@ export default function TimelinesPage() {
                 borderRadius: "16px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 marginBottom: "32px",
-                border: "1px solid #f3f4f6",
+                border: "1px solid var(--tt-surface-muted)",
               }}>
-                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
                   📍 Processing Times by City
                 </h2>
                 <div className="reports-grid" style={{
@@ -966,29 +947,29 @@ export default function TimelinesPage() {
                           className="report-card"
                           style={{
                             padding: "20px",
-                            background: "#f9fafb",
+                            background: "var(--tt-surface-soft)",
                             borderRadius: "12px",
-                            border: "2px solid #e5e7eb",
+                            border: "2px solid var(--tt-border)",
                             transition: "all 0.2s",
                             cursor: "pointer",
                           }}
                           onClick={() => setCityFilter(city)}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = "#667eea";
+                            e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
                             e.currentTarget.style.background = "#f0f4ff";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = "#e5e7eb";
-                            e.currentTarget.style.background = "#f9fafb";
+                            e.currentTarget.style.borderColor = "var(--tt-border)";
+                            e.currentTarget.style.background = "var(--tt-surface-soft)";
                           }}
                         >
-                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
                             {city}
                           </div>
-                          <div style={{ fontSize: "28px", fontWeight: 800, color: "#667eea", marginBottom: "4px" }}>
+                          <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--tt-primary-strong)", marginBottom: "4px" }}>
                             ~{stats.avgDays} days
                           </div>
-                          <div style={{ fontSize: "13px", color: "#6b7280" }}>
+                          <div style={{ fontSize: "13px", color: "var(--tt-text-muted)" }}>
                             Based on {stats.count} {stats.count === 1 ? "report" : "reports"}
                           </div>
                         </div>
@@ -1006,9 +987,9 @@ export default function TimelinesPage() {
                 borderRadius: "16px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 marginBottom: "32px",
-                border: "1px solid #f3f4f6",
+                border: "1px solid var(--tt-surface-muted)",
               }}>
-                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
                   📋 Processing Times by Type
                 </h2>
                 <div style={{
@@ -1026,29 +1007,29 @@ export default function TimelinesPage() {
                           key={process}
                           style={{
                             padding: "20px",
-                            background: "#f9fafb",
+                            background: "var(--tt-surface-soft)",
                             borderRadius: "12px",
-                            border: "2px solid #e5e7eb",
+                            border: "2px solid var(--tt-border)",
                             transition: "all 0.2s",
                             cursor: "pointer",
                           }}
                           onClick={() => setProcessFilter(process)}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = "#10b981";
+                            e.currentTarget.style.borderColor = "var(--tt-success)";
                             e.currentTarget.style.background = "#f0fdf4";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = "#e5e7eb";
-                            e.currentTarget.style.background = "#f9fafb";
+                            e.currentTarget.style.borderColor = "var(--tt-border)";
+                            e.currentTarget.style.background = "var(--tt-surface-soft)";
                           }}
                         >
-                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "#1a1a1a" }}>
+                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
                             {normalizeProcessLabel(process)}
                           </div>
-                          <div style={{ fontSize: "28px", fontWeight: 800, color: "#10b981", marginBottom: "4px" }}>
+                          <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--tt-success)", marginBottom: "4px" }}>
                             ~{stats.avgDays} days
                           </div>
-                          <div style={{ fontSize: "13px", color: "#6b7280" }}>
+                          <div style={{ fontSize: "13px", color: "var(--tt-text-muted)" }}>
                             Based on {stats.count} {stats.count === 1 ? "report" : "reports"}
                           </div>
                         </div>
@@ -1091,9 +1072,9 @@ export default function TimelinesPage() {
               borderRadius: "16px",
               boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               marginTop: "32px",
-              border: "1px solid #f3f4f6",
+              border: "1px solid var(--tt-surface-muted)",
             }}>
-              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "#1a1a1a" }}>
+              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
                 🕐 Recent Submissions (with Data Relevance)
               </h2>
               <div style={{
@@ -1114,19 +1095,19 @@ export default function TimelinesPage() {
                         key={report.id}
                         style={{
                           padding: "16px",
-                          background: "#f9fafb",
+                          background: "var(--tt-surface-soft)",
                           borderRadius: "12px",
-                          border: "1px solid #e5e7eb",
+                          border: "1px solid var(--tt-border)",
                           transition: "all 0.2s",
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "#d1d5db";
+                          e.currentTarget.style.borderColor = "var(--tt-border-strong)";
                           e.currentTarget.style.background = "#ffffff";
                           e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "#e5e7eb";
-                          e.currentTarget.style.background = "#f9fafb";
+                          e.currentTarget.style.borderColor = "var(--tt-border)";
+                          e.currentTarget.style.background = "var(--tt-surface-soft)";
                           e.currentTarget.style.boxShadow = "none";
                         }}
                       >
@@ -1147,10 +1128,10 @@ export default function TimelinesPage() {
 
                         {/* City & Process */}
                         <div style={{ marginBottom: "12px" }}>
-                          <div style={{ fontSize: "13px", color: "#9ca3af", fontWeight: 600 }}>
+                          <div style={{ fontSize: "13px", color: "var(--tt-muted)", fontWeight: 600 }}>
                             📍 {report.office.city}
                           </div>
-                          <div style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", marginTop: "4px" }}>
+                          <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--tt-text)", marginTop: "4px" }}>
                             {report.processType.name}
                           </div>
                         </div>
@@ -1162,27 +1143,27 @@ export default function TimelinesPage() {
                           alignItems: "center",
                           marginBottom: "12px",
                           paddingTop: "12px",
-                          borderTop: "1px solid #e5e7eb",
+                          borderTop: "1px solid var(--tt-border)",
                         }}>
                           <div>
-                            <div style={{ fontSize: "12px", color: "#9ca3af", fontWeight: 600 }}>
+                            <div style={{ fontSize: "12px", color: "var(--tt-muted)", fontWeight: 600 }}>
                               Status
                             </div>
                             <div style={{
                               fontSize: "14px",
                               fontWeight: 700,
                               marginTop: "4px",
-                              color: report.status === "approved" ? "#10b981" : report.status === "rejected" ? "#ef4444" : "#f59e0b",
+                              color: report.status === "approved" ? "var(--tt-success)" : report.status === "rejected" ? "#ef4444" : "#f59e0b",
                             }}>
                               {report.status === "approved" ? "✅ Approved" : report.status === "rejected" ? "❌ Rejected" : "⏳ Pending"}
                             </div>
                           </div>
                           {waitTime !== null && (
                             <div style={{ textAlign: "right" }}>
-                              <div style={{ fontSize: "12px", color: "#9ca3af", fontWeight: 600 }}>
+                              <div style={{ fontSize: "12px", color: "var(--tt-muted)", fontWeight: 600 }}>
                                 Processing Time
                               </div>
-                              <div style={{ fontSize: "18px", fontWeight: 800, color: "#667eea", marginTop: "4px" }}>
+                              <div style={{ fontSize: "18px", fontWeight: 800, color: "var(--tt-primary-strong)", marginTop: "4px" }}>
                                 {waitTime}d
                               </div>
                             </div>
@@ -1192,9 +1173,9 @@ export default function TimelinesPage() {
                         {/* Relevance Weight Indicator */}
                         <div style={{
                           fontSize: "11px",
-                          color: "#9ca3af",
+                          color: "var(--tt-muted)",
                           paddingTop: "12px",
-                          borderTop: "1px solid #e5e7eb",
+                          borderTop: "1px solid var(--tt-border)",
                           display: "flex",
                           alignItems: "center",
                           gap: "6px",
@@ -1203,14 +1184,14 @@ export default function TimelinesPage() {
                           <div style={{
                             width: "60px",
                             height: "4px",
-                            background: "#e5e7eb",
+                            background: "var(--tt-border)",
                             borderRadius: "2px",
                             overflow: "hidden",
                           }}>
                             <div style={{
                               width: `${relevance.weight * 100}%`,
                               height: "100%",
-                              background: relevance.weight >= 0.9 ? "#10b981" : relevance.weight >= 0.6 ? "#f59e0b" : "#ef4444",
+                              background: relevance.weight >= 0.9 ? "var(--tt-success)" : relevance.weight >= 0.6 ? "#f59e0b" : "#ef4444",
                               transition: "width 0.3s",
                             }} />
                           </div>
@@ -1225,8 +1206,11 @@ export default function TimelinesPage() {
             </div>
           </>
         )}
+        </div>
       </main>
       </>
     </DataAccessGate>
   );
 }
+
+

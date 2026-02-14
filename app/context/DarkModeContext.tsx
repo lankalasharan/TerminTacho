@@ -25,12 +25,12 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("darkMode", JSON.stringify(isDark));
     if (isDark) {
       document.documentElement.style.colorScheme = "dark";
-      document.body.style.background = "#1a1a1a";
+      document.body.style.background = "var(--tt-text)";
       document.body.style.color = "#ffffff";
     } else {
       document.documentElement.style.colorScheme = "light";
       document.body.style.background = "#ffffff";
-      document.body.style.color = "#1a1a1a";
+      document.body.style.color = "var(--tt-text)";
     }
   }, [isDark, mounted]);
 
@@ -50,3 +50,4 @@ export function useDarkMode() {
   }
   return context;
 }
+

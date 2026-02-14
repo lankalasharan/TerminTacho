@@ -48,12 +48,13 @@ export default function AuthButton() {
           onClick={() => setIsOpen((v) => !v)}
           aria-haspopup="menu"
           aria-expanded={isOpen}
+          className="auth-trigger"
           style={{
             height: "44px",
             padding: "4px 10px 4px 4px",
             borderRadius: "999px",
-            border: "2px solid #e5e7eb",
-            background: "white",
+            border: "2px solid var(--tt-border)",
+            background: "var(--tt-surface)",
             display: "flex",
             alignItems: "center",
             gap: "10px",
@@ -62,11 +63,11 @@ export default function AuthButton() {
             boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "#667eea";
-            e.currentTarget.style.boxShadow = "0 6px 16px rgba(102,126,234,0.25)";
+            e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
+            e.currentTarget.style.boxShadow = "0 6px 16px rgba(28, 144, 216,0.25)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "#e5e7eb";
+            e.currentTarget.style.borderColor = "var(--tt-border)";
             e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)";
           }}
         >
@@ -76,8 +77,8 @@ export default function AuthButton() {
               height: "36px",
               borderRadius: "999px",
               overflow: "hidden",
-              border: "1px solid #e5e7eb",
-              background: "#eef2ff",
+              border: "1px solid var(--tt-border)",
+              background: "var(--tt-primary-soft)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -93,17 +94,17 @@ export default function AuthButton() {
                 style={{ borderRadius: "999px", objectFit: "cover" }}
               />
             ) : (
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#4f46e5" }}>
+              <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--tt-primary-strong)" }}>
                 {initials}
               </span>
             )}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+          <div className="auth-meta" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
             <span
               style={{
                 fontSize: "13px",
                 fontWeight: 700,
-                color: "#111827",
+                color: "var(--tt-text)",
                 maxWidth: "120px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -112,10 +113,10 @@ export default function AuthButton() {
             >
               {displayName}
             </span>
-            <span style={{ fontSize: "11px", color: "#6b7280" }}>Signed in</span>
+            <span style={{ fontSize: "11px", color: "var(--tt-text-muted)" }}>Signed in</span>
           </div>
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" style={{ marginLeft: "2px" }}>
-            <path d="M5 7l5 5 5-5" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 7l5 5 5-5" stroke="var(--tt-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 
@@ -127,8 +128,8 @@ export default function AuthButton() {
               top: "54px",
               right: 0,
               minWidth: "260px",
-              background: "white",
-              border: "1px solid #e5e7eb",
+              background: "var(--tt-surface)",
+              border: "1px solid var(--tt-border)",
               borderRadius: "14px",
               boxShadow: "0 16px 32px rgba(0,0,0,0.14)",
               padding: "10px",
@@ -139,7 +140,7 @@ export default function AuthButton() {
               style={{
                 padding: "12px",
                 borderRadius: "10px",
-                background: "#f9fafb",
+                background: "var(--tt-surface-soft)",
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
@@ -152,8 +153,8 @@ export default function AuthButton() {
                   height: "40px",
                   borderRadius: "999px",
                   overflow: "hidden",
-                  border: "1px solid #e5e7eb",
-                  background: "#eef2ff",
+                  border: "1px solid var(--tt-border)",
+                  background: "var(--tt-primary-soft)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -169,17 +170,17 @@ export default function AuthButton() {
                     style={{ borderRadius: "999px", objectFit: "cover" }}
                   />
                 ) : (
-                  <span style={{ fontSize: "13px", fontWeight: 700, color: "#4f46e5" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--tt-primary-strong)" }}>
                     {initials}
                   </span>
                 )}
               </div>
               <div>
-                <div style={{ fontWeight: 700, color: "#111827", fontSize: "14px" }}>
+                <div style={{ fontWeight: 700, color: "var(--tt-text)", fontSize: "14px" }}>
                   {displayName}
                 </div>
                 {session.user?.email && (
-                  <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                  <div style={{ fontSize: "12px", color: "var(--tt-text-muted)" }}>
                     {session.user.email}
                   </div>
                 )}
@@ -197,15 +198,15 @@ export default function AuthButton() {
                   padding: "10px 12px",
                   borderRadius: "10px",
                   textDecoration: "none",
-                  color: "#111827",
+                  color: "var(--tt-text)",
                   fontSize: "14px",
                   fontWeight: 600,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--tt-surface-muted)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z" stroke="var(--tt-primary-strong)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Dashboard
               </Link>
@@ -219,15 +220,15 @@ export default function AuthButton() {
                   padding: "10px 12px",
                   borderRadius: "10px",
                   textDecoration: "none",
-                  color: "#111827",
+                  color: "var(--tt-text)",
                   fontSize: "14px",
                   fontWeight: 600,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--tt-surface-muted)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v14M5 12h14" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M12 5v14M5 12h14" stroke="var(--tt-primary-strong)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Submit Timeline
               </Link>
@@ -241,21 +242,21 @@ export default function AuthButton() {
                   padding: "10px 12px",
                   borderRadius: "10px",
                   textDecoration: "none",
-                  color: "#111827",
+                  color: "var(--tt-text)",
                   fontSize: "14px",
                   fontWeight: 600,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--tt-surface-muted)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="var(--tt-primary-strong)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Contact Support
               </Link>
             </div>
 
-            <div style={{ height: "1px", background: "#e5e7eb", margin: "10px 0" }} />
+            <div style={{ height: "1px", background: "var(--tt-border)", margin: "10px 0" }} />
 
             <button
               onClick={() => signOut()}
@@ -263,8 +264,8 @@ export default function AuthButton() {
                 width: "100%",
                 padding: "10px 12px",
                 borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                background: "white",
+                border: "1px solid var(--tt-border)",
+                background: "var(--tt-surface)",
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor: "pointer",
@@ -275,10 +276,10 @@ export default function AuthButton() {
                 gap: "10px",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#f3f4f6";
+                e.currentTarget.style.background = "var(--tt-surface-muted)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "white";
+                e.currentTarget.style.background = "var(--tt-surface)";
               }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -297,9 +298,10 @@ export default function AuthButton() {
   return (
     <button
       onClick={() => signIn()}
+      className="auth-signin"
       style={{
         padding: "10px 18px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
         color: "white",
         border: "none",
         borderRadius: "8px",
@@ -311,18 +313,20 @@ export default function AuthButton() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        boxShadow: "0 2px 8px rgba(102, 126, 234, 0.2)",
+        boxShadow: "0 2px 8px rgba(28, 144, 216, 0.2)",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = "0 6px 16px rgba(102, 126, 234, 0.35)";
+        e.currentTarget.style.boxShadow = "0 6px 16px rgba(28, 144, 216, 0.35)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 2px 8px rgba(102, 126, 234, 0.2)";
+        e.currentTarget.style.boxShadow = "0 2px 8px rgba(28, 144, 216, 0.2)";
       }}
     >
       Sign In
     </button>
   );
 }
+
+

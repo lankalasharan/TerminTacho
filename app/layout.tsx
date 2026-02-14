@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, DM_Sans } from "next/font/google";
+import { Space_Grotesk, Fraunces, Orbitron } from "next/font/google";
 import "./globals.css";
 import Logo from "./components/Logo";
 import Breadcrumbs from "./components/Breadcrumbs";
@@ -8,23 +8,29 @@ import AuthButton from "./components/AuthButton";
 import MenuBar from "./components/MenuBar";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
-import DarkModeToggle from "./components/DarkModeToggle";
 import SearchBar from "./components/SearchBar";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import PageTransition from "./components/PageTransition";
 
-const inter = Inter({
-  variable: "--font-inter",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const fraunces = Fraunces({
+  variable: "--font-serif-display",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "700"],
+  weight: ["700", "900"],
+});
+
+const orbitron = Orbitron({
+  variable: "--font-logo",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -72,10 +78,10 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#667eea" />
+        <meta name="theme-color" content="#5c8f86" />
       </head>
       <body
-        className={`${inter.variable} ${dmSans.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${fraunces.variable} ${orbitron.variable} antialiased`}
       >
         {/* Skip to Content Link (Accessibility) - CSS only, no event handlers */}
         <style>{`
@@ -100,72 +106,29 @@ export default function RootLayout({
         </a>
 
         <Providers>
-          {/* Header with Logo */}
-          <header style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            background: "rgba(255, 255, 255, 0.98)",
-            backdropFilter: "blur(10px)",
-            borderBottom: "1px solid #e5e7eb",
-            padding: "12px 16px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
-          }}>
-            <style>{`
-              @media (max-width: 768px) {
-                header {
-                  padding: 10px 12px !important;
-                }
-              }
-              @media (max-width: 480px) {
-                header {
-                  padding: 8px 10px !important;
-                }
-              }
-            `}</style>
-            <div style={{
-              maxWidth: "1200px",
-              margin: "0 auto",
-              padding: "0 8px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "6px",
-              flexWrap: "nowrap"
-            }}>
-              <style>{`
-                @media (max-width: 768px) {
-                  header > div > div {
-                    padding: 0 8px !important;
-                    gap: 12px !important;
-                  }
-                }
-                @media (max-width: 480px) {
-                  header > div > div {
-                    padding: 0 4px !important;
-                    gap: 8px !important;
-                  }
-                }
-              `}</style>
-              <Logo />
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                <SearchBar />
-                <DarkModeToggle />
-                <AuthButton />
-                <MenuBar />
+          <div className="tt-shell">
+            {/* Header with Logo */}
+            <header className="tt-header">
+              <div className="tt-header-inner">
+                <Logo />
+                <div className="tt-header-actions" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <SearchBar />
+                  <AuthButton />
+                  <MenuBar />
+                </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          {/* Breadcrumbs */}
-          <Breadcrumbs />
+            {/* Breadcrumbs */}
+            <Breadcrumbs />
 
-          {/* Main Content */}
-          <main id="main-content">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer />
-          <CookieConsent />
+            {/* Main Content */}
+            <main id="main-content" className="tt-main">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <Footer />
+            <CookieConsent />
+          </div>
         </Providers>
       </body>
     </html>

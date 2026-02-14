@@ -41,50 +41,35 @@ export default function SearchPage() {
 
   return (
     <>
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "24px",
-          }}>
-            🔍 Search
-          </h1>
-          
-          <div style={{
-            display: "flex",
-            gap: "12px",
-            marginTop: "24px",
-          }}>
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            Search
+          </div>
+          <h1 className="tt-hero-title">Find your answers.</h1>
+          <p className="tt-hero-subtitle">
+            Search cities, process types, FAQs, and documentation in one place.
+          </p>
+          <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search cities, process types, FAQs..."
               autoFocus
-              style={{
-                flex: 1,
-                padding: "16px",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "16px",
-              }}
+              className="tt-input"
+              style={{ flex: 1, fontSize: "16px" }}
             />
           </div>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
         {query.length < 2 ? (
           <div style={{
             textAlign: "center",
             padding: "60px 20px",
-            color: "#6b7280",
+            color: "var(--tt-text-muted)",
           }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔎</div>
             <p>Enter at least 2 characters to search</p>
@@ -93,7 +78,7 @@ export default function SearchPage() {
           <div style={{
             textAlign: "center",
             padding: "60px 20px",
-            color: "#9ca3af",
+            color: "var(--tt-muted)",
           }}>
             <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
             <p>Searching...</p>
@@ -102,7 +87,7 @@ export default function SearchPage() {
           <div style={{
             textAlign: "center",
             padding: "60px 20px",
-            color: "#6b7280",
+            color: "var(--tt-text-muted)",
           }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
             <p>No results found for "{query}"</p>
@@ -113,7 +98,7 @@ export default function SearchPage() {
               fontSize: "24px",
               fontWeight: 700,
               marginBottom: "24px",
-              color: "#1a1a1a",
+              color: "var(--tt-text)",
             }}>
               Found {results.length} result{results.length === 1 ? "" : "s"}
             </h2>
@@ -130,7 +115,7 @@ export default function SearchPage() {
                     display: "block",
                     padding: "20px",
                     background: "white",
-                    border: "1px solid #e5e7eb",
+                    border: "1px solid var(--tt-border)",
                     borderRadius: "12px",
                     textDecoration: "none",
                     transition: "all 0.2s",
@@ -163,20 +148,20 @@ export default function SearchPage() {
                         fontSize: "18px",
                         fontWeight: 700,
                         marginBottom: "8px",
-                        color: "#1a1a1a",
+                        color: "var(--tt-text)",
                       }}>
                         {result.title}
                       </h3>
                       <p style={{
                         fontSize: "14px",
-                        color: "#6b7280",
+                        color: "var(--tt-text-muted)",
                         lineHeight: 1.6,
                       }}>
                         {result.description}
                       </p>
                       <div style={{
                         fontSize: "12px",
-                        color: "#9ca3af",
+                        color: "var(--tt-muted)",
                         marginTop: "8px",
                       }}>
                         {result.type === "city" && "📊 City Statistics"}
@@ -195,3 +180,4 @@ export default function SearchPage() {
     </>
   );
 }
+

@@ -27,8 +27,8 @@ export default function Breadcrumbs() {
       aria-label="Breadcrumb"
       style={{
         padding: "12px 20px",
-        background: "#f9fafb",
-        borderBottom: "1px solid #e5e7eb",
+        background: "var(--tt-surface-soft)",
+        borderBottom: "1px solid var(--tt-border)",
         fontSize: "14px",
       }}
     >
@@ -43,21 +43,21 @@ export default function Breadcrumbs() {
         }}>
           {breadcrumbItems.map((item, index) => (
             <li key={item.href} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              {index > 0 && <span style={{ color: "#d1d5db" }}>/</span>}
+              {index > 0 && <span style={{ color: "var(--tt-border-strong)" }}>/</span>}
               {index === breadcrumbItems.length - 1 ? (
-                <span style={{ color: "#6b7280", fontWeight: 600 }}>
+                <span style={{ color: "var(--tt-text-muted)", fontWeight: 600 }}>
                   {item.label}
                 </span>
               ) : (
                 <Link
                   href={item.href}
                   style={{
-                    color: "#667eea",
+                    color: "var(--tt-primary-strong)",
                     textDecoration: "none",
                     transition: "color 0.2s",
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = "#764ba2"}
-                  onMouseLeave={(e) => e.currentTarget.style.color = "#667eea"}
+                  onMouseEnter={(e) => e.currentTarget.style.color = "var(--tt-primary)"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "var(--tt-primary-strong)"}
                 >
                   {item.label}
                 </Link>
@@ -69,3 +69,4 @@ export default function Breadcrumbs() {
     </nav>
   );
 }
+

@@ -42,18 +42,19 @@ export default function OfficesIndexPage() {
   }, [offices, query]);
 
   const cardGradients = [
-    "linear-gradient(135deg, #fdf2f8 0%, #eef2ff 100%)",
+    "linear-gradient(135deg, #fdf2f8 0%, var(--tt-primary-soft) 100%)",
     "linear-gradient(135deg, #ecfeff 0%, #f0fdf4 100%)",
     "linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%)",
-    "linear-gradient(135deg, #f3f4f6 0%, #e0e7ff 100%)",
+    "linear-gradient(135deg, var(--tt-surface-muted) 0%, #e0e7ff 100%)",
     "linear-gradient(135deg, #fef2f2 0%, #f0f9ff 100%)",
   ];
 
   return (
-    <main style={{ maxWidth: 1200, margin: "40px auto", padding: "0 20px" }}>
+    <main className="tt-section">
+      <div className="tt-container" style={{ maxWidth: "1200px" }}>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 8 }}>🏢 Offices</h1>
-        <p style={{ color: "#6b7280" }}>
+        <p style={{ color: "var(--tt-text-muted)" }}>
           Browse all offices and open details to see timelines and reviews.
         </p>
       </div>
@@ -67,7 +68,7 @@ export default function OfficesIndexPage() {
           style={{
             width: "100%",
             padding: "12px 14px",
-            border: "1px solid #e5e7eb",
+            border: "1px solid var(--tt-border)",
             borderRadius: 8,
             fontSize: 14,
           }}
@@ -75,9 +76,9 @@ export default function OfficesIndexPage() {
       </div>
 
       {loading ? (
-        <div style={{ padding: "40px 0", textAlign: "center", color: "#6b7280" }}>Loading offices…</div>
+        <div style={{ padding: "40px 0", textAlign: "center", color: "var(--tt-text-muted)" }}>Loading offices…</div>
       ) : filtered.length === 0 ? (
-        <div style={{ padding: "40px 0", textAlign: "center", color: "#6b7280" }}>
+        <div style={{ padding: "40px 0", textAlign: "center", color: "var(--tt-text-muted)" }}>
           No offices found.
         </div>
       ) : (
@@ -99,7 +100,7 @@ export default function OfficesIndexPage() {
             >
               <div
                 style={{
-                  border: "1px solid #e5e7eb",
+                  border: "1px solid var(--tt-border)",
                   borderRadius: 12,
                   padding: 16,
                   background: cardGradients[idx % cardGradients.length],
@@ -115,12 +116,12 @@ export default function OfficesIndexPage() {
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "#4b5563" }}>{office.name}</div>
                 {office.address ? (
-                  <div style={{ fontSize: 12, color: "#6b7280" }}>📍 {office.address}</div>
+                  <div style={{ fontSize: 12, color: "var(--tt-text-muted)" }}>📍 {office.address}</div>
                 ) : null}
                 {office.website ? (
-                  <div style={{ fontSize: 12, color: "#2563eb" }}>{office.website}</div>
+                  <div style={{ fontSize: 12, color: "var(--tt-primary-strong)" }}>{office.website}</div>
                 ) : null}
-                <div style={{ marginTop: "auto", fontSize: 12, color: "#9ca3af" }}>
+                <div style={{ marginTop: "auto", fontSize: 12, color: "var(--tt-muted)" }}>
                   View details →
                 </div>
               </div>
@@ -128,6 +129,8 @@ export default function OfficesIndexPage() {
           ))}
         </div>
       )}
+      </div>
     </main>
   );
 }
+

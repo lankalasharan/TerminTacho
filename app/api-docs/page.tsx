@@ -5,28 +5,17 @@ import Link from "next/link";
 export default function APIDocsPage() {
   return (
     <>
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "24px",
-          }}>
-            📚 API Documentation
-          </h1>
-          <p style={{
-            fontSize: "20px",
-            opacity: 0.9,
-          }}>
-            Build with TerminTacho
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            API documentation
+          </div>
+          <h1 className="tt-hero-title">Build with TerminTacho.</h1>
+          <p className="tt-hero-subtitle">
+            Integrate real processing-time intelligence into your own tools.
           </p>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
         {/* Base URL */}
@@ -35,12 +24,12 @@ export default function APIDocsPage() {
             fontSize: "28px",
             fontWeight: 700,
             marginBottom: "24px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
           }}>
             Base URL
           </h2>
           <div style={{
-            background: "#f3f4f6",
+            background: "var(--tt-surface-muted)",
             padding: "16px 20px",
             borderRadius: "8px",
             fontFamily: "monospace",
@@ -57,7 +46,7 @@ export default function APIDocsPage() {
             fontSize: "28px",
             fontWeight: 700,
             marginBottom: "32px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
           }}>
             Endpoints
           </h2>
@@ -71,18 +60,18 @@ export default function APIDocsPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
             }}>
               <h3 style={{
                 fontSize: "20px",
                 fontWeight: 700,
                 marginBottom: "16px",
-                color: "#667eea",
+                color: "var(--tt-primary-strong)",
               }}>
                 🔍 Search
               </h3>
               <div style={{
-                background: "#f3f4f6",
+                background: "var(--tt-surface-muted)",
                 padding: "12px 16px",
                 borderRadius: "6px",
                 fontFamily: "monospace",
@@ -93,16 +82,16 @@ export default function APIDocsPage() {
               </div>
               <p style={{
                 fontSize: "16px",
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 marginBottom: "16px",
               }}>
                 Search cities, processes, FAQ pages, and content.
               </p>
               <div>
-                <strong style={{ color: "#1a1a1a" }}>Parameters:</strong>
+                <strong style={{ color: "var(--tt-text)" }}>Parameters:</strong>
                 <ul style={{
                   fontSize: "14px",
-                  color: "#6b7280",
+                  color: "var(--tt-text-muted)",
                   lineHeight: 1.8,
                 }}>
                   <li><code>q</code> (required): Search query string</li>
@@ -126,18 +115,18 @@ export default function APIDocsPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
             }}>
               <h3 style={{
                 fontSize: "20px",
                 fontWeight: 700,
                 marginBottom: "16px",
-                color: "#10b981",
+                color: "var(--tt-success)",
               }}>
                 🏆 Leaderboard
               </h3>
               <div style={{
-                background: "#f3f4f6",
+                background: "var(--tt-surface-muted)",
                 padding: "12px 16px",
                 borderRadius: "6px",
                 fontFamily: "monospace",
@@ -148,7 +137,7 @@ export default function APIDocsPage() {
               </div>
               <p style={{
                 fontSize: "16px",
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 marginBottom: "16px",
               }}>
                 Get top contributors and their statistics.
@@ -171,7 +160,7 @@ export default function APIDocsPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
             }}>
               <h3 style={{
                 fontSize: "20px",
@@ -182,7 +171,7 @@ export default function APIDocsPage() {
                 🗺️ Sitemap
               </h3>
               <div style={{
-                background: "#f3f4f6",
+                background: "var(--tt-surface-muted)",
                 padding: "12px 16px",
                 borderRadius: "6px",
                 fontFamily: "monospace",
@@ -193,7 +182,7 @@ export default function APIDocsPage() {
               </div>
               <p style={{
                 fontSize: "16px",
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 marginBottom: "16px",
               }}>
                 Get XML sitemap for search engine indexing.
@@ -216,7 +205,7 @@ export default function APIDocsPage() {
               background: "white",
               padding: "32px",
               borderRadius: "16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--tt-border)",
             }}>
               <h3 style={{
                 fontSize: "20px",
@@ -227,7 +216,7 @@ export default function APIDocsPage() {
                 📬 Newsletter
               </h3>
               <div style={{
-                background: "#f3f4f6",
+                background: "var(--tt-surface-muted)",
                 padding: "12px 16px",
                 borderRadius: "6px",
                 fontFamily: "monospace",
@@ -238,15 +227,15 @@ export default function APIDocsPage() {
               </div>
               <p style={{
                 fontSize: "16px",
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 marginBottom: "16px",
               }}>
                 Subscribe to the newsletter for updates.
               </p>
               <div>
-                <strong style={{ color: "#1a1a1a" }}>Request Body:</strong>
+                <strong style={{ color: "var(--tt-text)" }}>Request Body:</strong>
                 <div style={{
-                  background: "#f3f4f6",
+                  background: "var(--tt-surface-muted)",
                   padding: "12px 16px",
                   borderRadius: "6px",
                   fontFamily: "monospace",
@@ -275,12 +264,12 @@ export default function APIDocsPage() {
         </section>
 
         {/* Rate Limiting */}
-        <section style={{ marginTop: "60px", paddingTop: "60px", borderTop: "2px solid #e5e7eb" }}>
+        <section style={{ marginTop: "60px", paddingTop: "60px", borderTop: "2px solid var(--tt-border)" }}>
           <h2 style={{
             fontSize: "28px",
             fontWeight: 700,
             marginBottom: "24px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
           }}>
             Rate Limiting
           </h2>
@@ -296,22 +285,22 @@ export default function APIDocsPage() {
         </section>
 
         {/* Support */}
-        <section style={{ marginTop: "60px", paddingTop: "60px", borderTop: "2px solid #e5e7eb" }}>
+        <section style={{ marginTop: "60px", paddingTop: "60px", borderTop: "2px solid var(--tt-border)" }}>
           <h2 style={{
             fontSize: "28px",
             fontWeight: 700,
             marginBottom: "24px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
           }}>
             Support
           </h2>
           <p style={{
             fontSize: "16px",
-            color: "#6b7280",
+            color: "var(--tt-text-muted)",
             marginBottom: "16px",
           }}>
             For issues or questions about the API, please contact us at{" "}
-            <Link href="/contact" style={{ color: "#667eea", textDecoration: "none" }}>
+            <Link href="/contact" style={{ color: "var(--tt-primary-strong)", textDecoration: "none" }}>
               contact page
             </Link>
             .
@@ -321,3 +310,4 @@ export default function APIDocsPage() {
     </>
   );
 }
+

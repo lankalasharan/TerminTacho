@@ -34,28 +34,17 @@ export default function LeaderboardPage() {
   return (
     <DataAccessGate>
       <>
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "16px",
-          }}>
-            🏆 Top Contributors
-          </h1>
-          <p style={{
-            fontSize: "20px",
-            opacity: 0.9,
-          }}>
-            Recognizing our most active community members
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            Community leaders
+          </div>
+          <h1 className="tt-hero-title">Top contributors.</h1>
+          <p className="tt-hero-subtitle">
+            Recognizing the community members who keep TerminTacho current.
           </p>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
         {loading ? (
@@ -82,7 +71,7 @@ export default function LeaderboardPage() {
                   gap: "20px",
                   padding: "24px",
                   background: "white",
-                  border: "1px solid #e5e7eb",
+                  border: "1px solid var(--tt-border)",
                   borderRadius: "12px",
                   boxShadow: index < 3 ? "0 4px 12px rgba(0,0,0,0.08)" : "none",
                 }}
@@ -99,14 +88,14 @@ export default function LeaderboardPage() {
                   <h3 style={{
                     fontSize: "16px",
                     fontWeight: 700,
-                    color: "#1a1a1a",
+                    color: "var(--tt-text)",
                     marginBottom: "4px",
                   }}>
                     Anonymous Contributor
                   </h3>
                   <p style={{
                     fontSize: "14px",
-                    color: "#6b7280",
+                    color: "var(--tt-text-muted)",
                   }}>
                     {contributor.email.substring(0, 3)}***@***
                   </p>
@@ -118,13 +107,13 @@ export default function LeaderboardPage() {
                   <div style={{
                     fontSize: "24px",
                     fontWeight: 800,
-                    color: "#667eea",
+                    color: "var(--tt-primary-strong)",
                   }}>
                     {contributor.reportsCount}
                   </div>
                   <div style={{
                     fontSize: "12px",
-                    color: "#9ca3af",
+                    color: "var(--tt-muted)",
                   }}>
                     Reports Submitted
                   </div>
@@ -137,7 +126,7 @@ export default function LeaderboardPage() {
                     borderRadius: "6px",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#1a1a1a",
+                    color: "var(--tt-text)",
                   }}>
                     {index === 0 ? "🌟 TOP" : index === 1 ? "⭐ SILVER" : "🔶 BRONZE"}
                   </div>
@@ -150,7 +139,7 @@ export default function LeaderboardPage() {
         <div style={{
           marginTop: "60px",
           padding: "40px",
-          background: "#f9fafb",
+          background: "var(--tt-surface-soft)",
           borderRadius: "12px",
           textAlign: "center",
         }}>
@@ -158,13 +147,13 @@ export default function LeaderboardPage() {
             fontSize: "24px",
             fontWeight: 700,
             marginBottom: "16px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
           }}>
             Want to join the leaderboard?
           </h2>
           <p style={{
             fontSize: "16px",
-            color: "#6b7280",
+            color: "var(--tt-text-muted)",
             marginBottom: "24px",
           }}>
             Every submission helps the community. Share your experience and become a top contributor!
@@ -174,7 +163,7 @@ export default function LeaderboardPage() {
             style={{
               display: "inline-block",
               padding: "12px 32px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
               color: "white",
               borderRadius: "8px",
               textDecoration: "none",
@@ -183,7 +172,7 @@ export default function LeaderboardPage() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 20px rgba(102, 126, 234, 0.3)";
+              e.currentTarget.style.boxShadow = "0 8px 20px rgba(28, 144, 216, 0.3)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
@@ -198,3 +187,5 @@ export default function LeaderboardPage() {
     </DataAccessGate>
   );
 }
+
+

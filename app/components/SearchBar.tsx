@@ -46,8 +46,8 @@ export default function SearchBar() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          background: "#f3f4f6",
-          border: "1px solid #e5e7eb",
+          background: "var(--tt-surface-muted)",
+          border: "1px solid var(--tt-border)",
           cursor: "pointer",
           fontSize: "16px",
           padding: "10px 12px",
@@ -58,15 +58,15 @@ export default function SearchBar() {
           minHeight: "44px",
           borderRadius: "8px",
           transition: "all 0.2s ease",
-          color: "#6b7280",
+          color: "var(--tt-text-muted)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#e5e7eb";
-          e.currentTarget.style.color = "#374151";
+          e.currentTarget.style.background = "var(--tt-border)";
+          e.currentTarget.style.color = "var(--tt-text-strong)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "#f3f4f6";
-          e.currentTarget.style.color = "#6b7280";
+          e.currentTarget.style.background = "var(--tt-surface-muted)";
+          e.currentTarget.style.color = "var(--tt-text-muted)";
         }}
         aria-label="Search"
       >
@@ -84,14 +84,14 @@ export default function SearchBar() {
             position: "absolute",
             top: "100%",
             right: 0,
-            background: "white",
+            background: "var(--tt-surface)",
             padding: "16px",
             borderRadius: "12px",
             boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
             marginTop: "8px",
             zIndex: 1000,
             width: "280px",
-            border: "1px solid #e5e7eb",
+            border: "1px solid var(--tt-border)",
           }}
         >
           <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
@@ -105,7 +105,7 @@ export default function SearchBar() {
               className="search-input"
               style={{
                 padding: "12px 14px",
-                border: "1px solid #e5e7eb",
+                border: "1px solid var(--tt-border)",
                 borderRadius: "8px",
                 fontSize: "14px",
                 width: "100%",
@@ -113,11 +113,11 @@ export default function SearchBar() {
                 transition: "all 0.2s ease",
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#667eea";
-                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(28, 144, 216, 0.1)";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.borderColor = "var(--tt-border)";
                 e.currentTarget.style.boxShadow = "none";
               }}
             />
@@ -126,7 +126,7 @@ export default function SearchBar() {
               aria-label="Search"
               style={{
                 padding: "12px 16px",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
@@ -138,7 +138,7 @@ export default function SearchBar() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.3)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(28, 144, 216, 0.3)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -153,3 +153,5 @@ export default function SearchBar() {
     </div>
   );
 }
+
+

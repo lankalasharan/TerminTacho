@@ -141,7 +141,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           display: "inline-flex",
           alignItems: "center",
           gap: "8px",
-          color: "#667eea",
+          color: "var(--tt-primary-strong)",
           textDecoration: "none",
           fontSize: "14px",
           fontWeight: 600,
@@ -157,7 +157,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
             <span style={{
               padding: "4px 12px",
-              background: "#667eea",
+              background: "var(--tt-primary-strong)",
               color: "white",
               borderRadius: "6px",
               fontSize: "13px",
@@ -167,8 +167,8 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             </span>
             <span style={{
               padding: "4px 12px",
-              background: "#f3f4f6",
-              color: "#6b7280",
+              background: "var(--tt-surface-muted)",
+              color: "var(--tt-text-muted)",
               borderRadius: "6px",
               fontSize: "13px",
             }}>
@@ -180,7 +180,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             fontSize: "clamp(28px, 5vw, 42px)",
             fontWeight: 800,
             marginBottom: "16px",
-            color: "#1a1a1a",
+            color: "var(--tt-text)",
             lineHeight: 1.2,
           }}>
             {post.title}
@@ -188,7 +188,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
           <div style={{
             fontSize: "14px",
-            color: "#9ca3af",
+            color: "var(--tt-muted)",
           }}>
             {new Date(post.date).toLocaleDateString("en-US", {
               year: "numeric",
@@ -203,7 +203,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           style={{
             fontSize: "18px",
             lineHeight: 1.8,
-            color: "#374151",
+            color: "var(--tt-text-strong)",
           }}
           dangerouslySetInnerHTML={{ __html: post.content }}
           className="blog-content"
@@ -214,7 +214,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       <div style={{
         marginTop: "48px",
         padding: "32px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
         borderRadius: "12px",
         textAlign: "center",
         color: "white",
@@ -231,7 +231,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             display: "inline-block",
             padding: "12px 32px",
             background: "white",
-            color: "#667eea",
+            color: "var(--tt-primary-strong)",
             borderRadius: "8px",
             fontWeight: 600,
             textDecoration: "none",
@@ -247,13 +247,13 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           font-size: 28px;
           font-weight: 700;
           margin: 32px 0 16px;
-          color: #1a1a1a;
+          color: var(--tt-text);
         }
         .blog-content h3 {
           font-size: 22px;
           font-weight: 700;
           margin: 24px 0 12px;
-          color: #1a1a1a;
+          color: var(--tt-text);
         }
         .blog-content p {
           margin-bottom: 20px;
@@ -266,17 +266,18 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           margin-bottom: 12px;
         }
         .blog-content a {
-          color: #667eea;
+          color: var(--tt-primary-strong);
           text-decoration: underline;
         }
         .blog-content a:hover {
-          color: #764ba2;
+          color: var(--tt-primary);
         }
         .blog-content strong {
           font-weight: 700;
-          color: #1a1a1a;
+          color: var(--tt-text);
         }
       `}</style>
     </div>
   );
 }
+

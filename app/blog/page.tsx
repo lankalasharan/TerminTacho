@@ -32,27 +32,18 @@ const blogPosts = [
 
 export default function BlogPage() {
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "24px 16px" }}>
-      {/* Header */}
-      <div style={{ marginBottom: "48px", textAlign: "center" }}>
-        <h1 style={{
-          fontSize: "clamp(32px, 5vw, 48px)",
-          fontWeight: 800,
-          marginBottom: "16px",
-          color: "#1a1a1a",
-          lineHeight: 1.2,
-        }}>
-          📝 Blog
-        </h1>
-        <p style={{
-          fontSize: "18px",
-          color: "#6b7280",
-          maxWidth: "600px",
-          margin: "0 auto",
-        }}>
-          Expert guides, tips, and updates about navigating German bureaucracy
-        </p>
-      </div>
+    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "24px 16px" }}>
+      <section className="tt-hero" style={{ padding: "64px 0 48px" }}>
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            Blog
+          </div>
+          <h1 className="tt-hero-title">Guides and updates.</h1>
+          <p className="tt-hero-subtitle">
+            Expert tips and insights to help you navigate German bureaucracy with confidence.
+          </p>
+        </div>
+      </section>
 
       {/* Blog Posts Grid */}
       <div style={{
@@ -69,7 +60,7 @@ export default function BlogPage() {
               borderRadius: "12px",
               padding: "32px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              border: "1px solid #f3f4f6",
+              border: "1px solid var(--tt-surface-muted)",
               transition: "all 0.2s",
               display: "block",
             }}
@@ -85,7 +76,7 @@ export default function BlogPage() {
             <div style={{ display: "flex", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
               <span style={{
                 padding: "4px 12px",
-                background: "#667eea",
+                background: "var(--tt-primary-strong)",
                 color: "white",
                 borderRadius: "6px",
                 fontSize: "13px",
@@ -95,8 +86,8 @@ export default function BlogPage() {
               </span>
               <span style={{
                 padding: "4px 12px",
-                background: "#f3f4f6",
-                color: "#6b7280",
+                background: "var(--tt-surface-muted)",
+                color: "var(--tt-text-muted)",
                 borderRadius: "6px",
                 fontSize: "13px",
               }}>
@@ -107,7 +98,7 @@ export default function BlogPage() {
             <h2 style={{
               fontSize: "24px",
               fontWeight: 700,
-              color: "#1a1a1a",
+              color: "var(--tt-text)",
               marginBottom: "12px",
               lineHeight: 1.3,
             }}>
@@ -116,7 +107,7 @@ export default function BlogPage() {
 
             <p style={{
               fontSize: "16px",
-              color: "#6b7280",
+              color: "var(--tt-text-muted)",
               marginBottom: "16px",
               lineHeight: 1.6,
             }}>
@@ -125,7 +116,7 @@ export default function BlogPage() {
 
             <div style={{
               fontSize: "14px",
-              color: "#9ca3af",
+              color: "var(--tt-muted)",
             }}>
               {new Date(post.date).toLocaleDateString("en-US", {
                 year: "numeric",
@@ -141,7 +132,7 @@ export default function BlogPage() {
       <div style={{
         marginTop: "48px",
         padding: "32px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
         borderRadius: "12px",
         textAlign: "center",
         color: "white",
@@ -158,7 +149,7 @@ export default function BlogPage() {
             display: "inline-block",
             padding: "12px 32px",
             background: "white",
-            color: "#667eea",
+            color: "var(--tt-primary-strong)",
             borderRadius: "8px",
             fontWeight: 600,
             textDecoration: "none",
@@ -177,3 +168,4 @@ export default function BlogPage() {
     </div>
   );
 }
+

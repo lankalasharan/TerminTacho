@@ -1,16 +1,17 @@
 export default function CookiePolicy() {
   return (
-    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "60px 20px" }}>
-      <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "#1a1a1a" }}>
-        Cookie Policy
-      </h1>
-      <p style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "40px" }}>
-        Last Updated: January 25, 2026
-      </p>
+    <main className="tt-section">
+      <div className="tt-container" style={{ maxWidth: "900px" }}>
+        <h1 style={{ fontSize: "42px", fontWeight: 800, marginBottom: "16px", color: "var(--tt-text)" }}>
+          Cookie Policy
+        </h1>
+        <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
+          Last Updated: January 25, 2026
+        </p>
 
-      <div style={{ fontSize: "16px", lineHeight: 1.8, color: "#374151" }}>
+        <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             1. What Are Cookies?
           </h2>
           <p>
@@ -19,14 +20,14 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             2. How We Use Cookies
           </h2>
           <p>TerminTacho uses cookies for the following purposes:</p>
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "var(--tt-text)" }}>
             2.1 Essential Cookies (Required)
           </h3>
           <p>
@@ -44,7 +45,7 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "var(--tt-text)" }}>
             2.2 Functional Cookies (Optional)
           </h3>
           <p>
@@ -61,7 +62,7 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "var(--tt-text)" }}>
             2.3 Analytics Cookies (Optional)
           </h3>
           <p>
@@ -78,7 +79,7 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             3. Third-Party Cookies
           </h2>
           <p>We may use third-party services that set their own cookies:</p>
@@ -90,18 +91,18 @@ export default function CookiePolicy() {
             These third parties have their own privacy policies. We recommend reviewing them:
           </p>
           <ul style={{ paddingLeft: "24px", marginTop: "8px" }}>
-            <li>Google Privacy Policy: <a href="https://policies.google.com/privacy" target="_blank" style={{ color: "#667eea" }}>https://policies.google.com/privacy</a></li>
-            <li>Facebook Data Policy: <a href="https://www.facebook.com/policy.php" target="_blank" style={{ color: "#667eea" }}>https://www.facebook.com/policy.php</a></li>
+            <li>Google Privacy Policy: <a href="https://policies.google.com/privacy" target="_blank" style={{ color: "var(--tt-primary-strong)" }}>https://policies.google.com/privacy</a></li>
+            <li>Facebook Data Policy: <a href="https://www.facebook.com/policy.php" target="_blank" style={{ color: "var(--tt-primary-strong)" }}>https://www.facebook.com/policy.php</a></li>
           </ul>
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             4. Managing Cookies
           </h2>
           <p>You can control and manage cookies in several ways:</p>
           
-          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "var(--tt-text)" }}>
             Browser Settings
           </h3>
           <p>Most browsers allow you to:</p>
@@ -113,7 +114,7 @@ export default function CookiePolicy() {
             <li>Delete all cookies when you close your browser</li>
           </ul>
 
-          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "#1a1a1a" }}>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "var(--tt-text)" }}>
             Browser-Specific Instructions
           </h3>
           <ul style={{ paddingLeft: "24px" }}>
@@ -129,7 +130,7 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             5. Cookie Consent
           </h2>
           <p>
@@ -141,7 +142,7 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             6. Updates to This Policy
           </h2>
           <p>
@@ -150,7 +151,7 @@ export default function CookiePolicy() {
         </section>
 
         <section style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "#1a1a1a" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)" }}>
             7. Contact Us
           </h2>
           <p>
@@ -158,7 +159,9 @@ export default function CookiePolicy() {
             Email: [your-email@termintacho.com]
           </p>
         </section>
+        </div>
       </div>
     </main>
   );
 }
+

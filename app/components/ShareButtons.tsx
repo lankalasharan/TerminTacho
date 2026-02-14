@@ -22,7 +22,7 @@ export default function ShareButtons({ title, url, description }: { title: strin
       alignItems: "center",
       flexWrap: "wrap",
     }}>
-      <span style={{ fontSize: "14px", fontWeight: 600, color: "#6b7280" }}>Share:</span>
+      <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--tt-text-muted)" }}>Share:</span>
       
       <a
         href={shareLinks.twitter}
@@ -129,7 +129,7 @@ export default function ShareButtons({ title, url, description }: { title: strin
           width: "40px",
           height: "40px",
           borderRadius: "8px",
-          background: "#667eea",
+          background: "var(--tt-primary-strong)",
           color: "white",
           border: "none",
           cursor: "pointer",
@@ -145,3 +145,4 @@ export default function ShareButtons({ title, url, description }: { title: strin
     </div>
   );
 }
+

@@ -74,30 +74,17 @@ export default function FAQPage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "60px 20px",
-        textAlign: "center",
-      }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <h1 style={{
-            fontSize: "48px",
-            fontWeight: 800,
-            marginBottom: "16px",
-            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
-          }}>
-            ❓ Frequently Asked Questions
-          </h1>
-          <p style={{
-            fontSize: "20px",
-            opacity: 0.95,
-          }}>
-            Everything you need to know about TerminTacho
+      <section className="tt-hero">
+        <div className="tt-container" style={{ textAlign: "center" }}>
+          <div className="tt-chip" style={{ margin: "0 auto" }}>
+            FAQ
+          </div>
+          <h1 className="tt-hero-title">Frequently asked questions.</h1>
+          <p className="tt-hero-subtitle">
+            Everything you need to know about TerminTacho and how the data works.
           </p>
         </div>
-      </div>
+      </section>
 
       <main style={{ maxWidth: "900px", margin: "0 auto", padding: "60px 20px" }}>
         <div style={{ marginBottom: "40px" }}>
@@ -109,7 +96,7 @@ export default function FAQPage() {
                 background: "white",
                 borderRadius: "12px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                border: "1px solid #f3f4f6",
+                border: "1px solid var(--tt-surface-muted)",
                 overflow: "hidden",
                 transition: "box-shadow 0.2s",
               }}
@@ -128,13 +115,13 @@ export default function FAQPage() {
                   textAlign: "left",
                   transition: "background 0.2s",
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "#f9fafb"}
+                onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-soft)"}
                 onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               >
                 <span style={{
                   fontSize: "18px",
                   fontWeight: 600,
-                  color: "#1a1a1a",
+                  color: "var(--tt-text)",
                   flex: 1,
                   paddingRight: "16px",
                 }}>
@@ -142,7 +129,7 @@ export default function FAQPage() {
                 </span>
                 <span style={{
                   fontSize: "24px",
-                  color: "#667eea",
+                  color: "var(--tt-primary-strong)",
                   transform: openIndex === index ? "rotate(180deg)" : "rotate(0)",
                   transition: "transform 0.3s",
                   display: "inline-block",
@@ -156,7 +143,7 @@ export default function FAQPage() {
                   padding: "0 24px 20px",
                   fontSize: "16px",
                   lineHeight: 1.7,
-                  color: "#6b7280",
+                  color: "var(--tt-text-muted)",
                   animation: "fadeIn 0.3s ease",
                 }}>
                   {faq.answer}
@@ -168,7 +155,7 @@ export default function FAQPage() {
 
         {/* Still have questions? */}
         <div style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
           color: "white",
           padding: "48px",
           borderRadius: "16px",
@@ -186,7 +173,7 @@ export default function FAQPage() {
               display: "inline-block",
               padding: "14px 32px",
               background: "white",
-              color: "#667eea",
+              color: "var(--tt-primary-strong)",
               borderRadius: "8px",
               fontSize: "16px",
               fontWeight: 700,
@@ -216,3 +203,4 @@ export default function FAQPage() {
     </>
   );
 }
+

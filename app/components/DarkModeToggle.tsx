@@ -10,8 +10,8 @@ export default function DarkModeToggle() {
       onClick={toggleDarkMode}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       style={{
-        background: isDark ? "#374151" : "#f3f4f6",
-        border: "1px solid " + (isDark ? "#4b5563" : "#e5e7eb"),
+        background: isDark ? "var(--tt-text-strong)" : "var(--tt-surface-muted)",
+        border: "1px solid " + (isDark ? "#4b5563" : "var(--tt-border)"),
         borderRadius: "8px",
         padding: "10px 12px",
         cursor: "pointer",
@@ -23,15 +23,15 @@ export default function DarkModeToggle() {
         gap: "4px",
         minWidth: "44px",
         minHeight: "44px",
-        color: isDark ? "#fbbf24" : "#6b7280",
+        color: isDark ? "#fbbf24" : "var(--tt-text-muted)",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = isDark ? "#4b5563" : "#e5e7eb";
-        e.currentTarget.style.color = isDark ? "#fcd34d" : "#374151";
+        e.currentTarget.style.background = isDark ? "#4b5563" : "var(--tt-border)";
+        e.currentTarget.style.color = isDark ? "#fcd34d" : "var(--tt-text-strong)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = isDark ? "#374151" : "#f3f4f6";
-        e.currentTarget.style.color = isDark ? "#fbbf24" : "#6b7280";
+        e.currentTarget.style.background = isDark ? "var(--tt-text-strong)" : "var(--tt-surface-muted)";
+        e.currentTarget.style.color = isDark ? "#fbbf24" : "var(--tt-text-muted)";
       }}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
@@ -55,3 +55,4 @@ export default function DarkModeToggle() {
     </button>
   );
 }
+

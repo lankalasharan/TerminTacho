@@ -5,6 +5,131 @@ import { useState } from "react";
 
 export default function MenuBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const iconStyle = {
+    width: 18,
+    height: 18,
+    display: "block",
+  } as const;
+
+  function MenuIcon({ name }: { name: string }) {
+    switch (name) {
+      case "home":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19.5z" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+        );
+      case "map":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
+        );
+      case "chart":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M4 19h16" />
+            <path d="M6 15l4-4 3 3 5-6" />
+          </svg>
+        );
+      case "pencil":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M4 20h4l10-10-4-4L4 16v4z" />
+            <path d="M14 6l4 4" />
+          </svg>
+        );
+      case "mail":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+          </svg>
+        );
+      case "help":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1.5 1-1.5 2.2" />
+            <path d="M12 17h.01" />
+          </svg>
+        );
+      case "search":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        );
+      case "blog":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+            <path d="M14 3v5h5" />
+            <path d="M9 13h6" />
+            <path d="M9 17h4" />
+          </svg>
+        );
+      case "trophy":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M8 4h8v3a4 4 0 0 1-8 0z" />
+            <path d="M6 4H5a2 2 0 0 0 2 4" />
+            <path d="M18 4h1a2 2 0 0 1-2 4" />
+            <path d="M12 11v4" />
+            <path d="M8 19h8" />
+          </svg>
+        );
+      case "user":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M4 20a8 8 0 0 1 16 0" />
+          </svg>
+        );
+      case "lock":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <rect x="5" y="10" width="14" height="10" rx="2" />
+            <path d="M8 10V8a4 4 0 0 1 8 0v2" />
+          </svg>
+        );
+      case "file":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+            <path d="M14 3v5h5" />
+            <path d="M9 12h6" />
+            <path d="M9 16h4" />
+          </svg>
+        );
+      case "cookie":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <circle cx="12" cy="12" r="8" />
+            <path d="M8 9h.01" />
+            <path d="M12 7h.01" />
+            <path d="M15 12h.01" />
+            <path d="M9 15h.01" />
+          </svg>
+        );
+      case "scale":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M12 3v4" />
+            <path d="M5 7h14" />
+            <path d="M7 7l-3 5h6z" />
+            <path d="M17 7l3 5h-6z" />
+            <path d="M12 11v8" />
+            <path d="M8 19h8" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  }
 
   return (
     <>
@@ -37,8 +162,8 @@ export default function MenuBar() {
         className="hamburger-btn"
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          background: "#f3f4f6",
-          border: "1px solid #e5e7eb",
+          background: "var(--tt-surface-muted)",
+          border: "1px solid var(--tt-border)",
           cursor: "pointer",
           padding: "10px 12px",
           display: "flex",
@@ -51,15 +176,15 @@ export default function MenuBar() {
           justifyContent: "center",
           borderRadius: "8px",
           transition: "all 0.2s ease",
-          color: "#6b7280",
+          color: "var(--tt-text-muted)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#e5e7eb";
-          e.currentTarget.style.color = "#374151";
+          e.currentTarget.style.background = "var(--tt-border)";
+          e.currentTarget.style.color = "var(--tt-text-strong)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "#f3f4f6";
-          e.currentTarget.style.color = "#6b7280";
+          e.currentTarget.style.background = "var(--tt-surface-muted)";
+          e.currentTarget.style.color = "var(--tt-text-muted)";
         }}
         aria-label="Menu"
       >
@@ -101,7 +226,7 @@ export default function MenuBar() {
         right: isOpen ? 0 : "-320px",
         width: "320px",
         height: "100vh",
-        background: "white",
+        background: "var(--tt-surface)",
         boxShadow: "-4px 0 24px rgba(0,0,0,0.15)",
         zIndex: 1999,
         transition: "right 0.3s ease",
@@ -116,7 +241,7 @@ export default function MenuBar() {
               border: "none",
               fontSize: "32px",
               cursor: "pointer",
-              color: "#9ca3af",
+              color: "var(--tt-muted)",
               marginBottom: "24px",
               padding: "0",
               width: "44px",
@@ -136,16 +261,42 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
                 display: "block",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              🏠 Home
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="home" />
+                <span>Home</span>
+              </span>
+            </Link>
+
+            <Link
+              href="/?map=1"
+              onClick={() => setIsOpen(false)}
+              className="menu-link"
+              style={{
+                padding: "12px 16px",
+                fontSize: "16px",
+                fontWeight: 600,
+                color: "var(--tt-text)",
+                textDecoration: "none",
+                borderRadius: "8px",
+                transition: "background 0.2s",
+                display: "block",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="map" />
+                <span>Search in Map</span>
+              </span>
             </Link>
 
             <Link
@@ -156,16 +307,19 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
                 display: "block",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              📊 Browse Timelines
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="chart" />
+                <span>Browse Timelines</span>
+              </span>
             </Link>
 
             <Link
@@ -176,16 +330,19 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
                 display: "block",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              ✍️ Submit Timeline
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="pencil" />
+                <span>Submit Timeline</span>
+              </span>
             </Link>
 
             <Link
@@ -196,16 +353,19 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
                 display: "block",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              📧 Contact
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="mail" />
+                <span>Contact</span>
+              </span>
             </Link>
 
             <Link
@@ -216,16 +376,19 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
                 display: "block",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              ❓ FAQ
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="help" />
+                <span>FAQ</span>
+              </span>
             </Link>
 
             <Link
@@ -236,15 +399,18 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              🔍 Search
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="search" />
+                <span>Search</span>
+              </span>
             </Link>
 
             <Link
@@ -255,16 +421,19 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
                 display: "block",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              📝 Blog
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="blog" />
+                <span>Blog</span>
+              </span>
             </Link>
 
             <Link
@@ -274,15 +443,18 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 600,
-                color: "#1a1a1a",
+                color: "var(--tt-text)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              🏆 Leaderboard
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="trophy" />
+                <span>Leaderboard</span>
+              </span>
             </Link>
 
             <Link
@@ -292,7 +464,7 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "16px",
                 fontWeight: 700,
-                color: "#667eea",
+                color: "var(--tt-primary-strong)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
@@ -300,12 +472,15 @@ export default function MenuBar() {
               onMouseEnter={(e) => e.currentTarget.style.background = "#f0f4ff"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              👤 My Dashboard
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="user" />
+                <span>My Dashboard</span>
+              </span>
             </Link>
 
             <div style={{
               height: "1px",
-              background: "#e5e7eb",
+              background: "var(--tt-border)",
               margin: "16px 0",
             }} />
 
@@ -316,15 +491,18 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "14px",
                 fontWeight: 500,
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              🔒 Privacy Policy
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="lock" />
+                <span>Privacy Policy</span>
+              </span>
             </Link>
 
             <Link
@@ -334,15 +512,18 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "14px",
                 fontWeight: 500,
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              📜 Terms of Service
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="file" />
+                <span>Terms of Service</span>
+              </span>
             </Link>
 
             <Link
@@ -352,15 +533,18 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "14px",
                 fontWeight: 500,
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              🍪 Cookie Policy
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="cookie" />
+                <span>Cookie Policy</span>
+              </span>
             </Link>
 
             <Link
@@ -370,15 +554,18 @@ export default function MenuBar() {
                 padding: "12px 16px",
                 fontSize: "14px",
                 fontWeight: 500,
-                color: "#6b7280",
+                color: "var(--tt-text-muted)",
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "#f3f4f6"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--tt-surface-muted)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              ⚖️ Imprint
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="scale" />
+                <span>Imprint</span>
+              </span>
             </Link>
           </nav>
         </div>
@@ -393,3 +580,4 @@ export default function MenuBar() {
     </>
   );
 }
+
