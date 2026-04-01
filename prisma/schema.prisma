@@ -13,15 +13,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -35,23 +34,18 @@ model Session {
 }
 
 model User {
-  id                    String    @id @default(cuid())
-  name                  String?
-  email                 String?   @unique
-  emailVerified         DateTime?
-  image                 String?
-  hasSubmittedTimeline  Boolean   @default(false)
-  timelineSubmittedAt   DateTime?
-  lastIpAddress         String?   // Track IP for fraud detection
-  createdAt             DateTime  @default(now())
-  accounts              Account[]
-  sessions              Session[]
-  votes                 Vote[]
-}
-
-enum VoteTargetType {
-  report
-  review
+  id                   String    @id @default(cuid())
+  name                 String?
+  email                String?   @unique
+  emailVerified        DateTime?
+  image                String?
+  hasSubmittedTimeline Boolean   @default(false)
+  timelineSubmittedAt  DateTime?
+  lastIpAddress        String?
+  createdAt            DateTime  @default(now())
+  accounts             Account[]
+  sessions             Session[]
+  votes                Vote[]
 }
 
 model VerificationToken {
@@ -69,6 +63,8 @@ model Office {
   address   String?
   phone     String?
   website   String?
+  lat       Float?
+  lng       Float?
   createdAt DateTime @default(now())
   reports   Report[]
   reviews   Review[]
@@ -82,28 +78,28 @@ model ProcessType {
 }
 
 model Report {
-  id                String      @id @default(cuid())
-  officeId          String
-  processTypeId     String
-  caseNumber        String?     // For duplicate detection
-  method            String
-  submittedAt       DateTime
-  decisionAt        DateTime?
-  status            String
-  notes             String?
-  userEmail         String?
-  userId            String?
-  ipAddress         String?     // Track IP for fraud detection
-  isOfficial        Boolean     @default(false) // Official baseline data
-  createdAt         DateTime    @default(now())
-  helpful           Int         @default(0)
-  notHelpful        Int         @default(0)
-  confidenceScore   Float       @default(0.5)  // 0-1 scale based on account age
-  isStillWaiting    Boolean     @default(false) // Community update
-  office            Office      @relation(fields: [officeId], references: [id])
-  processType       ProcessType @relation(fields: [processTypeId], references: [id])
+  id              String      @id @default(cuid())
+  officeId        String
+  processTypeId   String
+  caseNumber      String?
+  method          String
+  submittedAt     DateTime
+  decisionAt      DateTime?
+  status          String
+  notes           String?
+  userEmail       String?
+  userId          String?
+  ipAddress       String?
+  isOfficial      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  helpful         Int         @default(0)
+  notHelpful      Int         @default(0)
+  confidenceScore Float       @default(0.5)
+  isStillWaiting  Boolean     @default(false)
+  office          Office      @relation(fields: [officeId], references: [id])
+  processType     ProcessType @relation(fields: [processTypeId], references: [id])
 
-  @@unique([userId, caseNumber, processTypeId])  // Prevent duplicate submissions
+  @@unique([userId, caseNumber, processTypeId])
   @@index([officeId, processTypeId])
   @@index([createdAt])
   @@index([userId])
@@ -111,23 +107,23 @@ model Report {
 }
 
 model Review {
-  id              String   @id @default(cuid())
-  officeId        String
-  userId          String?
-  userEmail       String?
-  ipAddress       String?  // Track IP for fraud detection
-  overallRating   Int      // 1-5 stars
-  serviceRating   Int?     // 1-5 stars
-  staffRating     Int?     // 1-5 stars
-  speedRating     Int?     // 1-5 stars
-  title           String?
-  content         String   @db.Text
-  processType     String?
-  helpful         Int      @default(0)
-  notHelpful      Int      @default(0)
-  createdAt       DateTime @default(now())
-  lastReviewDate   DateTime? // Track rate limiting
-  office          Office   @relation(fields: [officeId], references: [id])
+  id             String    @id @default(cuid())
+  officeId       String
+  userId         String?
+  userEmail      String?
+  ipAddress      String?
+  overallRating  Int
+  serviceRating  Int?
+  staffRating    Int?
+  speedRating    Int?
+  title          String?
+  content        String
+  processType    String?
+  helpful        Int       @default(0)
+  notHelpful     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  lastReviewDate DateTime?
+  office         Office    @relation(fields: [officeId], references: [id])
 
   @@index([officeId])
   @@index([createdAt])
@@ -142,19 +138,18 @@ model Vote {
   helpful    Boolean
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, targetType, targetId])
   @@index([targetType, targetId])
 }
 
 model Newsletter {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  subscribedAt DateTime @default(now())
+  id             String    @id @default(cuid())
+  email          String    @unique
+  subscribedAt   DateTime  @default(now())
   unsubscribedAt DateTime?
-  createdAt    DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
   @@index([subscribedAt])
 }
@@ -164,9 +159,26 @@ model ContactSubmission {
   name      String
   email     String
   subject   String
-  message   String   @db.Text
+  message   String
   createdAt DateTime @default(now())
 
   @@index([createdAt])
   @@index([email])
+}
+
+model ConsentLog {
+  id          String   @id @default(cuid())
+  action      String
+  consentType String   @default("cookies")
+  maskedIp    String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([consentType])
+}
+
+enum VoteTargetType {
+  report
+  review
 }

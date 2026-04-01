@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getClientIp } from "@/lib/rateLimit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { sendNewsletterConfirmation } from "@/lib/email";
+import { randomBytes } from "crypto";
+
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
@@ -20,29 +24,52 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const identifier = `newsletter:${normalizedEmail}`;
+
     // Check if email already subscribed
     const existing = await prisma.newsletter.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
-    if (existing && existing.subscribedAt) {
+    if (existing && !existing.unsubscribedAt) {
       return NextResponse.json(
         { error: "Already subscribed with this email" },
         { status: 400 }
       );
     }
 
-    // Create or update subscription
-    const subscription = await prisma.newsletter.upsert({
-      where: { email },
-      update: { subscribedAt: new Date() },
-      create: {
-        email,
-        subscribedAt: new Date(),
+    const token = randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await prisma.verificationToken.deleteMany({ where: { identifier } });
+    await prisma.verificationToken.create({
+      data: {
+        identifier,
+        token,
+        expires,
       },
     });
 
-    return NextResponse.json({ success: true, subscription }, { status: 201 });
+    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const confirmUrl = `${appUrl}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+
+    let emailSent = false;
+    try {
+      await sendNewsletterConfirmation(normalizedEmail, confirmUrl);
+      emailSent = true;
+    } catch (error) {
+      console.error("Newsletter confirmation email failed:", error);
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        requiresConfirmation: true,
+        emailSent,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error("Newsletter subscription error:", error);
     return NextResponse.json(

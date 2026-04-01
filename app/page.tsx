@@ -139,7 +139,7 @@ export default function Home() {
                   gap: "8px",
                 }}
               >
-                Interactive City Map
+                Data Points Map
               </h2>
               <button
                 onClick={() => setShowMap(false)}
@@ -189,7 +189,11 @@ export default function Home() {
             Real processing speeds for German offices, powered by people like you. Stop guessing and plan your next steps with confidence.
           </p>
           <div className="tt-hero-actions">
-            <button className="tt-btn-primary" onClick={() => setShowMap(true)}>
+            <button
+              type="button"
+              onClick={() => setShowMap(true)}
+              className="tt-btn-primary"
+            >
               Explore Heatmap
               <span aria-hidden="true">→</span>
             </button>
@@ -256,7 +260,21 @@ export default function Home() {
               </h2>
               <div style={{ display: "grid", gap: "20px" }}>
                 <div className="tt-feature-item">
-                  <div className="tt-feature-icon">👁️</div>
+                  <div className="tt-feature-icon" aria-hidden="true">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7s-8.27-2.94-9.54-7z" />
+                      <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                    </svg>
+                  </div>
                   <div>
                     <h4 style={{ margin: "0 0 6px", fontSize: "18px" }}>Full Transparency</h4>
                     <p style={{ margin: 0, color: "var(--tt-text-muted)" }}>
@@ -265,7 +283,21 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="tt-feature-item">
-                  <div className="tt-feature-icon">📈</div>
+                  <div className="tt-feature-icon" aria-hidden="true">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 3v18h18" />
+                      <path d="M7 14l3-3 4 4 5-6" />
+                    </svg>
+                  </div>
                   <div>
                     <h4 style={{ margin: "0 0 6px", fontSize: "18px" }}>Smart Predictions</h4>
                     <p style={{ margin: 0, color: "var(--tt-text-muted)" }}>
@@ -274,7 +306,27 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="tt-feature-item">
-                  <div className="tt-feature-icon">🤝</div>
+                  <div className="tt-feature-icon" aria-hidden="true">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m11 17 2 2a2 2 0 0 0 3-3" />
+                      <path d="m8 12 2 2a2 2 0 1 0 3-3" />
+                      <path d="m5 7 2 2a2 2 0 1 0 3-3" />
+                      <path d="m18 19 2-2" />
+                      <path d="m22 15-6-6" />
+                      <path d="m16 9-2 2" />
+                      <path d="M2 7l6 6" />
+                      <path d="m6 11 2-2" />
+                    </svg>
+                  </div>
                   <div>
                     <h4 style={{ margin: "0 0 6px", fontSize: "18px" }}>Help Others</h4>
                     <p style={{ margin: 0, color: "var(--tt-text-muted)" }}>

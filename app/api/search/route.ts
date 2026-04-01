@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
+import { Prisma } from "@prisma/client";
 
 const faqs = [
   {
@@ -52,11 +54,18 @@ export async function GET(req: Request) {
     const results: any[] = [];
 
     // Search cities
+    const cityAliases = getCityAliases(query);
+    const cityConditions: Prisma.OfficeWhereInput[] = cityAliases.length
+      ? cityAliases.map((alias) => ({
+          city: { contains: alias, mode: Prisma.QueryMode.insensitive },
+        }))
+      : [{ city: { contains: query, mode: Prisma.QueryMode.insensitive } }];
+
     const cities = await prisma.office.findMany({
       where: {
         OR: [
-          { city: { contains: query, mode: "insensitive" } },
-          { name: { contains: query, mode: "insensitive" } },
+          ...cityConditions,
+          { name: { contains: query, mode: Prisma.QueryMode.insensitive } },
         ],
       },
       distinct: ["city"],
@@ -64,19 +73,20 @@ export async function GET(req: Request) {
     });
 
     cities.forEach((city) => {
+      const normalizedCity = normalizeCityName(city.city);
       results.push({
-        id: `city-${city.city}`,
+        id: `city-${normalizedCity}`,
         type: "city",
-        title: city.city,
-        description: `View processing times and statistics for ${city.city}`,
-        url: `/offices/${encodeURIComponent(city.city)}`,
+        title: normalizedCity,
+        description: `View processing times and statistics for ${normalizedCity}`,
+        url: `/offices/${encodeURIComponent(normalizedCity)}`,
       });
     });
 
     // Search process types
     const processes = await prisma.processType.findMany({
       where: {
-        name: { contains: query, mode: "insensitive" },
+        name: { contains: query, mode: Prisma.QueryMode.insensitive },
       },
       take: 5,
     });
@@ -98,7 +108,13 @@ export async function GET(req: Request) {
         faq.description.toLowerCase().includes(query)
     );
 
-    results.push(...matchingFaqs.map((faq) => ({ ...faq, type: "faq" as const })));
+    results.push(
+      ...matchingFaqs.map((faq) => ({
+        ...faq,
+        type: "faq" as const,
+        url: `/faq#${faq.id}`,
+      }))
+    );
 
     // Search pages
     const matchingPages = pages.filter(

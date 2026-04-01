@@ -11,6 +11,7 @@ import {
 import { validateTimelineSubmission } from "@/lib/dataValidation";
 import { getClientIp, trackIpAddress, checkIpAbusePattern, checkIpSubmissionPatterns } from "@/lib/ipTracking";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -18,11 +19,18 @@ export async function GET(req: Request) {
   const processTypeId = searchParams.get("processTypeId");
   const limitParam = Number(searchParams.get("limit") || "200");
   const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 200) : 200;
+  const cityAliases = city ? getCityAliases(city) : [];
 
   const reports = await prisma.report.findMany({
     where: {
       ...(processTypeId ? { processTypeId } : {}),
-      ...(city ? { office: { city } } : {}),
+      ...(city
+        ? {
+            OR: cityAliases.map((alias) => ({
+              office: { city: { equals: alias, mode: "insensitive" } },
+            })),
+          }
+        : {}),
     },
     select: {
       id: true,
@@ -51,7 +59,14 @@ export async function GET(req: Request) {
     take: limit,
   });
 
-  return NextResponse.json({ reports });
+  const normalizedReports = reports.map((report) => ({
+    ...report,
+    office: report.office
+      ? { ...report.office, city: normalizeCityName(report.office.city) }
+      : report.office,
+  }));
+
+  return NextResponse.json({ reports: normalizedReports });
 }
 
 export async function POST(req: Request) {
@@ -76,7 +91,7 @@ export async function POST(req: Request) {
 
   let resolvedOfficeId: string | null = officeId ? String(officeId) : null;
   if (!resolvedOfficeId) {
-    const city = String(officeCity || "").trim();
+    const city = normalizeCityName(String(officeCity || "").trim());
     if (!city) {
       return NextResponse.json({ error: "Office city is required." }, { status: 400 });
     }

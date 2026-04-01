@@ -5,7 +5,7 @@ import DataAccessGate from "../components/DataAccessGate";
 
 type Contributor = {
   id: string;
-  email: string;
+  email?: string | null;
   reportsCount: number;
   rank: number;
 };
@@ -28,6 +28,13 @@ export default function LeaderboardPage() {
     }
     loadLeaderboard();
   }, []);
+
+  function maskEmail(email?: string | null) {
+    if (!email || !email.includes("@")) return "Anonymous";
+    const [name] = email.split("@");
+    const safe = name.slice(0, 3);
+    return `${safe}***@***`;
+  }
 
   const medals = ["🥇", "🥈", "🥉"];
 
@@ -97,7 +104,7 @@ export default function LeaderboardPage() {
                     fontSize: "14px",
                     color: "var(--tt-text-muted)",
                   }}>
-                    {contributor.email.substring(0, 3)}***@***
+                    {maskEmail(contributor.email)}
                   </p>
                 </div>
 

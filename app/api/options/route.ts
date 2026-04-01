@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeCityName } from "@/lib/cityNames";
 
 export async function GET() {
   const [offices, processTypes] = await Promise.all([
@@ -7,5 +8,10 @@ export async function GET() {
     prisma.processType.findMany({ orderBy: [{ name: "asc" }] }),
   ]);
 
-  return NextResponse.json({ offices, processTypes });
+  const normalizedOffices = offices.map((office) => ({
+    ...office,
+    city: normalizeCityName(office.city),
+  }));
+
+  return NextResponse.json({ offices: normalizedOffices, processTypes });
 }

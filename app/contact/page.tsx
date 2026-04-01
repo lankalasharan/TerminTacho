@@ -304,12 +304,17 @@ export default function ContactPage() {
             border: "1px solid var(--tt-surface-muted)",
             textAlign: "center",
           }}>
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>📧</div>
+            <div style={{ marginBottom: "12px", color: "var(--tt-primary-strong)" }} aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 7l9 6 9-6" />
+              </svg>
+            </div>
             <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               Email
             </h3>
             <p style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>
-              lankalasharan@gmail.com
+              termintacho@gmail.com
             </p>
           </div>
 
@@ -321,7 +326,14 @@ export default function ContactPage() {
             border: "1px solid var(--tt-surface-muted)",
             textAlign: "center",
           }}>
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>⏱️</div>
+            <div style={{ marginBottom: "12px", color: "var(--tt-primary-strong)" }} aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="13" r="7" />
+                <path d="M12 13V9" />
+                <path d="M9 3h6" />
+                <path d="M16.5 6.5l1.5-1.5" />
+              </svg>
+            </div>
             <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               Response Time
             </h3>
@@ -338,7 +350,12 @@ export default function ContactPage() {
             border: "1px solid var(--tt-surface-muted)",
             textAlign: "center",
           }}>
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>🇩🇪</div>
+            <div style={{ marginBottom: "12px", color: "var(--tt-primary-strong)" }} aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3c3.7 0 7 3 7 7 0 4.4-4.3 8.6-6.3 10.4a1.1 1.1 0 0 1-1.4 0C9.3 18.6 5 14.4 5 10c0-4 3.3-7 7-7z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </div>
             <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               Location
             </h3>

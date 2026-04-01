@@ -6,7 +6,7 @@ export default function TermsOfService() {
           Terms of Service
         </h1>
         <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
-          Last Updated: January 25, 2026
+          Last Updated: April 1, 2026
         </p>
 
         <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
@@ -15,7 +15,7 @@ export default function TermsOfService() {
             1. Acceptance of Terms
           </h2>
           <p>
-            By accessing and using TerminTacho ("Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.
+            By accessing and using TerminTacho ("Service"), you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.
           </p>
         </section>
 
@@ -48,7 +48,7 @@ export default function TermsOfService() {
             4. User-Generated Content
           </h2>
           <p>
-            By submitting timeline reports, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and aggregate your submissions. All submissions are anonymous and cannot be traced back to you.
+            By submitting timeline reports, reviews, or other content, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and aggregate your submissions for operating and improving the Service. Submissions are intended to be displayed in anonymized or aggregated form where applicable.
           </p>
           <p style={{ marginTop: "16px" }}>
             We reserve the right to remove any content that violates these Terms or is inappropriate.
@@ -101,7 +101,7 @@ export default function TermsOfService() {
             8. Account Termination
           </h2>
           <p>
-            We reserve the right to suspend or terminate your access to the Service at any time, with or without notice, for violations of these Terms or for any other reason.
+            We reserve the right to suspend or terminate access to the Service for violations of these Terms, abuse, security reasons, or where reasonably necessary to protect the Service and its users.
           </p>
         </section>
 
@@ -119,7 +119,7 @@ export default function TermsOfService() {
             10. Governing Law
           </h2>
           <p>
-            These Terms shall be governed by and construed in accordance with the laws of Germany. Any disputes shall be resolved in the courts of [Your City], Germany.
+            These Terms shall be governed by and construed in accordance with the laws of Germany. Any disputes shall be resolved in the courts of Karlsruhe, Germany.
           </p>
         </section>
 
@@ -128,7 +128,7 @@ export default function TermsOfService() {
             11. Changes to Terms
           </h2>
           <p>
-            We may update these Terms from time to time. Continued use of the Service after changes constitutes acceptance of the new Terms.
+            We may update these Terms from time to time. The current version will be published on this page with an updated "Last Updated" date.
           </p>
         </section>
 
@@ -138,7 +138,7 @@ export default function TermsOfService() {
           </h2>
           <p>
             For questions about these Terms, contact us at:<br/>
-            Email: [your-email@termintacho.com]
+            Email: termintacho@gmail.com
           </p>
         </section>
         </div>

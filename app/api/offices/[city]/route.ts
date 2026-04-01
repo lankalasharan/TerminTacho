@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateWeightedAverage, getReportWeight } from "@/lib/relevance";
+import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
 
 export async function GET(
   request: Request,
@@ -9,10 +10,15 @@ export async function GET(
   try {
     const { city: rawCity } = await params;
     const city = decodeURIComponent(rawCity);
+    const aliases = getCityAliases(city);
 
     // Get office info
     const office = await prisma.office.findFirst({
-      where: { city: { equals: city, mode: "insensitive" } },
+      where: {
+        OR: aliases.map((alias) => ({
+          city: { equals: alias, mode: "insensitive" },
+        })),
+      },
     });
 
     if (!office) {
@@ -116,7 +122,7 @@ export async function GET(
     return NextResponse.json({
       office: {
         id: office.id,
-        city: office.city,
+        city: normalizeCityName(office.city),
         name: office.name,
         address: office.address,
         phone: office.phone,

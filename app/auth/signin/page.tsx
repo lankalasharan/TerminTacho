@@ -155,7 +155,7 @@ export default function SignIn() {
                   setEmailError("Please enter your email address.");
                   return;
                 }
-                signIn("resend", { email: email.trim(), callbackUrl: "/" });
+                signIn("email", { email: email.trim(), callbackUrl: "/" });
               }}
               style={{
                 width: "100%",

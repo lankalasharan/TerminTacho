@@ -34,7 +34,7 @@ export default function NewsletterSignup() {
 
       if (!res.ok) throw new Error(data.error || "Failed to subscribe");
 
-      setMessage({ type: "success", text: "✅ Successfully subscribed!" });
+      setMessage({ type: "success", text: "✅ Please check your email and confirm your subscription." });
       setEmail("");
       setTurnstileToken("");
     } catch (error: any) {

@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     // Send email to admin
     const adminEmailResponse = await resend.emails.send({
       from: "noreply@termintacho.de",
-      to: "lankalasharan@gmail.com",
+      to: "termintacho@gmail.com",
       subject: `New Contact Form Submission: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>

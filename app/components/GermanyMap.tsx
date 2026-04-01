@@ -50,6 +50,7 @@ const cityCoordinates: { [key: string]: { lat: number; lng: number } } = {
   "Mannheim": { lat: 49.4875, lng: 8.4660 },
   "Augsburg": { lat: 48.3705, lng: 10.8978 },
   "Wiesbaden": { lat: 50.0826, lng: 8.2400 },
+  "Chemnitz": { lat: 50.8278, lng: 12.9214 },
 };
 
 interface CityStats {
@@ -89,16 +90,9 @@ function saveCoordCache(cache: CoordCache) {
   }
 }
 
-async function geocodeCity(city: string): Promise<{ lat: number; lng: number } | null> {
-  const query = encodeURIComponent(`${city}, Germany`);
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${query}`;
-  const res = await fetch(url, { headers: { "Accept": "application/json" } });
-  if (!res.ok) return null;
-  const data = await res.json();
-  const first = Array.isArray(data) ? data[0] : null;
-  if (!first?.lat || !first?.lon) return null;
-  return { lat: parseFloat(first.lat), lng: parseFloat(first.lon) };
-}
+// No longer using external geocoding API to avoid CORS errors
+// Use fallback coordinates for unknown cities instead
+const GERMANY_CENTER = { lat: 51.1657, lng: 10.4515 };
 
 export default function GermanyMap() {
   const [isMounted, setIsMounted] = useState(false);
@@ -106,6 +100,62 @@ export default function GermanyMap() {
   const [loading, setLoading] = useState(true);
   const [mapQuery, setMapQuery] = useState("");
   const [mapInstance, setMapInstance] = useState<any>(null);
+
+  const buildCityStats = async (reports: any[]): Promise<CityStats[]> => {
+    const statsMap: { [city: string]: { count: number; totalDays: number; completedCount: number } } = {};
+
+    reports.forEach((report) => {
+      const city = report?.office?.city || report?.officeCity;
+      if (!city) return;
+
+      if (!statsMap[city]) {
+        statsMap[city] = { count: 0, totalDays: 0, completedCount: 0 };
+      }
+
+      statsMap[city].count++;
+
+      if (report.decisionAt && report.submittedAt) {
+        const days = Math.floor(
+          (new Date(report.decisionAt).getTime() - new Date(report.submittedAt).getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+        statsMap[city].totalDays += days;
+        statsMap[city].completedCount++;
+      }
+    });
+
+    const citySet = new Set<string>([
+      ...Object.keys(cityCoordinates),
+      ...Object.keys(statsMap),
+    ]);
+
+    const coordCache = loadCoordCache();
+    const coordsMap: CoordCache = {
+      ...cityCoordinates,
+      ...coordCache,
+    };
+
+    // For any missing cities, use fallback Germany center coordinates
+    const missingCities = Array.from(citySet).filter((city) => !coordsMap[city]);
+    missingCities.forEach((city) => {
+      coordsMap[city] = GERMANY_CENTER;
+    });
+
+    return Array.from(citySet)
+      .map((city) => {
+        const data = statsMap[city];
+        const coords = coordsMap[city];
+        if (!coords) return null;
+        return {
+          city,
+          count: data?.count || 0,
+          avgDays: data?.completedCount ? Math.round(data.totalDays / data.completedCount) : null,
+          lat: coords.lat,
+          lng: coords.lng,
+        } as CityStats;
+      })
+      .filter((item): item is CityStats => Boolean(item));
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -125,80 +175,26 @@ export default function GermanyMap() {
     async function loadData() {
       try {
         const res = await fetch("/api/reports");
-        const data = await res.json();
-        const reports = data.reports || [];
-
-        // Calculate stats per city
-        const statsMap: { [city: string]: { count: number; totalDays: number; completedCount: number } } = {};
-        
-        reports.forEach((report: any) => {
-          const city = report.office.city;
-          if (!statsMap[city]) {
-            statsMap[city] = { count: 0, totalDays: 0, completedCount: 0 };
-          }
-          statsMap[city].count++;
-          
-          if (report.decisionAt) {
-            const days = Math.floor(
-              (new Date(report.decisionAt).getTime() - new Date(report.submittedAt).getTime()) / 
-              (1000 * 60 * 60 * 24)
-            );
-            statsMap[city].totalDays += days;
-            statsMap[city].completedCount++;
-          }
-        });
-
-        // Build city list from reports + seed coordinates
-        const citySet = new Set<string>([
-          ...Object.keys(cityCoordinates),
-          ...Object.keys(statsMap),
-        ]);
-
-        const coordCache = loadCoordCache();
-        const coordsMap: CoordCache = {
-          ...cityCoordinates,
-          ...coordCache,
-        };
-
-        const missingCities = Array.from(citySet).filter((city) => !coordsMap[city]);
-
-        if (missingCities.length > 0) {
-          const results = await Promise.all(
-            missingCities.map(async (city) => ({
-              city,
-              coords: await geocodeCity(city),
-            }))
-          );
-
-          results.forEach(({ city, coords }) => {
-            if (coords) {
-              coordsMap[city] = coords;
-              coordCache[city] = coords;
-            }
-          });
-
-          saveCoordCache(coordCache);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch reports: ${res.status}`);
         }
+        const data = await res.json();
+        const reports = Array.isArray(data?.reports) ? data.reports : [];
 
-        const stats: CityStats[] = Array.from(citySet)
-          .map((city) => {
-            const data = statsMap[city];
-            const coords = coordsMap[city];
-            if (!coords) return null;
-            return {
-              city,
-              count: data?.count || 0,
-              avgDays: data?.completedCount ? Math.round(data.totalDays / data.completedCount) : null,
-              lat: coords.lat,
-              lng: coords.lng,
-            };
-          })
-          .filter((item): item is CityStats => Boolean(item));
-
+        const stats = await buildCityStats(reports);
         setCityStats(stats);
-        setLoading(false);
       } catch (error) {
         console.error("Failed to load map data:", error);
+        // Use seed cities as fallback
+        const fallbackStats = Object.keys(cityCoordinates).map(city => ({
+          city,
+          count: 0,
+          avgDays: null,
+          lat: cityCoordinates[city].lat,
+          lng: cityCoordinates[city].lng,
+        }));
+        setCityStats(fallbackStats);
+      } finally {
         setLoading(false);
       }
     }

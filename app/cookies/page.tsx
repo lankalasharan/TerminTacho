@@ -6,7 +6,7 @@ export default function CookiePolicy() {
           Cookie Policy
         </h1>
         <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
-          Last Updated: January 25, 2026
+          Last Updated: April 1, 2026
         </p>
 
         <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
@@ -71,10 +71,43 @@ export default function CookiePolicy() {
           <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
             <li><strong>Usage Analytics:</strong> Pages visited, time on site, navigation patterns</li>
             <li><strong>Performance Metrics:</strong> Page load times, errors</li>
+            <li><strong>Provider:</strong> Google Analytics (GA4)</li>
           </ul>
           <p style={{ marginTop: "16px" }}>
             <strong>Duration:</strong> Up to 2 years<br/>
             <strong>Legal Basis:</strong> GDPR Art. 6(1)(a) - Consent
+          </p>
+        </section>
+
+        <section style={{ marginBottom: "40px" }}>
+          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "var(--tt-text)" }}>
+            2.4 Security & Anti-Abuse (Required)
+          </h3>
+          <p>
+            We use security measures to protect the site from automated abuse. This may involve storing limited data or using similar technologies.
+          </p>
+          <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
+            <li><strong>CAPTCHA / Bot Protection:</strong> Cloudflare Turnstile</li>
+          </ul>
+          <p style={{ marginTop: "16px" }}>
+            <strong>Duration:</strong> Varies (security signals only as needed)<br/>
+            <strong>Legal Basis:</strong> GDPR Art. 6(1)(f) - Legitimate Interest (security)
+          </p>
+        </section>
+
+        <section style={{ marginBottom: "40px" }}>
+          <h3 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "16px", color: "var(--tt-text)" }}>
+            2.5 Error Monitoring & Performance (Required)
+          </h3>
+          <p>
+            We use error monitoring to keep the site reliable and fix issues quickly.
+          </p>
+          <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
+            <li><strong>Provider:</strong> Sentry</li>
+          </ul>
+          <p style={{ marginTop: "16px" }}>
+            <strong>Duration:</strong> Varies based on operational needs<br/>
+            <strong>Legal Basis:</strong> GDPR Art. 6(1)(f) - Legitimate Interest (service stability)
           </p>
         </section>
 
@@ -85,14 +118,15 @@ export default function CookiePolicy() {
           <p>We may use third-party services that set their own cookies:</p>
           <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
             <li><strong>Google OAuth:</strong> Authentication (if you sign in with Google)</li>
-            <li><strong>Facebook OAuth:</strong> Authentication (if you sign in with Facebook)</li>
+            <li><strong>Google Analytics:</strong> Usage analytics (only with consent)</li>
+            <li><strong>Cloudflare Turnstile:</strong> Security / bot protection</li>
+            <li><strong>Sentry:</strong> Error monitoring and performance</li>
           </ul>
           <p style={{ marginTop: "16px" }}>
             These third parties have their own privacy policies. We recommend reviewing them:
           </p>
           <ul style={{ paddingLeft: "24px", marginTop: "8px" }}>
             <li>Google Privacy Policy: <a href="https://policies.google.com/privacy" target="_blank" style={{ color: "var(--tt-primary-strong)" }}>https://policies.google.com/privacy</a></li>
-            <li>Facebook Data Policy: <a href="https://www.facebook.com/policy.php" target="_blank" style={{ color: "var(--tt-primary-strong)" }}>https://www.facebook.com/policy.php</a></li>
           </ul>
         </section>
 
@@ -146,7 +180,7 @@ export default function CookiePolicy() {
             6. Updates to This Policy
           </h2>
           <p>
-            We may update this Cookie Policy from time to time. Any changes will be posted on this page with an updated "Last Updated" date.
+            We may update this Cookie Policy from time to time. Material changes will be reflected on this page with an updated "Last Updated" date.
           </p>
         </section>
 
@@ -156,7 +190,7 @@ export default function CookiePolicy() {
           </h2>
           <p>
             If you have questions about our use of cookies, please contact us at:<br/>
-            Email: [your-email@termintacho.com]
+            Email: termintacho@gmail.com
           </p>
         </section>
         </div>

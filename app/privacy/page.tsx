@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
           Privacy Policy
         </h1>
         <p style={{ fontSize: "14px", color: "var(--tt-muted)", marginBottom: "40px" }}>
-          Last Updated: January 25, 2026
+          Last Updated: April 1, 2026
         </p>
 
         <div style={{ fontSize: "16px", lineHeight: 1.8, color: "var(--tt-text-strong)" }}>
@@ -25,10 +25,9 @@ export default function PrivacyPolicy() {
           </h2>
           <p>
             The data controller responsible for your personal data is:<br/>
-            TerminTacho<br/>
-            [Your Complete Address]<br/>
-            Email: [your-email@termintacho.com]<br/>
-            <em style={{ fontSize: "14px", color: "var(--tt-muted)" }}>(Please update with actual contact information)</em>
+            Sharan Kumar Reddy Lankala<br/>
+            Augartenstraße 38, 76137 Karlsruhe<br/>
+            Email: termintacho@gmail.com<br/>
           </p>
         </section>
 
@@ -41,9 +40,11 @@ export default function PrivacyPolicy() {
             3.1 Personal Data You Provide
           </h3>
           <ul style={{ paddingLeft: "24px", marginBottom: "16px" }}>
-            <li><strong>Authentication Data:</strong> Email address, OAuth provider account information (Google, Facebook)</li>
-            <li><strong>Timeline Reports:</strong> Processing office, process type, submission dates, decision dates, status (all anonymous)</li>
-            <li><strong>Contact Form:</strong> Name, email address, message content when you contact us</li>
+            <li><strong>Authentication Data:</strong> Email address and OAuth provider account information (Google)</li>
+            <li><strong>Timeline Reports:</strong> Processing office, process type, submission dates, decision dates, status (anonymous by default)</li>
+            <li><strong>Reviews:</strong> Ratings, review content, optional title and process type</li>
+            <li><strong>Contact Form:</strong> Name, email address, subject, message content</li>
+            <li><strong>Newsletter:</strong> Email address and verification token for double opt-in</li>
           </ul>
 
           <h3 style={{ fontSize: "20px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", color: "var(--tt-text)" }}>
@@ -51,8 +52,10 @@ export default function PrivacyPolicy() {
           </h3>
           <ul style={{ paddingLeft: "24px" }}>
             <li><strong>Technical Data:</strong> IP address, browser type, device information, operating system</li>
-            <li><strong>Usage Data:</strong> Pages visited, time spent on pages, clickstream data</li>
-            <li><strong>Cookies:</strong> Session cookies, authentication cookies (see Cookie Policy)</li>
+            <li><strong>Usage Data:</strong> Pages visited, time spent on pages, clickstream data (only if analytics consent is given)</li>
+            <li><strong>Security Data:</strong> CAPTCHA verification tokens and related security signals (Turnstile)</li>
+            <li><strong>Cookies & Similar Storage:</strong> Session and authentication data, consent preference, analytics identifiers (see Cookie Policy)</li>
+            <li><strong>Consent Logs:</strong> Cookie consent choice, timestamp, masked IP, user agent</li>
           </ul>
         </section>
 
@@ -62,8 +65,9 @@ export default function PrivacyPolicy() {
           </h2>
           <p>We process your personal data based on:</p>
           <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
-            <li><strong>Consent (Art. 6(1)(a)):</strong> Authentication and timeline submission</li>
-            <li><strong>Legitimate Interest (Art. 6(1)(f)):</strong> Website analytics, security, and improvement</li>
+            <li><strong>Consent (Art. 6(1)(a)):</strong> Analytics cookies, newsletter subscription, optional cookies</li>
+            <li><strong>Contract / Pre-Contractual Steps (Art. 6(1)(b)):</strong> Account access, authentication, and user requests</li>
+            <li><strong>Legitimate Interest (Art. 6(1)(f)):</strong> Security, fraud prevention, abuse protection, and service improvement</li>
             <li><strong>Legal Obligation (Art. 6(1)(c)):</strong> Compliance with German and EU law</li>
           </ul>
         </section>
@@ -87,10 +91,11 @@ export default function PrivacyPolicy() {
             6. Data Retention
           </h2>
           <ul style={{ paddingLeft: "24px" }}>
-            <li><strong>Timeline Reports:</strong> Stored indefinitely for statistical purposes (fully anonymous)</li>
-            <li><strong>Authentication Data:</strong> Retained while your account is active</li>
-            <li><strong>Session Cookies:</strong> Deleted when you close your browser</li>
-            <li><strong>Contact Form Data:</strong> Deleted after 2 years or upon request</li>
+            <li><strong>Account & Authentication Data:</strong> Kept while your account is active or as required to provide the service</li>
+            <li><strong>Reports & Reviews:</strong> Retained for community statistics and integrity, or anonymized where possible</li>
+            <li><strong>Contact & Newsletter Data:</strong> Kept only as long as necessary to respond or maintain your subscription</li>
+            <li><strong>Security & Consent Logs:</strong> Kept for compliance, fraud prevention, and audit purposes</li>
+            <li><strong>General Rule:</strong> We review and delete or anonymize data when it is no longer needed for the purposes described above or when required by law</li>
           </ul>
         </section>
 
@@ -109,7 +114,7 @@ export default function PrivacyPolicy() {
             <li><strong>Right to Withdraw Consent (Art. 7(3)):</strong> Withdraw consent at any time</li>
           </ul>
           <p style={{ marginTop: "16px" }}>
-            To exercise these rights, contact us at [your-email@termintacho.com]
+            To exercise these rights, contact us at termintacho@gmail.com
           </p>
         </section>
 
@@ -119,9 +124,14 @@ export default function PrivacyPolicy() {
           </h2>
           <p>We may share your data with:</p>
           <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
-            <li><strong>OAuth Providers:</strong> Google, Facebook (for authentication only)</li>
-            <li><strong>Hosting Provider:</strong> Vercel, Supabase (data processing agreement in place)</li>
-            <li><strong>Analytics:</strong> Anonymous usage statistics (if applicable)</li>
+            <li><strong>OAuth Providers:</strong> Google (authentication only)</li>
+            <li><strong>Analytics:</strong> Google Analytics (only with consent)</li>
+            <li><strong>Error & Performance Monitoring:</strong> Sentry (to diagnose errors and improve stability)</li>
+            <li><strong>Security / Anti-Abuse:</strong> Cloudflare Turnstile (CAPTCHA protection)</li>
+            <li><strong>Email Delivery:</strong> Resend (transactional and verification emails)</li>
+            <li><strong>Database Provider:</strong> Supabase (data processing agreement in place)
+            </li>
+            <li><strong>Hosting Provider:</strong> Website hosting and infrastructure providers used to operate TerminTacho</li>
           </ul>
           <p style={{ marginTop: "16px" }}>
             We do not sell your personal data to third parties.
@@ -133,7 +143,7 @@ export default function PrivacyPolicy() {
             9. International Data Transfers
           </h2>
           <p>
-            Your data may be transferred to and processed in countries outside the EU/EEA. We ensure adequate protection through:
+            Some of our providers may process data outside the EU/EEA. We ensure appropriate safeguards through:
           </p>
           <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
             <li>EU Standard Contractual Clauses (SCCs)</li>
@@ -171,7 +181,7 @@ export default function PrivacyPolicy() {
             12. Changes to This Policy
           </h2>
           <p>
-            We may update this Privacy Policy from time to time. We will notify you of significant changes by posting the new policy on this page with an updated "Last Updated" date.
+            We may update this Privacy Policy from time to time. Material changes will be reflected on this page with an updated "Last Updated" date.
           </p>
         </section>
 
@@ -181,7 +191,7 @@ export default function PrivacyPolicy() {
           </h2>
           <p>
             For privacy-related questions or to exercise your rights, contact us at:<br/>
-            Email: [your-email@termintacho.com]<br/>
+            Email: termintacho@gmail.com<br/>
             <br/>
             You also have the right to lodge a complaint with your local data protection authority.
           </p>

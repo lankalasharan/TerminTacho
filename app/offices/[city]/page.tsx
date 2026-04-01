@@ -70,7 +70,7 @@ export default function OfficePage() {
     setCaptchaError(null);
 
     if (siteKey && !turnstileToken) {
-      setReviewMsg("❌ Please complete the CAPTCHA.");
+      setReviewMsg("Error: Please complete the CAPTCHA.");
       setCaptchaError("Please complete the CAPTCHA.");
       return;
     }
@@ -95,7 +95,7 @@ export default function OfficePage() {
           ? errorData.reasons.join(" ")
           : "";
         setReviewMsg(
-          `❌ ${errorData?.error || "Failed to submit review"}${detail ? ` — ${detail}` : ""}${reasons ? ` — ${reasons}` : ""}`
+          `Error: ${errorData?.error || "Failed to submit review"}${detail ? ` — ${detail}` : ""}${reasons ? ` — ${reasons}` : ""}`
         );
         return;
       }
@@ -112,21 +112,26 @@ export default function OfficePage() {
           processType: "",
         });
         setTurnstileToken("");
-        setReviewMsg("✅ Review submitted successfully!");
+        setReviewMsg("Success: Review submitted successfully!");
         // Refresh data
         const newData = await fetch(`/api/offices/${city}`).then(r => r.json());
         setData(newData);
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      setReviewMsg("❌ Failed to submit review. Please try again.");
+      setReviewMsg("Error: Failed to submit review. Please try again.");
     }
   };
 
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "80px 20px" }}>
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
+        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 3" />
+          </svg>
+        </div>
         <p style={{ color: "var(--tt-text-muted)" }}>Loading office details...</p>
       </div>
     );
@@ -135,15 +140,36 @@ export default function OfficePage() {
   if (!data) {
     return (
       <div style={{ textAlign: "center", padding: "80px 20px" }}>
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>❌</div>
+        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="m15 9-6 6" />
+            <path d="m9 9 6 6" />
+          </svg>
+        </div>
         <h1 style={{ fontSize: "24px", marginBottom: "16px" }}>Office Not Found</h1>
-        <Link href="/timelines" style={{ color: "var(--tt-primary-strong)" }}>← Back to Timelines</Link>
+        <Link href="/timelines" style={{ color: "var(--tt-primary-strong)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M19 12H5" />
+            <path d="m12 19-7-7 7-7" />
+          </svg>
+          Back to Timelines
+        </Link>
       </div>
     );
   }
 
   const renderStars = (rating: number) => {
-    return "⭐".repeat(Math.round(rating));
+    const stars = Math.max(1, Math.round(rating));
+    return (
+      <div style={{ display: "inline-flex", gap: "4px" }} aria-label={`${stars} star rating`}>
+        {Array.from({ length: stars }).map((_, idx) => (
+          <svg key={idx} width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2l2.9 6.1 6.7.9-4.8 4.6 1.2 6.6L12 17.8 6 20.2l1.2-6.6L2.4 9l6.7-.9L12 2z" />
+          </svg>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -152,8 +178,12 @@ export default function OfficePage() {
       <section className="tt-hero">
         <div className="tt-container">
           <div style={{ marginBottom: "12px" }}>
-            <Link href="/timelines" style={{ color: "var(--tt-text-muted)", textDecoration: "none", fontSize: "14px" }}>
-              ← Back to All Offices
+            <Link href="/timelines" style={{ color: "var(--tt-text-muted)", textDecoration: "none", fontSize: "14px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M19 12H5" />
+                <path d="m12 19-7-7 7-7" />
+              </svg>
+              Back to All Offices
             </Link>
           </div>
           <h1 className="tt-hero-title">
@@ -204,14 +234,37 @@ export default function OfficePage() {
             marginBottom: "40px",
             border: "1px solid var(--tt-surface-muted)",
           }}>
-            <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)" }}>
-              📞 Contact Information
+            <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "10px" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M22 16.9v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.12.86.3 1.7.54 2.5a2 2 0 0 1-.45 2.11L8 9.5a16 16 0 0 0 6 6l1.17-1.17a2 2 0 0 1 2.11-.45c.8.24 1.64.42 2.5.54A2 2 0 0 1 22 16.9z" />
+              </svg>
+              Contact Information
             </h2>
-            {data.office.address && <p style={{ marginBottom: "8px", color: "var(--tt-text-strong)" }}>📍 {data.office.address}</p>}
-            {data.office.phone && <p style={{ marginBottom: "8px", color: "var(--tt-text-strong)" }}>☎️ {data.office.phone}</p>}
+            {data.office.address && (
+              <p style={{ marginBottom: "8px", color: "var(--tt-text-strong)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                <span>{data.office.address}</span>
+              </p>
+            )}
+            {data.office.phone && (
+              <p style={{ marginBottom: "8px", color: "var(--tt-text-strong)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M22 16.9v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.12.86.3 1.7.54 2.5a2 2 0 0 1-.45 2.11L8 9.5a16 16 0 0 0 6 6l1.17-1.17a2 2 0 0 1 2.11-.45c.8.24 1.64.42 2.5.54A2 2 0 0 1 22 16.9z" />
+                </svg>
+                <span>{data.office.phone}</span>
+              </p>
+            )}
             {data.office.website && (
-              <p style={{ color: "var(--tt-text-strong)" }}>
-                🌐 <a href={data.office.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--tt-primary-strong)" }}>
+              <p style={{ color: "var(--tt-text-strong)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                <a href={data.office.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--tt-primary-strong)" }}>
                   {data.office.website}
                 </a>
               </p>
@@ -228,8 +281,14 @@ export default function OfficePage() {
           marginBottom: "40px",
           border: "1px solid var(--tt-surface-muted)",
         }}>
-          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)" }}>
-            📊 Processing Times by Type
+          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "10px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18" />
+              <path d="M7 13h3v5H7z" />
+              <path d="M12 9h3v9h-3z" />
+              <path d="M17 5h3v13h-3z" />
+            </svg>
+            Processing Times by Type
           </h2>
           <div style={{ display: "grid", gap: "16px" }}>
             {data.processStats.map((stat) => (
@@ -263,8 +322,11 @@ export default function OfficePage() {
           border: "1px solid var(--tt-surface-muted)",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-            <h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--tt-text)" }}>
-              ⭐ Reviews ({data.statistics.totalReviews})
+            <h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "10px" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2l2.9 6.1 6.7.9-4.8 4.6 1.2 6.6L12 17.8 6 20.2l1.2-6.6L2.4 9l6.7-.9L12 2z" />
+              </svg>
+              Reviews ({data.statistics.totalReviews})
             </h2>
             <button
               onClick={() => setShowReviewForm(!showReviewForm)}
@@ -294,8 +356,8 @@ export default function OfficePage() {
                   marginBottom: "16px",
                   padding: "12px",
                   borderRadius: "8px",
-                  background: reviewMsg.startsWith("✅") ? "#d1fae5" : "#fee2e2",
-                  border: `1px solid ${reviewMsg.startsWith("✅") ? "#a7f3d0" : "#fecaca"}`,
+                  background: reviewMsg.startsWith("Success:") ? "#d1fae5" : "#fee2e2",
+                  border: `1px solid ${reviewMsg.startsWith("Success:") ? "#a7f3d0" : "#fecaca"}`,
                   fontSize: "13px",
                   fontWeight: 600,
                 }}>
@@ -310,7 +372,7 @@ export default function OfficePage() {
                   style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   required
                 >
-                  {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{renderStars(n)} {n} Star{n > 1 ? 's' : ''}</option>)}
+                  {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n > 1 ? "s" : ""}</option>)}
                 </select>
               </div>
 
@@ -322,7 +384,7 @@ export default function OfficePage() {
                     onChange={(e) => setReviewForm({ ...reviewForm, serviceRating: parseInt(e.target.value) })}
                     style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   >
-                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
+                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n > 1 ? "s" : ""}</option>)}
                   </select>
                 </div>
                 <div>
@@ -332,7 +394,7 @@ export default function OfficePage() {
                     onChange={(e) => setReviewForm({ ...reviewForm, staffRating: parseInt(e.target.value) })}
                     style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   >
-                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
+                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n > 1 ? "s" : ""}</option>)}
                   </select>
                 </div>
                 <div>
@@ -342,7 +404,7 @@ export default function OfficePage() {
                     onChange={(e) => setReviewForm({ ...reviewForm, speedRating: parseInt(e.target.value) })}
                     style={{ padding: "8px", borderRadius: "6px", border: "2px solid var(--tt-border)", width: "100%" }}
                   >
-                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
+                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n > 1 ? "s" : ""}</option>)}
                   </select>
                 </div>
               </div>
@@ -467,8 +529,12 @@ export default function OfficePage() {
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           border: "1px solid var(--tt-surface-muted)",
         }}>
-          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)" }}>
-            📝 Recent Timeline Reports
+          <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "20px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "10px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+            </svg>
+            Recent Timeline Reports
           </h2>
           {data.recentReports.length === 0 ? (
             <p style={{ color: "var(--tt-text-muted)", textAlign: "center", padding: "20px" }}>No reports yet</p>
@@ -500,16 +566,23 @@ export default function OfficePage() {
                       </div>
                     </div>
                     {processingDays !== null && (
-                      <div style={{ fontSize: "14px", color: "var(--tt-primary-strong)", fontWeight: 600 }}>
-                        ⏱️ {processingDays} days processing time
+                      <div style={{ fontSize: "14px", color: "var(--tt-primary-strong)", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M12 7v5l3 3" />
+                        </svg>
+                        <span>{processingDays} days processing time</span>
                       </div>
                     )}
                     <div style={{ fontSize: "12px", color: "var(--tt-muted)", marginTop: "8px" }}>
                       Submitted {new Date(report.submittedAt).toLocaleDateString()}
                     </div>
                     {report.notes && (
-                      <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--tt-text-strong)" }}>
-                        💬 {report.notes}
+                      <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--tt-text-strong)", display: "flex", alignItems: "flex-start", gap: "6px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginTop: 2 }}>
+                          <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+                        </svg>
+                        <span>{report.notes}</span>
                       </div>
                     )}
                   </div>

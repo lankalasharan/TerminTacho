@@ -3,6 +3,10 @@
 import Link from "next/link";
 
 export default function Footer() {
+  const handleCookieSettings = () => {
+    window.dispatchEvent(new Event("open-cookie-settings"));
+  };
+
   return (
     <footer className="tt-footer">
       <div className="tt-container">
@@ -73,6 +77,21 @@ export default function Footer() {
               <Link href="/cookies" style={{ color: "var(--tt-text-muted)", textDecoration: "none" }}>
                 Cookie Policy
               </Link>
+              <button
+                type="button"
+                onClick={handleCookieSettings}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  color: "var(--tt-text-muted)",
+                  textDecoration: "none",
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+              >
+                Cookie Settings
+              </button>
               <Link href="/imprint" style={{ color: "var(--tt-text-muted)", textDecoration: "none" }}>
                 Imprint
               </Link>

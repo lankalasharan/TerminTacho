@@ -33,7 +33,7 @@ Monitoring Interval: 5 minutes (free tier)
 ```
 
 **Alert Contacts:**
-- Add email: lankalasharan@gmail.com
+- Add email: termintacho@gmail.com
 - (Optional) Add Telegram/Slack for instant notifications
 
 ### 3. Add Additional Monitors

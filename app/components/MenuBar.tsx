@@ -5,6 +5,9 @@ import { useState } from "react";
 
 export default function MenuBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const menuZIndex = 10060;
+  const overlayZIndex = 10050;
+  const buttonZIndex = 10070;
   const iconStyle = {
     width: 18,
     height: 18,
@@ -169,7 +172,7 @@ export default function MenuBar() {
           display: "flex",
           flexDirection: "column",
           gap: "5px",
-          zIndex: 2000,
+          zIndex: buttonZIndex,
           minWidth: "44px",
           minHeight: "44px",
           alignItems: "center",
@@ -213,7 +216,7 @@ export default function MenuBar() {
             right: 0,
             bottom: 0,
             background: "rgba(0,0,0,0.5)",
-            zIndex: 1998,
+            zIndex: overlayZIndex,
             animation: "fadeIn 0.3s ease",
           }}
         />
@@ -228,9 +231,10 @@ export default function MenuBar() {
         height: "100vh",
         background: "var(--tt-surface)",
         boxShadow: "-4px 0 24px rgba(0,0,0,0.15)",
-        zIndex: 1999,
+        zIndex: menuZIndex,
         transition: "right 0.3s ease",
         overflowY: "auto",
+        pointerEvents: isOpen ? "auto" : "none",
       }}>
         <div style={{ padding: "24px" }}>
           {/* Close Button */}

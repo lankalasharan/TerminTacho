@@ -1,17 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import GermanyMap from "../components/GermanyMap";
 import ShareButtons from "../components/ShareButtons";
 import DataAccessGate from "../components/DataAccessGate";
+import KpiRibbon from "../components/insights/KpiRibbon";
+import LeaderboardTable from "../components/insights/LeaderboardTable";
+import { CityStat } from "@/lib/insightsUtils";
 import {
-  calculateRelevanceWeight,
   calculateWeightedAverage,
-  getDataAgeLabel,
   getReportWeight,
-  getRelevanceBadgeStyle,
 } from "@/lib/relevance";
+import { CITY_COORDINATES, DEFAULT_COORDINATES } from "@/lib/cityCoordinates";
+
+// Dynamically import the map component to avoid SSR issues with Leaflet
+const GermanyHeatMap = dynamic(
+  () => import("../components/insights/GermanyHeatMap"),
+  { ssr: false }
+);
 
 type Report = {
   id: string;
@@ -119,6 +127,21 @@ export default function TimelinesPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [showMap, setShowMap] = useState(false);
   const [processOpen, setProcessOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const cities = allCities;
+  const processTypes = allProcessTypes;
+
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    student: true,
+    work: true,
+    family: true,
+    residence: true,
+    business: true,
+    document: true,
+    citizenship: true,
+    finance: true,
+    transport: true,
+  });
 
   useEffect(() => {
     async function load() {
@@ -155,9 +178,6 @@ export default function TimelinesPage() {
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
   }, []);
-
-  const cities = allCities;
-  const processTypes = allProcessTypes;
 
   const filteredReports = reports.filter(r => {
     if (cityFilter && r.office.city !== cityFilter) return false;
@@ -214,6 +234,38 @@ export default function TimelinesPage() {
     const avg = getWeightedAverageDays(cityReports);
     cityStats[city] = { count: cityReports.length, avgDays: avg };
   });
+
+  const cityInsightsStats = useMemo(() => {
+    return cities
+      .map((city) => {
+        const cityData = cityStats[city];
+        const coords = CITY_COORDINATES[city];
+        
+        // Warn if city coordinates not found (helps debug mapping issues)
+        if (!coords && cityData.count > 0) {
+          console.warn(`⚠️ No coordinates found for city: "${city}" (${cityData.count} reports). Using default coordinates.`);
+        }
+        
+        const finalCoords = coords || DEFAULT_COORDINATES;
+        const avgDays = cityData.avgDays ?? 0;
+        const reports = cityData.count;
+
+        let confidence: "low" | "medium" | "high";
+        if (reports >= 10) confidence = "high";
+        else if (reports >= 4) confidence = "medium";
+        else confidence = "low";
+
+        return {
+          city,
+          avgDays: Math.round(avgDays),
+          reports,
+          confidence,
+          lat: finalCoords.lat,
+          lng: finalCoords.lng,
+        };
+      })
+      .filter((stat) => stat.reports > 0);
+  }, [cities, cityStats]);
 
   // Process type statistics (with weighted averages)
   const processStats: { [process: string]: { count: number; avgDays: number | null } } = {};
@@ -312,7 +364,7 @@ export default function TimelinesPage() {
           cursor: "pointer",
           boxShadow: "0 4px 12px rgba(28, 144, 216, 0.4)",
           transition: "all 0.2s",
-          display: "flex",
+          display: showMap ? "none" : "flex",
           alignItems: "center",
           gap: "8px",
         }}
@@ -349,7 +401,7 @@ export default function TimelinesPage() {
             right: 0,
             bottom: 0,
             background: "rgba(0, 0, 0, 0.8)",
-            zIndex: 9999,
+            zIndex: 90,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -408,8 +460,16 @@ export default function TimelinesPage() {
               fontSize: "13px",
               color: "var(--tt-text-muted)",
               textAlign: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
             }}>
-              💡 Click on city markers to view processing time statistics and details
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+              Click on city markers to view processing time statistics and details
             </div>
           </div>
         </div>
@@ -457,7 +517,20 @@ export default function TimelinesPage() {
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
             }}
           >
-            🏢 Browse Offices
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+              <path d="M9 22v-4h6v4"/>
+              <path d="M8 6h.01"/>
+              <path d="M16 6h.01"/>
+              <path d="M12 6h.01"/>
+              <path d="M12 10h.01"/>
+              <path d="M12 14h.01"/>
+              <path d="M16 10h.01"/>
+              <path d="M16 14h.01"/>
+              <path d="M8 10h.01"/>
+              <path d="M8 14h.01"/>
+            </svg>
+            Browse Offices
           </Link>
         </div>
         {/* Filters */}
@@ -469,8 +542,12 @@ export default function TimelinesPage() {
           marginBottom: "32px",
           border: "1px solid var(--tt-border)",
         }}>
-          <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
-            🔍 Filter Data
+          <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            Filter Data
           </h2>
           
           <div className="filter-container" style={{
@@ -668,9 +745,9 @@ export default function TimelinesPage() {
                 onBlur={(e) => e.currentTarget.style.borderColor = "var(--tt-border)"}
               >
                 <option value="">All Statuses</option>
-                <option value="approved">✅ Approved</option>
-                <option value="pending">⏳ Pending</option>
-                <option value="rejected">❌ Rejected</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
           </div>
@@ -715,7 +792,11 @@ export default function TimelinesPage() {
             borderRadius: "16px",
             border: "1px solid var(--tt-surface-muted)",
           }}>
-            <div style={{ fontSize: "64px", marginBottom: "16px" }}>📭</div>
+            <div style={{ color: "white", marginBottom: "16px" }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
             <div style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
               No data available
             </div>
@@ -740,8 +821,14 @@ export default function TimelinesPage() {
                 borderRadius: "16px",
                 boxShadow: "0 8px 24px rgba(28, 144, 216, 0.25)",
               }}>
-                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
-                  📅 TYPICAL PROCESSING TIME
+                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  TYPICAL PROCESSING TIME
                 </div>
                 <div style={{ fontSize: "42px", fontWeight: 800, marginBottom: "8px" }}>
                   {p25Days} - {p75Days} days
@@ -762,8 +849,12 @@ export default function TimelinesPage() {
                 borderRadius: "16px",
                 boxShadow: "0 8px 24px rgba(16, 185, 129, 0.25)",
               }}>
-                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
-                  ✅ APPROVAL RATE
+                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  APPROVAL RATE
                 </div>
                 <div style={{ fontSize: "42px", fontWeight: 800, marginBottom: "8px" }}>
                   {approvalRate}%
@@ -784,8 +875,13 @@ export default function TimelinesPage() {
                 borderRadius: "16px",
                 boxShadow: "0 8px 24px rgba(245, 158, 11, 0.25)",
               }}>
-                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600 }}>
-                  📊 TOTAL REPORTS
+                <div style={{ fontSize: "14px", opacity: 0.9, marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="20" x2="12" y2="10"/>
+                    <line x1="18" y1="20" x2="18" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="16"/>
+                  </svg>
+                  TOTAL REPORTS
                 </div>
                 <div style={{ fontSize: "42px", fontWeight: 800, marginBottom: "8px" }}>
                   {filteredReports.length}
@@ -809,8 +905,13 @@ export default function TimelinesPage() {
                 marginBottom: "32px",
                 border: "1px solid var(--tt-surface-muted)",
               }}>
-                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
-                  ⏱️ Processing Time Distribution
+                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="20" x2="12" y2="10"/>
+                    <line x1="18" y1="20" x2="18" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="16"/>
+                  </svg>
+                  Processing Time Distribution
                 </h2>
                 <div style={{ display: "grid", gap: "16px" }}>
                   {Object.entries(timeDistribution)
@@ -873,8 +974,12 @@ export default function TimelinesPage() {
               marginBottom: "32px",
               border: "1px solid var(--tt-surface-muted)",
             }}>
-              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
-                📬 Submission Methods
+              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.5 12H16l-2 3h-4l-2-3H2.5"/>
+                  <path d="M5.5 5.1 2 12v6c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.8 1.1z"/>
+                </svg>
+                Submission Methods
               </h2>
               <div style={{
                 display: "grid",
@@ -887,7 +992,13 @@ export default function TimelinesPage() {
                   borderRadius: "12px",
                   border: "2px solid var(--tt-border)",
                 }}>
-                  <div style={{ fontSize: "32px", marginBottom: "8px" }}>🌐</div>
+                  <div style={{ marginBottom: "8px", color: "var(--tt-primary-strong)" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="2" y1="12" x2="22" y2="12"/>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                  </div>
                   <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "var(--tt-primary-strong)" }}>
                     {onlineCount}
                   </div>
@@ -904,7 +1015,21 @@ export default function TimelinesPage() {
                   borderRadius: "12px",
                   border: "2px solid var(--tt-border)",
                 }}>
-                  <div style={{ fontSize: "32px", marginBottom: "8px" }}>🏢</div>
+                  <div style={{ marginBottom: "8px", color: "var(--tt-success)" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                      <path d="M9 22v-4h6v4"/>
+                      <path d="M8 6h.01"/>
+                      <path d="M16 6h.01"/>
+                      <path d="M12 6h.01"/>
+                      <path d="M12 10h.01"/>
+                      <path d="M12 14h.01"/>
+                      <path d="M16 10h.01"/>
+                      <path d="M16 14h.01"/>
+                      <path d="M8 10h.01"/>
+                      <path d="M8 14h.01"/>
+                    </svg>
+                  </div>
                   <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "4px", color: "var(--tt-success)" }}>
                     {inPersonCount}
                   </div>
@@ -918,292 +1043,422 @@ export default function TimelinesPage() {
               </div>
             </div>
 
-            {/* City Breakdown */}
-            {!cityFilter && cities.length > 0 && (
+            {/* Premium Insights Dashboard */}
+            {!cityFilter && cityInsightsStats.length > 0 && (
               <div style={{
-                background: "white",
-                padding: "32px",
-                borderRadius: "16px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 marginBottom: "32px",
-                border: "1px solid var(--tt-surface-muted)",
               }}>
-                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
-                  📍 Processing Times by City
-                </h2>
-                <div className="reports-grid" style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                  gap: "20px",
-                }}>
-                  {cities
-                    .filter(city => cityStats[city].avgDays !== null)
-                    .sort((a, b) => (cityStats[a].avgDays || 0) - (cityStats[b].avgDays || 0))
-                    .map(city => {
-                      const stats = cityStats[city];
-                      return (
-                        <div
-                          key={city}
-                          className="report-card"
-                          style={{
-                            padding: "20px",
-                            background: "var(--tt-surface-soft)",
-                            borderRadius: "12px",
-                            border: "2px solid var(--tt-border)",
-                            transition: "all 0.2s",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => setCityFilter(city)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = "var(--tt-primary-strong)";
-                            e.currentTarget.style.background = "#f0f4ff";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = "var(--tt-border)";
-                            e.currentTarget.style.background = "var(--tt-surface-soft)";
-                          }}
-                        >
-                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
-                            {city}
-                          </div>
-                          <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--tt-primary-strong)", marginBottom: "4px" }}>
-                            ~{stats.avgDays} days
-                          </div>
-                          <div style={{ fontSize: "13px", color: "var(--tt-text-muted)" }}>
-                            Based on {stats.count} {stats.count === 1 ? "report" : "reports"}
-                          </div>
-                        </div>
-                      );
-                    })}
+                {/* KPI Ribbon */}
+                <div style={{ marginBottom: "24px" }}>
+                  <KpiRibbon stats={cityInsightsStats} />
                 </div>
-              </div>
-            )}
 
-            {/* Process Type Breakdown */}
-            {!processFilter && processTypes.length > 0 && (
-              <div style={{
-                background: "white",
-                padding: "32px",
-                borderRadius: "16px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                marginBottom: "32px",
-                border: "1px solid var(--tt-surface-muted)",
-              }}>
-                <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
-                  📋 Processing Times by Type
-                </h2>
+                {/* Germany Map Heat View */}
                 <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                  gap: "20px",
+                  background: "white",
+                  padding: "32px",
+                  borderRadius: "16px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  marginBottom: "24px",
+                  border: "1px solid var(--tt-surface-muted)",
                 }}>
-                  {processTypes
-                    .filter(process => processStats[process].avgDays !== null)
-                    .sort((a, b) => (processStats[a].avgDays || 0) - (processStats[b].avgDays || 0))
-                    .map(process => {
-                      const stats = processStats[process];
-                      return (
-                        <div
-                          key={process}
-                          style={{
-                            padding: "20px",
-                            background: "var(--tt-surface-soft)",
-                            borderRadius: "12px",
-                            border: "2px solid var(--tt-border)",
-                            transition: "all 0.2s",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => setProcessFilter(process)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = "var(--tt-success)";
-                            e.currentTarget.style.background = "#f0fdf4";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = "var(--tt-border)";
-                            e.currentTarget.style.background = "var(--tt-surface-soft)";
-                          }}
-                        >
-                          <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--tt-text)" }}>
-                            {normalizeProcessLabel(process)}
-                          </div>
-                          <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--tt-success)", marginBottom: "4px" }}>
-                            ~{stats.avgDays} days
-                          </div>
-                          <div style={{ fontSize: "13px", color: "var(--tt-text-muted)" }}>
-                            Based on {stats.count} {stats.count === 1 ? "report" : "reports"}
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    Processing Times by City - Interactive Map
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", marginBottom: "20px" }}>
+                    Click on any city marker to view detailed statistics
+                  </p>
+                  <GermanyHeatMap
+                    stats={cityInsightsStats}
+                    selectedCity={selectedCity}
+                    onCitySelect={(city) => {
+                      setSelectedCity(city);
+                      // Also set the filter to show city-specific data below
+                      if (city) setCityFilter(city);
+                    }}
+                  />
+                </div>
+
+                {/* City Leaderboard */}
+                <div style={{
+                  background: "white",
+                  padding: "32px",
+                  borderRadius: "16px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  marginBottom: "24px",
+                  border: "1px solid var(--tt-surface-muted)",
+                }}>
+                  <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                      <path d="M4 22h16"/>
+                      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    </svg>
+                    City Leaderboard - Compare Processing Times
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", marginBottom: "20px" }}>
+                    Search, sort, and compare processing times across all cities
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "12px",
+                      alignItems: "center",
+                      padding: "12px 16px",
+                      borderRadius: "12px",
+                      background: "var(--tt-surface-soft)",
+                      border: "1px solid var(--tt-border)",
+                      marginBottom: "16px",
+                      fontSize: "13px",
+                      color: "var(--tt-text-muted)",
+                    }}
+                  >
+                    <span style={{ fontWeight: 700, color: "var(--tt-text)" }}>
+                      Confidence = number of reports
+                    </span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#10B981" }} />
+                      High: 10+
+                    </span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#F59E0B" }} />
+                      Medium: 4-9
+                    </span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#9CA3AF" }} />
+                      Low: 1-3
+                    </span>
+                  </div>
+                  <LeaderboardTable
+                    stats={cityInsightsStats}
+                    selectedCity={selectedCity}
+                    onCitySelect={(city) => {
+                      setSelectedCity(city);
+                      if (city) setCityFilter(city);
+                    }}
+                  />
                 </div>
               </div>
             )}
 
-            {/* Info Banner - Updated with Relevance Explanation */}
-            <div style={{
-              background: "#fffbeb",
-              border: "2px solid #fbbf24",
-              borderRadius: "12px",
-              padding: "20px",
-              display: "flex",
-              gap: "16px",
-              alignItems: "flex-start",
-            }}>
-              <div style={{ fontSize: "24px" }}>ℹ️</div>
-              <div>
-                <div style={{ fontSize: "16px", fontWeight: 700, marginBottom: "8px", color: "#92400e" }}>
-                  About This Data & Relevance Weighting
-                </div>
-                <div style={{ fontSize: "14px", color: "#78350f", lineHeight: 1.6, marginBottom: "12px" }}>
-                  All statistics show aggregated ranges and averages from community reports, not exact individual values. 
-                  Times may vary based on specific circumstances. This data is for informational purposes only.
-                </div>
-                <div style={{ fontSize: "13px", color: "#78350f", fontStyle: "italic", paddingTop: "12px", borderTop: "1px solid rgba(251, 191, 36, 0.3)" }}>
-                  <strong>🎯 Data Relevance:</strong> Recent submissions ({"<"} 6 months) have full weight. Data 1-2 years old has reduced weight. 
-                  Data older than 2 years may not reflect current processing times and has minimal impact on averages.
-                </div>
-              </div>
-            </div>
+            {/* Process Type Breakdown - Grouped by Category */}
+            {!processFilter && processTypes.length > 0 && (() => {
+              // Group process types by category
+              const categorizedProcesses: Record<string, Array<{ name: string; stats: { count: number; avgDays: number | null } }>> = {};
+              
+              processTypes
+                .filter(process => processStats[process].avgDays !== null)
+                .forEach(process => {
+                  const category = getProcessCategory(process);
+                  if (!categorizedProcesses[category]) {
+                    categorizedProcesses[category] = [];
+                  }
+                  categorizedProcesses[category].push({
+                    name: process,
+                    stats: processStats[process]
+                  });
+                });
 
-            {/* Recent Submissions with Relevance Badges */}
-            <div style={{
-              background: "white",
-              padding: "32px",
-              borderRadius: "16px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              marginTop: "32px",
-              border: "1px solid var(--tt-surface-muted)",
-            }}>
-              <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
-                🕐 Recent Submissions (with Data Relevance)
-              </h2>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                gap: "16px",
-              }}>
-                {filteredReports
-                  .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
-                  .slice(0, 12) // Show latest 12
-                  .map(report => {
-                    const relevance = calculateRelevanceWeight(report.submittedAt);
-                    const badgeStyle = getRelevanceBadgeStyle(relevance.category);
-                    const waitTime = calculateDays(report.submittedAt, report.decisionAt);
-                    
-                    return (
-                      <div
-                        key={report.id}
-                        style={{
-                          padding: "16px",
-                          background: "var(--tt-surface-soft)",
-                          borderRadius: "12px",
-                          border: "1px solid var(--tt-border)",
-                          transition: "all 0.2s",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "var(--tt-border-strong)";
-                          e.currentTarget.style.background = "#ffffff";
-                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "var(--tt-border)";
-                          e.currentTarget.style.background = "var(--tt-surface-soft)";
-                          e.currentTarget.style.boxShadow = "none";
-                        }}
-                      >
-                        {/* Relevance Badge */}
-                        <div style={{
-                          display: "inline-block",
-                          padding: "4px 12px",
-                          background: badgeStyle.bg,
-                          color: badgeStyle.text,
-                          borderRadius: "6px",
-                          fontSize: "12px",
-                          fontWeight: 700,
-                          marginBottom: "12px",
-                        }}>
-                          {badgeStyle.emoji} {relevance.category === "recent" ? "Recent" : relevance.category === "relevant" ? "Relevant" : "Older Data"}
-                          {" "} ({getDataAgeLabel(relevance.ageInDays)})
-                        </div>
+              // Sort processes within each category by avgDays
+              Object.keys(categorizedProcesses).forEach(cat => {
+                categorizedProcesses[cat].sort((a, b) => (a.stats.avgDays || 0) - (b.stats.avgDays || 0));
+              });
 
-                        {/* City & Process */}
-                        <div style={{ marginBottom: "12px" }}>
-                          <div style={{ fontSize: "13px", color: "var(--tt-muted)", fontWeight: 600 }}>
-                            📍 {report.office.city}
-                          </div>
-                          <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--tt-text)", marginTop: "4px" }}>
-                            {report.processType.name}
-                          </div>
-                        </div>
+              // Calculate national average for comparison
+              const nationalAvgDays = avgDays;
 
-                        {/* Status & Waiting Time */}
-                        <div style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: "12px",
-                          paddingTop: "12px",
-                          borderTop: "1px solid var(--tt-border)",
-                        }}>
-                          <div>
-                            <div style={{ fontSize: "12px", color: "var(--tt-muted)", fontWeight: 600 }}>
-                              Status
-                            </div>
-                            <div style={{
-                              fontSize: "14px",
-                              fontWeight: 700,
-                              marginTop: "4px",
-                              color: report.status === "approved" ? "var(--tt-success)" : report.status === "rejected" ? "#ef4444" : "#f59e0b",
-                            }}>
-                              {report.status === "approved" ? "✅ Approved" : report.status === "rejected" ? "❌ Rejected" : "⏳ Pending"}
-                            </div>
-                          </div>
-                          {waitTime !== null && (
-                            <div style={{ textAlign: "right" }}>
-                              <div style={{ fontSize: "12px", color: "var(--tt-muted)", fontWeight: 600 }}>
-                                Processing Time
+              // Category metadata
+              const categoryMeta: Record<string, { label: string; color: string; iconSvg: string }> = {
+                student: {
+                  label: "Student & Education",
+                  color: "var(--tt-primary-strong)",
+                  iconSvg: getCategoryIconSvg("student")
+                },
+                work: {
+                  label: "Work & Employment",
+                  color: "var(--tt-success)",
+                  iconSvg: getCategoryIconSvg("work")
+                },
+                family: {
+                  label: "Family & Relationships",
+                  color: "#ec4899",
+                  iconSvg: getCategoryIconSvg("family")
+                },
+                residence: {
+                  label: "Residence & Settlement",
+                  color: "#8b5cf6",
+                  iconSvg: getCategoryIconSvg("residence")
+                },
+                business: {
+                  label: "Business & Investment",
+                  color: "#f59e0b",
+                  iconSvg: getCategoryIconSvg("business")
+                },
+                document: {
+                  label: "Documents & Registration",
+                  color: "#06b6d4",
+                  iconSvg: getCategoryIconSvg("document")
+                },
+                citizenship: {
+                  label: "Citizenship",
+                  color: "#ef4444",
+                  iconSvg: getCategoryIconSvg("citizenship")
+                },
+                finance: {
+                  label: "Finance & Banking",
+                  color: "#10b981",
+                  iconSvg: getCategoryIconSvg("finance")
+                },
+                transport: {
+                  label: "Transport & Vehicles",
+                  color: "#6366f1",
+                  iconSvg: getCategoryIconSvg("transport")
+                },
+              };
+
+              const toggleCategory = (category: string) => {
+                setExpandedCategories(prev => ({
+                  ...prev,
+                  [category]: !prev[category]
+                }));
+              };
+
+              // Helper function to get performance color
+              const getPerformanceColor = (avgDays: number, nationalAvg: number | null) => {
+                if (!nationalAvg) return "var(--tt-primary)";
+                const diff = avgDays - nationalAvg;
+                if (diff <= -10) return "var(--tt-success)"; // Much faster
+                if (diff <= 0) return "#10b981"; // Faster
+                if (diff <= 10) return "#f59e0b"; // Slower
+                return "#ef4444"; // Much slower
+              };
+
+              // Helper function to get confidence badge
+              const getConfidenceBadge = (count: number) => {
+                if (count >= 10) return { label: "High Confidence", color: "#10b981", bg: "#ecfdf5" };
+                if (count >= 4) return { label: "Medium Confidence", color: "#f59e0b", bg: "#fffbeb" };
+                return { label: "Low Confidence", color: "#ef4444", bg: "#fef2f2" };
+              };
+
+              return (
+                <div style={{
+                  background: "white",
+                  padding: "32px",
+                  borderRadius: "16px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  marginBottom: "32px",
+                  border: "1px solid var(--tt-surface-muted)",
+                }}>
+                  <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "12px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                      <path d="M9 14h6"/>
+                      <path d="M9 18h6"/>
+                      <path d="M9 10h6"/>
+                    </svg>
+                    Processing Times by Category
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", marginBottom: "24px" }}>
+                    Organized by process type with performance indicators and data confidence levels
+                  </p>
+
+                  {/* Categories */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    {Object.entries(categorizedProcesses)
+                      .sort(([a], [b]) => {
+                        const order = ["work", "student", "family", "residence", "business", "document", "citizenship", "finance", "transport"];
+                        return order.indexOf(a) - order.indexOf(b);
+                      })
+                      .map(([category, processes]) => {
+                        const meta = categoryMeta[category];
+                        if (!meta) return null;
+                        
+                        const isExpanded = expandedCategories[category];
+                        const totalProcesses = processes.length;
+
+                        return (
+                          <div
+                            key={category}
+                            style={{
+                              border: "2px solid var(--tt-border)",
+                              borderRadius: "12px",
+                              overflow: "hidden",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            {/* Category Header */}
+                            <button
+                              onClick={() => toggleCategory(category)}
+                              style={{
+                                width: "100%",
+                                padding: "16px 20px",
+                                background: "var(--tt-surface-soft)",
+                                border: "none",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                transition: "background 0.2s",
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = "#f9fafb"}
+                              onMouseLeave={(e) => e.currentTarget.style.background = "var(--tt-surface-soft)"}
+                            >
+                              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <div dangerouslySetInnerHTML={{ __html: meta.iconSvg }} />
+                                <div style={{ textAlign: "left" }}>
+                                  <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--tt-text)" }}>
+                                    {meta.label}
+                                  </div>
+                                  <div style={{ fontSize: "13px", color: "var(--tt-text-muted)", marginTop: "2px" }}>
+                                    {totalProcesses} process {totalProcesses === 1 ? "type" : "types"}
+                                  </div>
+                                </div>
                               </div>
-                              <div style={{ fontSize: "18px", fontWeight: 800, color: "var(--tt-primary-strong)", marginTop: "4px" }}>
-                                {waitTime}d
+                              <div style={{
+                                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                transition: "transform 0.2s",
+                                color: "var(--tt-muted)",
+                              }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="6 9 12 15 18 9"/>
+                                </svg>
                               </div>
-                            </div>
-                          )}
-                        </div>
+                            </button>
 
-                        {/* Relevance Weight Indicator */}
-                        <div style={{
-                          fontSize: "11px",
-                          color: "var(--tt-muted)",
-                          paddingTop: "12px",
-                          borderTop: "1px solid var(--tt-border)",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}>
-                          <span>Data Weight: </span>
-                          <div style={{
-                            width: "60px",
-                            height: "4px",
-                            background: "var(--tt-border)",
-                            borderRadius: "2px",
-                            overflow: "hidden",
-                          }}>
-                            <div style={{
-                              width: `${relevance.weight * 100}%`,
-                              height: "100%",
-                              background: relevance.weight >= 0.9 ? "var(--tt-success)" : relevance.weight >= 0.6 ? "#f59e0b" : "#ef4444",
-                              transition: "width 0.3s",
-                            }} />
+                            {/* Category Processes */}
+                            {isExpanded && (
+                              <div style={{
+                                padding: "20px",
+                                background: "white",
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                                gap: "16px",
+                              }}>
+                                {processes.map(({ name, stats }) => {
+                                  const performanceColor = getPerformanceColor(stats.avgDays || 0, nationalAvgDays);
+                                  const confidence = getConfidenceBadge(stats.count);
+                                  const comparison = nationalAvgDays ? Math.round((stats.avgDays || 0) - nationalAvgDays) : null;
+
+                                  return (
+                                    <div
+                                      key={name}
+                                      style={{
+                                        padding: "16px",
+                                        background: "var(--tt-surface-soft)",
+                                        borderRadius: "10px",
+                                        border: "2px solid var(--tt-border)",
+                                        transition: "all 0.2s",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() => setProcessFilter(name)}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.borderColor = performanceColor;
+                                        e.currentTarget.style.background = "#ffffff";
+                                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.borderColor = "var(--tt-border)";
+                                        e.currentTarget.style.background = "var(--tt-surface-soft)";
+                                        e.currentTarget.style.boxShadow = "none";
+                                      }}
+                                    >
+                                      {/* Confidence Badge */}
+                                      <div style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        padding: "4px 10px",
+                                        background: confidence.bg,
+                                        color: confidence.color,
+                                        borderRadius: "6px",
+                                        fontSize: "11px",
+                                        fontWeight: 700,
+                                        marginBottom: "10px",
+                                      }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                        </svg>
+                                        {confidence.label}
+                                      </div>
+
+                                      {/* Process Name */}
+                                      <div style={{ fontSize: "15px", fontWeight: 700, marginBottom: "12px", color: "var(--tt-text)", lineHeight: 1.3 }}>
+                                        {normalizeProcessLabel(name)}
+                                      </div>
+
+                                      {/* Processing Time */}
+                                      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "8px" }}>
+                                        <div style={{ fontSize: "28px", fontWeight: 800, color: performanceColor }}>
+                                          ~{Math.round(stats.avgDays || 0)}
+                                        </div>
+                                        <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--tt-text-muted)" }}>
+                                          days
+                                        </div>
+                                      </div>
+
+                                      {/* Comparison to National Average */}
+                                      {comparison !== null && (
+                                        <div style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: "4px",
+                                          fontSize: "12px",
+                                          fontWeight: 600,
+                                          color: comparison > 0 ? "#ef4444" : "var(--tt-success)",
+                                          marginBottom: "8px",
+                                        }}>
+                                          {comparison > 0 ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                              <polyline points="18 15 12 9 6 15"/>
+                                            </svg>
+                                          ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                              <polyline points="6 9 12 15 18 9"/>
+                                            </svg>
+                                          )}
+                                          {comparison > 0 ? "+" : ""}{comparison} days vs avg
+                                        </div>
+                                      )}
+
+                                      {/* Report Count */}
+                                      <div style={{
+                                        fontSize: "12px",
+                                        color: "var(--tt-text-muted)",
+                                        paddingTop: "8px",
+                                        borderTop: "1px solid var(--tt-border)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                      }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                          <circle cx="9" cy="7" r="4"/>
+                                          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                        </svg>
+                                        {stats.count} {stats.count === 1 ? "report" : "reports"}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
-                          <span style={{ fontWeight: 700 }}>
-                            {Math.round(relevance.weight * 100)}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              );
+            })()}
           </>
         )}
         </div>

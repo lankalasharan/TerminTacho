@@ -11,15 +11,36 @@ export default function CookieConsent() {
     if (!consent) {
       setShowBanner(true);
     }
+
+    const handleOpenSettings = () => {
+      setShowBanner(true);
+    };
+
+    window.addEventListener("open-cookie-settings", handleOpenSettings);
+    return () => {
+      window.removeEventListener("open-cookie-settings", handleOpenSettings);
+    };
   }, []);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     localStorage.setItem("cookie-consent", "accepted");
+    window.dispatchEvent(new CustomEvent("cookie-consent-updated", { detail: "accepted" }));
     setShowBanner(false);
+    try {
+      await fetch("/api/consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "accepted" }),
+      });
+    } catch (error) {
+      console.error("Consent log failed:", error);
+    }
+    window.location.reload();
   };
 
   const handleDecline = () => {
     localStorage.setItem("cookie-consent", "declined");
+    window.dispatchEvent(new CustomEvent("cookie-consent-updated", { detail: "declined" }));
     setShowBanner(false);
   };
 

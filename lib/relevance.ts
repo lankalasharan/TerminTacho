@@ -103,25 +103,25 @@ export function getDataAgeLabel(ageInDays: number): string {
  */
 export function getRelevanceBadgeStyle(
   category: "recent" | "relevant" | "outdated"
-): { bg: string; text: string; emoji: string } {
+): { bg: string; text: string; icon: string } {
   switch (category) {
     case "recent":
       return {
         bg: "#d4edda", // Light green
         text: "#155724", // Dark green
-        emoji: "🟢",
+        icon: "check-circle", // Green checkmark circle
       };
     case "relevant":
       return {
         bg: "#fff3cd", // Light yellow
         text: "#856404", // Dark yellow
-        emoji: "🟡",
+        icon: "alert-circle", // Yellow alert circle
       };
     case "outdated":
       return {
         bg: "#f8d7da", // Light red
         text: "#721c24", // Dark red
-        emoji: "🔴",
+        icon: "x-circle", // Red X circle
       };
   }
 }

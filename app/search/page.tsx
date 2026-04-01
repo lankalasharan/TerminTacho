@@ -16,6 +16,44 @@ export default function SearchPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const renderTypeIcon = (type: SearchResult["type"]) => {
+    switch (type) {
+      case "city":
+        return (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 22s7-5.6 7-12a7 7 0 1 0-14 0c0 6.4 7 12 7 12z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        );
+      case "process":
+        return (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 8h10" />
+            <path d="M7 12h10" />
+            <path d="M7 16h6" />
+          </svg>
+        );
+      case "faq":
+        return (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" />
+            <path d="M12 17h.01" />
+          </svg>
+        );
+      default:
+        return (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+            <path d="M8 13h8" />
+            <path d="M8 17h6" />
+          </svg>
+        );
+    }
+  };
+
   useEffect(() => {
     if (query.length < 2) {
       setResults([]);
@@ -71,7 +109,12 @@ export default function SearchPage() {
             padding: "60px 20px",
             color: "var(--tt-text-muted)",
           }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔎</div>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "56px", height: "56px", borderRadius: "16px", background: "var(--tt-surface-muted)", marginBottom: "16px", color: "var(--tt-text-muted)" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </div>
             <p>Enter at least 2 characters to search</p>
           </div>
         ) : loading ? (
@@ -80,7 +123,12 @@ export default function SearchPage() {
             padding: "60px 20px",
             color: "var(--tt-muted)",
           }}>
-            <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "56px", height: "56px", borderRadius: "16px", background: "var(--tt-surface-muted)", marginBottom: "16px", color: "var(--tt-text-muted)" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 3" />
+              </svg>
+            </div>
             <p>Searching...</p>
           </div>
         ) : results.length === 0 ? (
@@ -89,7 +137,13 @@ export default function SearchPage() {
             padding: "60px 20px",
             color: "var(--tt-text-muted)",
           }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "56px", height: "56px", borderRadius: "16px", background: "var(--tt-surface-muted)", marginBottom: "16px", color: "var(--tt-text-muted)" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 4h16v12H4z" />
+                <path d="m4 8 8 5 8-5" />
+                <path d="M22 16h-6a2 2 0 0 0-2 2v2" />
+              </svg>
+            </div>
             <p>No results found for "{query}"</p>
           </div>
         ) : (
@@ -135,13 +189,17 @@ export default function SearchPage() {
                     gap: "16px",
                   }}>
                     <div style={{
-                      fontSize: "24px",
                       minWidth: "32px",
+                      width: "32px",
+                      height: "32px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "10px",
+                      background: "var(--tt-surface-muted)",
+                      color: "var(--tt-text-muted)",
                     }}>
-                      {result.type === "city" && "📍"}
-                      {result.type === "process" && "📋"}
-                      {result.type === "faq" && "❓"}
-                      {result.type === "page" && "📄"}
+                      {renderTypeIcon(result.type)}
                     </div>
                     <div style={{ flex: 1 }}>
                       <h3 style={{
@@ -163,11 +221,17 @@ export default function SearchPage() {
                         fontSize: "12px",
                         color: "var(--tt-muted)",
                         marginTop: "8px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
                       }}>
-                        {result.type === "city" && "📊 City Statistics"}
-                        {result.type === "process" && "📋 Process Type"}
-                        {result.type === "faq" && "❓ Frequently Asked"}
-                        {result.type === "page" && "📄 Page"}
+                        {renderTypeIcon(result.type)}
+                        <span>
+                          {result.type === "city" && "City statistics"}
+                          {result.type === "process" && "Process type"}
+                          {result.type === "faq" && "Frequently asked"}
+                          {result.type === "page" && "Page"}
+                        </span>
                       </div>
                     </div>
                   </div>
