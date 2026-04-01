@@ -1,12 +1,10 @@
-URL
-RESTful endpoint for querying and managing your database       https://rejvputgxxlzierhzrvn.supabase.co
+Supabase Project Notes
 
-sb_publishable_XhdW0tmLg8XNc0G067VH5A_07wNO1bl
+Keep all active credentials only in .env.local.
+Do not store real keys or connection strings in this file.
 
-sb_secret_Kg3tTVZ-kVjfMIPkgkfFyA_PTAJfN5y
-
-publishing key sb_publishable_XhdW0tmLg8XNc0G067VH5A_07wNO1bl
-
-Anon key  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlanZwdXRneHhsemllcmh6cnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyODYzMjcsImV4cCI6MjA4NDg2MjMyN30.NfEo2R0qCZe4j1inzDKQLqd7EPnmk0X8IZtm4RYrYDk
-
-connection string postgresql://postgres:[YOUR-PASSWORD]@db.rejvputgxxlzierhzrvn.supabase.co:5432/postgres
+Required values for new project connection:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- DATABASE_URL
