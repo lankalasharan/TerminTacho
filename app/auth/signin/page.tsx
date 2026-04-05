@@ -68,6 +68,7 @@ export default function SignIn() {
               border: "2px solid var(--tt-border)",
               borderRadius: "8px",
               background: "white",
+              color: "#333333",
               fontSize: "16px",
               fontWeight: 600,
               cursor: "pointer",
@@ -141,6 +142,7 @@ export default function SignIn() {
                 border: "2px solid var(--tt-border)",
                 borderRadius: "8px",
                 fontSize: "14px",
+                color: "#333333",
                 outline: "none",
               }}
             />
@@ -163,6 +165,7 @@ export default function SignIn() {
                 border: "2px solid var(--tt-border)",
                 borderRadius: "8px",
                 background: "white",
+                color: "#333333",
                 fontSize: "16px",
                 fontWeight: 600,
                 cursor: "pointer",
