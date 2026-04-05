@@ -16,8 +16,7 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem("darkMode");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setIsDark(saved ? JSON.parse(saved) : prefersDark);
+    setIsDark(saved ? JSON.parse(saved) : false);
   }, []);
 
   useEffect(() => {
