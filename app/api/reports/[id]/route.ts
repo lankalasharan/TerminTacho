@@ -114,3 +114,55 @@ export async function PATCH(
     );
   }
 }
+
+/**
+ * Delete a report (owner or admin only)
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    const report = await prisma.report.findUnique({
+      where: { id },
+      select: { id: true, userId: true },
+    });
+
+    if (!report) {
+      return NextResponse.json({ error: "Report not found" }, { status: 404 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+    const isAdmin = adminEmails.includes(session.user.email);
+
+    if (!isAdmin && report.userId !== user?.id) {
+      return NextResponse.json(
+        { error: "You can only delete your own reports" },
+        { status: 403 }
+      );
+    }
+
+    await prisma.report.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting report:", error);
+    return NextResponse.json(
+      { error: "Failed to delete report" },
+      { status: 500 }
+    );
+  }
+}

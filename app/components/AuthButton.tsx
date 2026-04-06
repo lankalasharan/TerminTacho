@@ -35,6 +35,8 @@ export default function AuthButton() {
   if (session) {
     const displayName = session.user?.name || session.user?.email || "User";
     const avatarUrl = session.user?.image || "";
+    const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+    const isAdmin = adminEmails.includes(session.user?.email ?? "");
     const initials = displayName
       .split(" ")
       .map((n) => n[0])
@@ -254,6 +256,31 @@ export default function AuthButton() {
                 </svg>
                 Contact Support
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsOpen(false)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "10px 12px",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "#7c3aed",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    background: "#f5f3ff",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#ede9fe")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "#f5f3ff")}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Admin Panel
+                </Link>
+              )}
             </div>
 
             <div style={{ height: "1px", background: "var(--tt-border)", margin: "10px 0" }} />

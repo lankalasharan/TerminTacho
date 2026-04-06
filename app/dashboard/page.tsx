@@ -10,10 +10,22 @@ type UserStats = {
   lastSubmission: string | null;
 };
 
+type UserReport = {
+  id: string;
+  status: string;
+  submittedAt: string;
+  createdAt: string;
+  processType: { name: string } | null;
+  office: { city: string; name: string } | null;
+};
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [reports, setReports] = useState<UserReport[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -28,6 +40,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (session?.user?.email) {
       loadStats();
+      loadReports();
     }
   }, [session]);
 
@@ -40,6 +53,37 @@ export default function DashboardPage() {
       console.error("Error loading stats:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadReports() {
+    try {
+      const res = await fetch("/api/user/reports");
+      const data = await res.json();
+      setReports(data.reports || []);
+    } catch (error) {
+      console.error("Error loading reports:", error);
+    } finally {
+      setReportsLoading(false);
+    }
+  }
+
+  async function handleDeleteReport(reportId: string) {
+    if (!window.confirm("Delete this report? This cannot be undone.")) return;
+    setDeletingId(reportId);
+    try {
+      const res = await fetch(`/api/reports/${reportId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data?.error || "Failed to delete report.");
+        return;
+      }
+      setReports((prev) => prev.filter((r) => r.id !== reportId));
+      setStats((prev) => prev ? { ...prev, totalSubmissions: prev.totalSubmissions - 1 } : prev);
+    } catch {
+      alert("Failed to delete report.");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -378,6 +422,100 @@ export default function DashboardPage() {
               </div>
             </a>
           </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: "32px",
+            background: "white",
+            padding: "40px",
+            borderRadius: "16px",
+            border: "1px solid var(--tt-border)",
+          }}
+        >
+          <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "24px", color: "var(--tt-text)" }}>
+            My Reports
+          </h2>
+
+          {reportsLoading ? (
+            <div style={{ color: "var(--tt-text-muted)" }}>Loading your reports...</div>
+          ) : reports.length === 0 ? (
+            <div style={{ color: "var(--tt-text-muted)" }}>You have no submitted reports yet.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {reports.map((r) => {
+                const statusColor =
+                  r.status === "approved" ? "#16a34a" :
+                  r.status === "rejected" ? "#dc2626" :
+                  r.status === "withdrawn" ? "#6b7280" : "#d97706";
+                const statusBg =
+                  r.status === "approved" ? "#dcfce7" :
+                  r.status === "rejected" ? "#fee2e2" :
+                  r.status === "withdrawn" ? "#f3f4f6" : "#fef3c7";
+
+                return (
+                  <div
+                    key={r.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "16px 20px",
+                      background: "var(--tt-surface-soft)",
+                      borderRadius: "10px",
+                      border: "1px solid var(--tt-border)",
+                      gap: "16px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: "15px", color: "var(--tt-text)", marginBottom: "4px" }}>
+                        {r.processType?.name ?? "Unknown process"}
+                      </div>
+                      <div style={{ fontSize: "13px", color: "var(--tt-text-muted)" }}>
+                        {r.office ? `${r.office.city} — ${r.office.name}` : "Unknown office"}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "var(--tt-text-muted)", marginTop: "2px" }}>
+                        Submitted {new Date(r.submittedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <span
+                      style={{
+                        padding: "4px 12px",
+                        borderRadius: "999px",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        background: statusBg,
+                        color: statusColor,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {r.status}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={deletingId === r.id}
+                      onClick={() => handleDeleteReport(r.id)}
+                      style={{
+                        background: deletingId === r.id ? "#fca5a5" : "#fee2e2",
+                        color: "#b91c1c",
+                        border: "1px solid #fca5a5",
+                        borderRadius: "8px",
+                        padding: "8px 14px",
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        cursor: deletingId === r.id ? "not-allowed" : "pointer",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {deletingId === r.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div

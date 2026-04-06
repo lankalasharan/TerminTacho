@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function MenuBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+  const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+  const isAdmin = adminEmails.includes(session?.user?.email ?? "");
   const menuZIndex = 10060;
   const overlayZIndex = 10050;
   const buttonZIndex = 10070;
@@ -127,6 +131,12 @@ export default function MenuBar() {
             <path d="M17 7l3 5h-6z" />
             <path d="M12 11v8" />
             <path d="M8 19h8" />
+          </svg>
+        );
+      case "shield":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
         );
       default:
@@ -481,6 +491,29 @@ export default function MenuBar() {
                 <span>My Dashboard</span>
               </span>
             </Link>
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  padding: "12px 16px",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "#7c3aed",
+                  textDecoration: "none",
+                  borderRadius: "8px",
+                  transition: "background 0.2s",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#f5f3ff"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                  <MenuIcon name="shield" />
+                  <span>Admin Panel</span>
+                </span>
+              </Link>
+            )}
 
             <div style={{
               height: "1px",
