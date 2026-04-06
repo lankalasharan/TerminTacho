@@ -71,6 +71,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
+
+  // Require authentication for all submissions
+  if (!session?.user?.email) {
+    return NextResponse.json(
+      { error: "You must be logged in to submit a report." },
+      { status: 401 }
+    );
+  }
+
   const body = await req.json();
   const ipAddress = getClientIp(req);
 
@@ -131,59 +140,57 @@ export async function POST(req: Request) {
   let userId: string | undefined;
   let userEmail: string | undefined;
 
-  // Get user ID if authenticated
-  if (session?.user?.email) {
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, createdAt: true },
+  // session is guaranteed here (auth check at top)
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true, createdAt: true },
+  });
+  userId = user?.id;
+  userEmail = session.user.email;
+
+  if (user) {
+    // Track IP address
+    if (ipAddress) {
+      await trackIpAddress(user.id, ipAddress);
+    }
+
+    // Check IP abuse pattern (too many accounts from same IP)
+    const ipAbuseCheck = await checkIpAbusePattern(ipAddress);
+    if (ipAbuseCheck.isAbusive) {
+      return NextResponse.json(
+        { error: "Suspicious activity detected. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    // Check IP submission patterns (spam from same IP)
+    const ipPatternCheck = await checkIpSubmissionPatterns(ipAddress);
+    if (ipPatternCheck.isSuspicious) {
+      return NextResponse.json(
+        { error: "Too many submissions from your location. Try again in 1 hour." },
+        { status: 429 }
+      );
+    }
+
+    // Check for duplicate submission (by case number)
+    const duplicate = await isDuplicateSubmission(userId, caseNumber, processTypeId);
+    if (duplicate.isDuplicate) {
+      return NextResponse.json(
+        { error: duplicate.message || "Duplicate submission detected" },
+        { status: 409 }
+      );
+    }
+
+    // Check rate limiting (5 submissions per 24 hours)
+    const rateCheck = await checkSubmissionRateLimit(userId, {
+      maxSubmissions: 5,
+      timeWindowHours: 24,
     });
-    userId = user?.id;
-    userEmail = session.user.email;
-
-    if (user) {
-      // Track IP address
-      if (ipAddress) {
-        await trackIpAddress(user.id, ipAddress);
-      }
-
-      // Check IP abuse pattern (too many accounts from same IP)
-      const ipAbuseCheck = await checkIpAbusePattern(ipAddress);
-      if (ipAbuseCheck.isAbusive) {
-        return NextResponse.json(
-          { error: "Suspicious activity detected. Please try again later." },
-          { status: 429 }
-        );
-      }
-
-      // Check IP submission patterns (spam from same IP)
-      const ipPatternCheck = await checkIpSubmissionPatterns(ipAddress);
-      if (ipPatternCheck.isSuspicious) {
-        return NextResponse.json(
-          { error: "Too many submissions from your location. Try again in 1 hour." },
-          { status: 429 }
-        );
-      }
-
-      // Check for duplicate submission
-      const duplicate = await isDuplicateSubmission(userId, caseNumber, processTypeId);
-      if (duplicate.isDuplicate) {
-        return NextResponse.json(
-          { error: duplicate.message || "Duplicate submission detected" },
-          { status: 409 }
-        );
-      }
-
-      // Check rate limiting (5 submissions per 24 hours)
-      const rateCheck = await checkSubmissionRateLimit(userId, {
-        maxSubmissions: 5,
-        timeWindowHours: 24,
-      });
-      if (!rateCheck.allowed) {
-        return NextResponse.json(
-          { error: rateCheck.message },
-          { status: 429 }
-        );
-      }
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: rateCheck.message },
+        { status: 429 }
+      );
     }
   }
 
@@ -219,6 +226,27 @@ export async function POST(req: Request) {
         select: { id: true },
       });
       resolvedProcessTypeId = createdProcess.id;
+    }
+  }
+
+  // Check duplicate: same user, same office, same process type
+  if (userId && resolvedOfficeId && resolvedProcessTypeId) {
+    const existingReport = await prisma.report.findFirst({
+      where: {
+        userId,
+        officeId: String(resolvedOfficeId),
+        processTypeId: String(resolvedProcessTypeId),
+      },
+      select: { id: true },
+    });
+    if (existingReport) {
+      return NextResponse.json(
+        {
+          error:
+            "You have already submitted a report for the same office and process type. Each user can only submit one report per city/process combination.",
+        },
+        { status: 409 }
+      );
     }
   }
 

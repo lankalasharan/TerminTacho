@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession, signIn } from "next-auth/react";
 import TurnstileWidget from "../components/Turnstile";
 
 type Office = { id: string; city: string; name: string };
@@ -55,6 +56,7 @@ function getProcessIcon(label: string): string {
 }
 
 export default function SubmitPage() {
+  const { data: session, status: sessionStatus } = useSession();
   const [offices, setOffices] = useState<Office[]>([]);
   const [processTypes, setProcessTypes] = useState<ProcessType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -101,8 +103,15 @@ export default function SubmitPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
-    setLoading(true);
     setCaptchaError(null);
+
+    // Block submission if user is not authenticated
+    if (sessionStatus !== "authenticated") {
+      setMsg("__AUTH_REQUIRED__");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       if (!officeId && !customCity.trim()) {
@@ -171,11 +180,34 @@ export default function SubmitPage() {
             <div
               className="tt-submit-message"
               style={{
-                background: msg.startsWith("✅") ? "#d1fae5" : "#fee2e2",
-                border: `1px solid ${msg.startsWith("✅") ? "#a7f3d0" : "#fecaca"}`,
+                background: msg === "__AUTH_REQUIRED__" ? "#fffbeb" : msg.startsWith("✅") ? "#d1fae5" : "#fee2e2",
+                border: `1px solid ${msg === "__AUTH_REQUIRED__" ? "#fcd34d" : msg.startsWith("✅") ? "#a7f3d0" : "#fecaca"}`,
               }}
             >
-              {msg}
+              {msg === "__AUTH_REQUIRED__" ? (
+                <span>
+                  Please{" "}
+                  <button
+                    type="button"
+                    onClick={() => signIn(undefined, { callbackUrl: "/submit" })}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      color: "#b45309",
+                      fontWeight: 700,
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                    }}
+                  >
+                    log in
+                  </button>
+                  {" "}to submit your data. Your form data is preserved — just sign in and try again.
+                </span>
+              ) : (
+                msg
+              )}
             </div>
           )}
 
@@ -192,16 +224,12 @@ export default function SubmitPage() {
                   </svg>
                 </span>
                 <div>
-                  <p className="tt-submit-info-title">Your submission is completely anonymous.</p>
-                  <p className="tt-submit-info-text">No personal data is stored.</p>
-                </div>
-              </div>
-
-              <form onSubmit={onSubmit} className="tt-submit-form">
-                <div className="tt-submit-grid">
-                  <div className="tt-submit-field tt-span-2">
-                    <label className="tt-submit-label">
-                      <span className="tt-submit-icon" aria-hidden="true">
+                  <p className="tt-submit-info-title">Sign in required to submit.</p>
+                  <p className="tt-submit-info-text">
+                    {sessionStatus === "authenticated"
+                      ? `Signed in as ${session?.user?.email ?? "you"}. You can submit below.`
+                      : "Fill in your data and sign in when you press Submit — your data is preserved."}
+                  </p>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="4" width="18" height="16" rx="2" />
                           <path d="M7 8h2M7 12h2M7 16h2M11 8h2M11 12h2M11 16h2M15 8h2M15 12h2M15 16h2" />
