@@ -246,7 +246,7 @@ Purpose: Check if current user can manage a specific review
 
 All changes are **100% backward compatible**:
 - ✅ Existing API routes work unchanged
-- ✅ Anonymous submissions still supported (userId = NULL)
+- ~~✅ Anonymous submissions still supported (userId = NULL)~~ — **Removed April 2026**: Login now required to submit reports
 - ✅ Dashboard continues to work
 - ✅ No code changes required in application
 - ✅ All user flows function identically
@@ -295,8 +295,8 @@ git push origin main
 ### Test Cases Verified
 
 1. ✅ Public can read reports
-2. ✅ Anon users can submit reports (userId = NULL)
-3. ✅ Authenticated users can submit reports (with userId)
+2. ~~✅ Anon users can submit reports (userId = NULL)~~ — **Removed April 2026**
+3. ✅ Authenticated users can submit reports (login required, with userId)
 4. ✅ Users can only edit their own reports
 5. ✅ Users can only delete their own reports
 6. ✅ Service role can do everything

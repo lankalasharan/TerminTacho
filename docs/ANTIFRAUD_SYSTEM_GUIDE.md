@@ -2,7 +2,7 @@
 
 ## Overview
 
-Your TerminTacho now has a sophisticated **anti-fraud and data quality system** to reduce fake submissions, spam, and ensure data integrity. This adds strategic friction to protect your platform.
+TerminTacho now has a sophisticated **anti-fraud and data quality system** to reduce fake submissions, spam, and ensure data integrity. This adds strategic friction to protect your platform.
 
 ## Key Features Implemented
 
@@ -28,8 +28,9 @@ Your TerminTacho now has a sophisticated **anti-fraud and data quality system** 
 - Error response: `429 Too Many Requests`
 
 ### 4. **Duplicate Prevention** 🔍
-- One submission per **case number + process type** combination
-- Users cannot resubmit the same case twice
+- One submission per **office + process type** combination per user
+- Users cannot resubmit the same city/office and process type more than once
+- Also checks **case number + process type** if a case number is provided
 - Encourages quality over quantity
 - Error response: `409 Conflict`
 
@@ -97,7 +98,8 @@ model Review {
 Core functions:
 - `calculateConfidenceScore(accountAge)` - Returns 0-1 confidence
 - `canSubmitReview(userId)` - Check 1-review-per-day limit
-- `isDuplicateSubmission(userId, caseNumber, processTypeId)` - Check duplicates
+- `isDuplicateSubmission(userId, caseNumber, processTypeId)` - Check duplicates by case number
+- **API-level**: office + processType duplicate check after ID resolution (catches duplicates even without a case number)
 - `checkSubmissionRateLimit(userId)` - Check 5-per-24h limit
 - `getUserTrustMetrics(userId)` - Get user's trust profile
 
@@ -145,10 +147,26 @@ Allows users to:
 // HTTP 429
 ```
 
-### Duplicate Submission
+### Not Authenticated
+```json
+{
+  "error": "You must be logged in to submit a report."
+}
+// HTTP 401
+```
+
+### Duplicate Submission (case number)
 ```json
 {
   "error": "You have already submitted a report for this case and process type"
+}
+// HTTP 409
+```
+
+### Duplicate Submission (same office + process)
+```json
+{
+  "error": "You have already submitted a report for the same office and process type. Each user can only submit one report per city/process combination."
 }
 // HTTP 409
 ```
@@ -164,13 +182,15 @@ Allows users to:
 ## User Experience Flow
 
 ### User Perspective: Submitting Timeline
-1. Fill in form (office, process, dates, case number)
-2. Submit
-3. If first submission or ≥24h since last: ✅ Success, confidence score = 0.5-1.0
-4. If duplicate case/process: ❌ Error "Already submitted this case"
-5. If >5 in 24h: ⚠️ Error "Rate limit exceeded, try again in X hours"
-6. Data appears with confidence badge showing account age impact
-7. Can return later to mark as "still waiting" or "completed"
+1. Fill in form (office, process, dates, case number) — form is always accessible
+2. Press Submit
+3. If **not logged in**: ⚠️ Yellow banner — "Please log in to submit your data. Your form data is preserved."
+   - Clicking "log in" opens sign-in flow and redirects back to `/submit`
+4. If logged in and first submission for this office+process: ✅ Success, confidence score = 0.5-1.0
+5. If duplicate office+process (or case number): ❌ Error "Already submitted this case"
+6. If >5 in 24h: ⚠️ Error "Rate limit exceeded, try again in X hours"
+7. Data appears with confidence badge showing account age impact
+8. Can return later to mark as "still waiting" or "completed"
 
 ### User Perspective: Writing Review
 1. Fill in review form

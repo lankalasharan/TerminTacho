@@ -35,9 +35,10 @@ Your Supabase database has been secured with **Row-Level Security (RLS)** - the 
 
 ### After (Secure ✅)
 - Public read access (dashboard still works)
+- **Authentication required to submit reports** (login enforced at API level)
 - Restricted write access (users can only modify own submissions)
 - Enforcement at database level (faster & more secure)
-- Anonymous submissions still supported
+- Anonymous submissions no longer accepted (removed April 2026)
 - Service role unrestricted (backend management)
 
 ---
@@ -71,11 +72,11 @@ git push origin main
 ## ✅ What Still Works
 
 ✅ **Public Dashboard** - Anyone can view all reports (SELECT allowed)  
-✅ **Anonymous Submissions** - Submit without login (userId = NULL)  
+✅ **Authentication Required** - Login mandatory to submit reports (April 2026)  
 ✅ **Authenticated Users** - Login and track your submissions  
 ✅ **User Profiles** - Can only see own profile (protected)  
 ✅ **All API Endpoints** - Work exactly the same  
-✅ **Backward Compatible** - No breaking changes  
+✅ **Backward Compatible** - No breaking changes for read operations  
 
 ---
 
@@ -94,7 +95,7 @@ git push origin main
 |-------|--------|--------|--------|--------|-------|
 | Office | Public | Service Role | Service Role | Service Role | Read-only for public |
 | ProcessType | Public | Service Role | Service Role | Service Role | Read-only for public |
-| Report | Public | Authenticated + Anon | Owner Only | Owner Only | Anonymous + tracked |
+| Report | Public | Authenticated Only | Owner Only | Owner Only | Login required to submit |
 | Review | Public | Authenticated + Anon | Owner Only | Owner Only | Anonymous + tracked |
 | User | Owner | Owner | Owner | Service Role | Protects auth data |
 | Account | Owner | Service Role | Service Role | Service Role | Protects OAuth data |

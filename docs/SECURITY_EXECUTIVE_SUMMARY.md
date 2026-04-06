@@ -83,11 +83,11 @@ That's it! ✅
 
 ## ✨ Key Features
 
-✅ **Zero Breaking Changes** - API works exactly the same  
-✅ **Anonymous Submissions** - Still supported (userId = NULL)  
-✅ **User Tracking** - Optional (only if authenticated)  
+✅ **Zero Breaking Changes** - Public read API works exactly the same  
+✅ **Authentication Required** - Login enforced for report submission (April 2026)  
+✅ **Duplicate Prevention** - One submission per user per office+process type  
 ✅ **Database Enforced** - Can't be bypassed via API  
-✅ **Backward Compatible** - No code changes needed  
+✅ **Backward Compatible** - No breaking changes for read operations  
 ✅ **Performance Optimized** - <1ms impact with indexes  
 ✅ **Fully Documented** - 6 comprehensive guides  
 ✅ **Production Ready** - Deploy immediately  

@@ -17,7 +17,8 @@ Implemented RLS:
 **Security Benefits:**
 - Prevents unauthorized data access
 - Users can only edit/delete own submissions
-- Anonymous submissions still supported (userId = NULL)
+- ✅ Authentication required to submit reports (enforced at API level, April 2026)
+- ✅ Anonymous submissions removed — login mandatory
 - Database-level enforcement (faster & more secure)
 
 **Deployment:**
