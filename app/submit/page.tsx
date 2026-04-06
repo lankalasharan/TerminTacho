@@ -230,6 +230,14 @@ export default function SubmitPage() {
                       ? `Signed in as ${session?.user?.email ?? "you"}. You can submit below.`
                       : "Fill in your data and sign in when you press Submit — your data is preserved."}
                   </p>
+                </div>
+              </div>
+
+              <form onSubmit={onSubmit} className="tt-submit-form">
+                <div className="tt-submit-grid">
+                  <div className="tt-submit-field tt-span-2">
+                    <label className="tt-submit-label">
+                      <span className="tt-submit-icon" aria-hidden="true">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="4" width="18" height="16" rx="2" />
                           <path d="M7 8h2M7 12h2M7 16h2M11 8h2M11 12h2M11 16h2M15 8h2M15 12h2M15 16h2" />
