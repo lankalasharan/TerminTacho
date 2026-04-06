@@ -85,6 +85,7 @@ That's it! ✅
 
 ✅ **Zero Breaking Changes** - Public read API works exactly the same  
 ✅ **Authentication Required** - Login enforced for report submission (April 2026)  
+✅ **Pseudonymous Submissions** - Identity never publicly displayed; linked internally for fraud prevention only (GDPR Art. 4(5))  
 ✅ **Duplicate Prevention** - One submission per user per office+process type  
 ✅ **Database Enforced** - Can't be bypassed via API  
 ✅ **Backward Compatible** - No breaking changes for read operations  

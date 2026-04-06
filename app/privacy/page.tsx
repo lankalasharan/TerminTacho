@@ -41,7 +41,7 @@ export default function PrivacyPolicy() {
           </h3>
           <ul style={{ paddingLeft: "24px", marginBottom: "16px" }}>
             <li><strong>Authentication Data:</strong> Email address and OAuth provider account information (Google)</li>
-            <li><strong>Timeline Reports:</strong> Processing office, process type, submission dates, decision dates, status (anonymous by default)</li>
+            <li><strong>Timeline Reports:</strong> Processing office, process type, submission dates, decision dates, status. Reports are linked to your account internally for fraud prevention and duplicate detection, but are <strong>never publicly displayed with your identity</strong> (pseudonymous processing per GDPR Art. 4(5)).</li>
             <li><strong>Reviews:</strong> Ratings, review content, optional title and process type</li>
             <li><strong>Contact Form:</strong> Name, email address, subject, message content</li>
             <li><strong>Newsletter:</strong> Email address and verification token for double opt-in</li>

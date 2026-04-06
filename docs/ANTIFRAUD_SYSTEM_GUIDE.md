@@ -2,7 +2,9 @@
 
 ## Overview
 
-TerminTacho now has a sophisticated **anti-fraud and data quality system** to reduce fake submissions, spam, and ensure data integrity. This adds strategic friction to protect your platform.
+TerminTacho has a sophisticated **anti-fraud and data quality system** to reduce fake submissions, spam, and ensure data integrity. This adds strategic friction to protect your platform.
+
+> **Privacy note**: Reports are pseudonymous — linked to your account internally for fraud prevention and duplicate detection, but never publicly displayed with your identity (GDPR Art. 4(5)).
 
 ## Key Features Implemented
 

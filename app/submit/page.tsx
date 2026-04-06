@@ -163,13 +163,13 @@ export default function SubmitPage() {
       <section className="tt-hero tt-submit-hero">
         <div className="tt-container" style={{ textAlign: "center" }}>
           <div className="tt-chip" style={{ margin: "0 auto" }}>
-            Secure and anonymous
+            Secure &amp; not publicly attributed
           </div>
           <h1 className="tt-hero-title">
             Submit your wait time.
           </h1>
           <p className="tt-hero-subtitle">
-            Help fellow expatriates navigate German bureaucracy. Your data is 100% anonymous and used only for community insights.
+            Help fellow expatriates navigate German bureaucracy. Your submission is never publicly linked to your identity &mdash; used only for community insights.
           </p>
         </div>
       </section>
@@ -224,11 +224,11 @@ export default function SubmitPage() {
                   </svg>
                 </span>
                 <div>
-                  <p className="tt-submit-info-title">Sign in required to submit.</p>
+                  <p className="tt-submit-info-title">Sign in required &mdash; your identity stays private.</p>
                   <p className="tt-submit-info-text">
                     {sessionStatus === "authenticated"
-                      ? `Signed in as ${session?.user?.email ?? "you"}. You can submit below.`
-                      : "Fill in your data and sign in when you press Submit — your data is preserved."}
+                      ? `Signed in as ${session?.user?.email ?? "you"}. Your report will never be publicly linked to your account.`
+                      : "Fill in your data and sign in when you press Submit. Your report is never publicly attributed to you."}
                   </p>
                 </div>
               </div>

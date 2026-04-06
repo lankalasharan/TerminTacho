@@ -26,7 +26,7 @@
 - Data: email address, provider account ID, profile name/image (if provided)
 
 ### 4.2 User Submissions
-- Timeline reports (anonymous by default)
+- Timeline reports (pseudonymous — linked to account internally for fraud prevention, never publicly attributed)
 - Reviews/ratings and text content
 - Contact form messages
 - Newsletter sign-ups (double opt-in)
