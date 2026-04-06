@@ -72,7 +72,11 @@ export default function DashboardPage() {
     if (!window.confirm("Delete this report? This cannot be undone.")) return;
     setDeletingId(reportId);
     try {
-      const res = await fetch(`/api/reports/${reportId}`, { method: "DELETE" });
+      const res = await fetch(`/api/reports/${reportId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "user_request" }),
+      });
       if (!res.ok) {
         const data = await res.json();
         alert(data?.error || "Failed to delete report.");

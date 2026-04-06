@@ -116,7 +116,7 @@ export async function PATCH(
 }
 
 /**
- * Delete a report (owner or admin only)
+ * Delete a report (owner or admin only) — writes an AuditLog entry before deleting
  */
 export async function DELETE(
   req: NextRequest,
@@ -131,9 +131,18 @@ export async function DELETE(
 
     const { id } = await params;
 
+    // Read reason from request body (optional, defaults to "other")
+    let reason = "other";
+    try {
+      const body = await req.json();
+      if (body?.reason) reason = String(body.reason).slice(0, 100);
+    } catch {
+      // No body or not JSON — fine, use default reason
+    }
+
     const report = await prisma.report.findUnique({
       where: { id },
-      select: { id: true, userId: true },
+      include: { office: true, processType: true },
     });
 
     if (!report) {
@@ -154,6 +163,32 @@ export async function DELETE(
         { status: 403 }
       );
     }
+
+    // Write audit log entry BEFORE deleting so the snapshot is preserved
+    await prisma.auditLog.create({
+      data: {
+        id: crypto.randomUUID(),
+        action: "report_deleted",
+        entityType: "report",
+        entityId: id,
+        performedBy: session.user.email,
+        reason,
+        snapshot: {
+          id: report.id,
+          status: report.status,
+          method: report.method,
+          submittedAt: report.submittedAt,
+          decisionAt: report.decisionAt,
+          userEmail: report.userEmail,
+          userId: report.userId,
+          ipAddress: report.ipAddress,
+          confidenceScore: report.confidenceScore,
+          office: report.office ? { id: report.office.id, city: report.office.city, name: report.office.name } : null,
+          processType: report.processType ? { id: report.processType.id, name: report.processType.name } : null,
+          createdAt: report.createdAt,
+        },
+      },
+    });
 
     await prisma.report.delete({ where: { id } });
 

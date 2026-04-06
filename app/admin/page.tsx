@@ -34,6 +34,7 @@ export default function AdminPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteReasons, setDeleteReasons] = useState<Record<string, string>>({});
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   // Filters
@@ -80,16 +81,22 @@ export default function AdminPage() {
   }, [sessionStatus, page, appliedCity, appliedProcess, appliedStatus, loadReports, router]);
 
   async function handleDelete(reportId: string) {
-    if (!window.confirm("Permanently delete this report? This cannot be undone.")) return;
+    const reason = deleteReasons[reportId] || "other";
+    if (!window.confirm(`Delete this report?\nReason: ${reason}\n\nThis cannot be undone.`)) return;
     setDeletingId(reportId);
     try {
-      const res = await fetch(`/api/reports/${reportId}`, { method: "DELETE" });
+      const res = await fetch(`/api/reports/${reportId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
       if (!res.ok) {
         const data = await res.json();
         alert(data?.error || "Failed to delete report.");
         return;
       }
       setReports((prev) => prev.filter((r) => r.id !== reportId));
+      setDeleteReasons((prev) => { const next = { ...prev }; delete next[reportId]; return next; });
       setTotal((prev) => prev - 1);
     } catch {
       alert("Failed to delete report.");
@@ -323,7 +330,23 @@ export default function AdminPage() {
                     </div>
 
                     {/* Delete */}
-                    <div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <select
+                        value={deleteReasons[r.id] || "other"}
+                        onChange={(e) => setDeleteReasons((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                        style={{
+                          fontSize: "11px", borderRadius: "6px",
+                          border: "1px solid #fca5a5", padding: "3px 6px",
+                          background: "white", color: "#b91c1c", cursor: "pointer",
+                        }}
+                      >
+                        <option value="other">Other</option>
+                        <option value="fraud">Fraud</option>
+                        <option value="duplicate">Duplicate</option>
+                        <option value="spam">Spam</option>
+                        <option value="user_request">User request</option>
+                        <option value="inaccurate">Inaccurate data</option>
+                      </select>
                       <button
                         type="button"
                         disabled={deletingId === r.id}
@@ -332,8 +355,8 @@ export default function AdminPage() {
                           background: deletingId === r.id ? "#fca5a5" : "#fee2e2",
                           color: "#b91c1c",
                           border: "1px solid #fca5a5",
-                          borderRadius: "8px",
-                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          padding: "5px 10px",
                           fontWeight: 700,
                           fontSize: "12px",
                           cursor: deletingId === r.id ? "not-allowed" : "pointer",

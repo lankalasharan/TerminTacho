@@ -182,3 +182,18 @@ enum VoteTargetType {
   report
   review
 }
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String
+  entityId    String
+  performedBy String
+  reason      String?
+  snapshot    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([entityId])
+  @@index([performedBy])
+  @@index([createdAt])
+}
