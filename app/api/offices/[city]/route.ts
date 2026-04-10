@@ -15,8 +15,8 @@ export async function GET(
     const city = decodeURIComponent(rawCity);
     const aliases = getCityAliases(city);
 
-    // Get office info
-    const office = await prisma.office.findFirst({
+    // Get ALL offices in this city (there may be multiple rows for the same city)
+    const offices = await prisma.office.findMany({
       where: {
         OR: aliases.map((alias) => ({
           city: { equals: alias, mode: "insensitive" },
@@ -24,16 +24,20 @@ export async function GET(
       },
     });
 
-    if (!office) {
+    if (offices.length === 0) {
       return NextResponse.json(
         { error: "Office not found" },
         { status: 404 }
       );
     }
 
-    // Get all reports for this office
+    // Use the first office row for display info; combine reports across all rows
+    const office = offices[0];
+    const officeIds = offices.map((o) => o.id);
+
+    // Get all reports across every office row for this city
     const reports = await prisma.report.findMany({
-      where: { officeId: office.id },
+      where: { officeId: { in: officeIds } },
       select: {
         id: true,
         officeId: true,
@@ -54,9 +58,9 @@ export async function GET(
       orderBy: { createdAt: "desc" },
     });
 
-    // Get all reviews
+    // Get all reviews across every office row for this city
     const reviews = await prisma.review.findMany({
-      where: { officeId: office.id },
+      where: { officeId: { in: officeIds } },
       select: {
         id: true,
         officeId: true,
