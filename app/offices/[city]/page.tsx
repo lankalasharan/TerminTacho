@@ -205,19 +205,19 @@ export default function OfficePage() {
           <div className="tt-stat-grid" style={{ marginTop: "32px" }}>
             <div className="tt-stat-card">
               <h3>Avg. Days</h3>
-              <strong>{data.statistics.avgProcessingDays}</strong>
+              <strong>{data.statistics.totalReports > 0 ? data.statistics.avgProcessingDays : "—"}</strong>
             </div>
             <div className="tt-stat-card">
               <h3>Success Rate</h3>
-              <strong>{data.statistics.successRate}%</strong>
+              <strong>{data.statistics.totalReports > 0 ? `${data.statistics.successRate}%` : "—"}</strong>
             </div>
             <div className="tt-stat-card">
               <h3>Avg. Rating</h3>
-              <strong>{data.statistics.avgRating.toFixed(1)}</strong>
+              <strong>{data.statistics.totalReviews > 0 ? data.statistics.avgRating.toFixed(1) : "—"}</strong>
             </div>
             <div className="tt-stat-card">
               <h3>Reports</h3>
-              <strong>{data.statistics.totalReports}</strong>
+              <strong>{data.statistics.totalReports > 0 ? data.statistics.totalReports : "Be first!"}</strong>
             </div>
           </div>
         </div>
@@ -302,10 +302,16 @@ export default function OfficePage() {
               }}>
                 <div>
                   <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{stat.name}</div>
-                  <div style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>{stat.count} reports</div>
+                  <div style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>
+                    {stat.count > 0 ? `${stat.count} reports` : (
+                      <Link href="/submit" style={{ color: "var(--tt-primary-strong)", textDecoration: "none", fontWeight: 600 }}>
+                        Be the first to report →
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 800, color: "var(--tt-primary-strong)" }}>
-                  {stat.avgDays !== null ? `${stat.avgDays} days` : "N/A"}
+                <div style={{ fontSize: "24px", fontWeight: 800, color: stat.count > 0 ? "var(--tt-primary-strong)" : "var(--tt-text-muted)" }}>
+                  {stat.count > 0 ? (stat.avgDays !== null ? `${stat.avgDays} days` : "Pending") : "No data yet"}
                 </div>
               </div>
             ))}
@@ -537,7 +543,26 @@ export default function OfficePage() {
             Recent Timeline Reports
           </h2>
           {data.recentReports.length === 0 ? (
-            <p style={{ color: "var(--tt-text-muted)", textAlign: "center", padding: "20px" }}>No reports yet</p>
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <p style={{ color: "var(--tt-text-muted)", marginBottom: "16px", fontSize: "16px" }}>
+                No timelines submitted yet for this office.
+              </p>
+              <Link
+                href="/submit"
+                style={{
+                  display: "inline-block",
+                  padding: "12px 24px",
+                  background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
+                  color: "white",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                }}
+              >
+                Be the first — Submit your timeline →
+              </Link>
+            </div>
           ) : (
             <div style={{ display: "grid", gap: "16px" }}>
               {data.recentReports.map((report: any) => {
