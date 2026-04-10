@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { CITY_COORDINATES } from "@/lib/cityCoordinates";
 import "leaflet/dist/leaflet.css";
 
 const MapContainer = dynamic(
@@ -29,6 +30,8 @@ type Office = {
   address?: string | null;
   phone?: string | null;
   website?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 };
 
 type Report = {
@@ -37,32 +40,6 @@ type Report = {
 };
 
 const GERMANY_CENTER = { lat: 51.1657, lng: 10.4515 };
-const cityCoordinates: Record<string, { lat: number; lng: number }> = {
-  Berlin: { lat: 52.52, lng: 13.405 },
-  Hamburg: { lat: 53.5511, lng: 9.9937 },
-  Munich: { lat: 48.1351, lng: 11.582 },
-  Cologne: { lat: 50.9375, lng: 6.9603 },
-  "Frankfurt am Main": { lat: 50.1109, lng: 8.6821 },
-  Stuttgart: { lat: 48.7758, lng: 9.1829 },
-  Düsseldorf: { lat: 51.2277, lng: 6.7735 },
-  Dortmund: { lat: 51.5136, lng: 7.4653 },
-  Essen: { lat: 51.4556, lng: 7.0116 },
-  Leipzig: { lat: 51.3397, lng: 12.3731 },
-  Bremen: { lat: 53.0793, lng: 8.8017 },
-  Dresden: { lat: 51.0504, lng: 13.7373 },
-  Hanover: { lat: 52.3759, lng: 9.732 },
-  Nuremberg: { lat: 49.4521, lng: 11.0767 },
-  Duisburg: { lat: 51.4344, lng: 6.7623 },
-  Bochum: { lat: 51.4818, lng: 7.2162 },
-  Wuppertal: { lat: 51.2562, lng: 7.1508 },
-  Bielefeld: { lat: 52.0302, lng: 8.532 },
-  Bonn: { lat: 50.7374, lng: 7.0982 },
-  Münster: { lat: 51.9607, lng: 7.6261 },
-  Karlsruhe: { lat: 49.0069, lng: 8.4037 },
-  Mannheim: { lat: 49.4875, lng: 8.466 },
-  Augsburg: { lat: 48.3705, lng: 10.8978 },
-  Wiesbaden: { lat: 50.0826, lng: 8.24 },
-};
 
 export default function OfficesIndexPage() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -302,7 +279,13 @@ export default function OfficesIndexPage() {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 {cityCards.map((group) => {
-                  const coords = cityCoordinates[group.city] || GERMANY_CENTER;
+                  // Priority: 1) DB-stored coordinates (populated at submission time)
+                  //           2) Comprehensive static map (lib/cityCoordinates.ts)
+                  //           3) Center of Germany as last resort
+                  const officeWithCoords = group.offices.find(o => o.lat && o.lng);
+                  const coords = officeWithCoords
+                    ? { lat: officeWithCoords.lat!, lng: officeWithCoords.lng! }
+                    : (CITY_COORDINATES[group.city] || GERMANY_CENTER);
                   return (
                     <Marker key={group.city} position={[coords.lat, coords.lng]}>
                       <Popup>

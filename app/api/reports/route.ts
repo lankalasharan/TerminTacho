@@ -12,6 +12,31 @@ import { validateTimelineSubmission } from "@/lib/dataValidation";
 import { getClientIp, trackIpAddress, checkIpAbusePattern, checkIpSubmissionPatterns } from "@/lib/ipTracking";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
+import { CITY_COORDINATES } from "@/lib/cityCoordinates";
+
+// Always read fresh data from the DB — never serve a cached response
+export const dynamic = "force-dynamic";
+
+/** Geocode a city via Nominatim (OpenStreetMap). Only called once per brand-new city. */
+async function geocodeCity(cityName: string): Promise<{ lat: number; lng: number } | null> {
+  // Check static map first to avoid any network call for known cities
+  if (CITY_COORDINATES[cityName]) return CITY_COORDINATES[cityName];
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName + ", Germany")}&format=json&limit=1`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "termintacho/1.0" },
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (Array.isArray(data) && data[0]?.lat && data[0]?.lon) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+  } catch {
+    // geocoding failure is non-fatal — office is still created
+  }
+  return null;
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -66,7 +91,9 @@ export async function GET(req: Request) {
       : report.office,
   }));
 
-  return NextResponse.json({ reports: normalizedReports });
+  return NextResponse.json({ reports: normalizedReports }, {
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
 export async function POST(req: Request) {
@@ -115,8 +142,10 @@ export async function POST(req: Request) {
     if (existingOffice) {
       resolvedOfficeId = existingOffice.id;
     } else {
+      // Geocode the new city so the map shows it in the right place
+      const coords = await geocodeCity(city);
       const createdOffice = await prisma.office.create({
-        data: { city, name },
+        data: { city, name, lat: coords?.lat ?? null, lng: coords?.lng ?? null },
         select: { id: true },
       });
       resolvedOfficeId = createdOffice.id;

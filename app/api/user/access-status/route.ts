@@ -3,6 +3,14 @@ import { getServerSession } from "next-auth";
 import { getUserVerificationStatus } from "@/lib/userVerification";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
+function isAdminEmail(email: string): boolean {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean)
+    .includes(email);
+}
+
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,6 +25,18 @@ export async function GET(request: Request) {
         requiredSubmissionAgeMonths: RECENT_SUBMISSION_MONTHS,
         hasFullAccess: false,
         message: "Not authenticated"
+      });
+    }
+
+    // Admins always get full access without submission requirements
+    if (isAdminEmail(session.user.email)) {
+      return NextResponse.json({
+        isAuthenticated: true,
+        emailVerified: true,
+        hasSubmittedTimeline: true,
+        submissionIsRecent: true,
+        requiredSubmissionAgeMonths: RECENT_SUBMISSION_MONTHS,
+        hasFullAccess: true,
       });
     }
 

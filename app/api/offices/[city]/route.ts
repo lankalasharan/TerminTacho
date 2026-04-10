@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { calculateWeightedAverage, getReportWeight } from "@/lib/relevance";
 import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
 
+// Always read fresh data from the DB — never serve a cached response
+export const dynamic = "force-dynamic";
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ city: string }> }
@@ -141,6 +144,8 @@ export async function GET(
       processStats,
       recentReports: reports.slice(0, 10),
       recentReviews: reviews.slice(0, 10),
+    }, {
+      headers: { "Cache-Control": "no-store" },
     });
   } catch (error) {
     console.error("Error fetching office details:", error);

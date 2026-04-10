@@ -866,6 +866,7 @@ a {
 
 .tt-submit-captcha {
   margin-top: 8px;
+  min-height: 65px; /* reserve space for Turnstile iframe so the submit button doesn't jump */
 }
 
 .tt-submit-button {

@@ -84,7 +84,7 @@ export default function NewsletterSignup() {
       </form>
 
       {siteKey && (
-        <div style={{ marginTop: "16px" }}>
+        <div style={{ marginTop: "16px", minHeight: "65px" }}>
           <TurnstileWidget
             siteKey={siteKey}
             onVerify={setTurnstileToken}

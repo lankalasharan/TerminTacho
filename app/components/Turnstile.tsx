@@ -28,6 +28,17 @@ export default function TurnstileWidget({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | number | null>(null);
 
+  // Keep latest callback refs so the effect never needs to re-run when the
+  // parent re-renders with new inline function references.
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onVerifyRef.current = onVerify;
+    onExpireRef.current = onExpire;
+    onErrorRef.current = onError;
+  });
+
   useEffect(() => {
     if (!siteKey) return;
     let cancelled = false;
@@ -39,18 +50,18 @@ export default function TurnstileWidget({
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
         callback: (token: string) => {
-          if (!cancelled) onVerify(token);
+          if (!cancelled) onVerifyRef.current(token);
         },
         "expired-callback": () => {
           if (!cancelled) {
-            onVerify("");
-            onExpire?.();
+            onVerifyRef.current("");
+            onExpireRef.current?.();
           }
         },
         "error-callback": () => {
           if (!cancelled) {
-            onVerify("");
-            onError?.();
+            onVerifyRef.current("");
+            onErrorRef.current?.();
           }
         },
       });
@@ -80,7 +91,7 @@ export default function TurnstileWidget({
         widgetIdRef.current = null;
       }
     };
-  }, [siteKey, onVerify, onExpire, onError]);
+  }, [siteKey]); // only re-run when siteKey itself changes
 
   return <div ref={containerRef} />;
 }

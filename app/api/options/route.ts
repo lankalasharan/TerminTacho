@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeCityName } from "@/lib/cityNames";
 
+// Always read fresh data from the DB — never serve a cached response
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const [offices, processTypes] = await Promise.all([
     prisma.office.findMany({ orderBy: [{ city: "asc" }, { name: "asc" }] }),
@@ -13,5 +16,7 @@ export async function GET() {
     city: normalizeCityName(office.city),
   }));
 
-  return NextResponse.json({ offices: normalizedOffices, processTypes });
+  return NextResponse.json({ offices: normalizedOffices, processTypes }, {
+    headers: { "Cache-Control": "no-store" },
+  });
 }

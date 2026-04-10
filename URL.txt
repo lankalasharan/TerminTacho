@@ -8,3 +8,5 @@ Required values for new project connection:
 - NEXT_PUBLIC_SUPABASE_ANON_KEY
 - SUPABASE_SERVICE_ROLE_KEY
 - DATABASE_URL
+
+ coolify Secret : 828768f8695a4ac3ba26f2d317dbd0dae277e50f0fd04353904f973f8ee50261
