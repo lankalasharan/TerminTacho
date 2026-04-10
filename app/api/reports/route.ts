@@ -132,20 +132,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Office city is required." }, { status: 400 });
     }
 
-    const name = String(officeName || "").trim().slice(0, 120) || `Ausländerbehörde ${city}`;
+    const defaultName = `Ausländerbehörde ${city}`;
 
+    // Match by city only — ignore the submitted office name so that all
+    // submissions for the same city are routed to one canonical office row
+    // instead of creating a new duplicate row for every slightly different name.
     const existingOffice = await prisma.office.findFirst({
-      where: { city, name },
+      where: { city: { equals: city, mode: "insensitive" } },
       select: { id: true },
     });
 
     if (existingOffice) {
       resolvedOfficeId = existingOffice.id;
     } else {
-      // Geocode the new city so the map shows it in the right place
+      // Brand-new city — geocode and create the one canonical office row
       const coords = await geocodeCity(city);
       const createdOffice = await prisma.office.create({
-        data: { city, name, lat: coords?.lat ?? null, lng: coords?.lng ?? null },
+        data: { city, name: defaultName, lat: coords?.lat ?? null, lng: coords?.lng ?? null },
         select: { id: true },
       });
       resolvedOfficeId = createdOffice.id;
