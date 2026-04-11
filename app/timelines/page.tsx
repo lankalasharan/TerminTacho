@@ -121,6 +121,7 @@ export default function TimelinesPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [allCities, setAllCities] = useState<string[]>([]);
   const [allProcessTypes, setAllProcessTypes] = useState<string[]>([]);
+  const [officeCoords, setOfficeCoords] = useState<Record<string, { lat: number; lng: number }>>({});
   const [loading, setLoading] = useState(true);
   const [cityFilter, setCityFilter] = useState("");
   const [processFilter, setProcessFilter] = useState("");
@@ -154,10 +155,19 @@ export default function TimelinesPage() {
       const optionsData = await optionsRes.json();
       
       setReports(reportsData.reports || []);
-      
+
       // Get unique cities from all offices
       const cities = [...new Set((optionsData.offices || []).map((o: any) => o.city))].sort() as string[];
       setAllCities(cities);
+
+      // Build a city → coords map from DB-stored office lat/lng so newly added cities appear correctly
+      const coordsFromDB: Record<string, { lat: number; lng: number }> = {};
+      (optionsData.offices || []).forEach((o: any) => {
+        if (o.city && o.lat && o.lng && !coordsFromDB[o.city]) {
+          coordsFromDB[o.city] = { lat: o.lat, lng: o.lng };
+        }
+      });
+      setOfficeCoords(coordsFromDB);
       
       // Get all process types
       const processes = ((optionsData.processTypes || []).map((p: any) => p.name).sort()) as string[];
@@ -228,27 +238,33 @@ export default function TimelinesPage() {
   const inPersonCount = filteredReports.filter(r => r.method === "in-person").length;
 
   // City statistics (with weighted averages)
+  // Derive city set from filteredReports directly so new cities from submissions appear immediately
+  const reportCities = useMemo(
+    () => [...new Set(filteredReports.map((r) => r.office.city))].sort(),
+    [filteredReports]
+  );
+
   const cityStats: { [city: string]: { count: number; avgDays: number | null } } = {};
-  cities.forEach(city => {
+  reportCities.forEach(city => {
     const cityReports = filteredReports.filter(r => r.office.city === city);
     const avg = getWeightedAverageDays(cityReports);
     cityStats[city] = { count: cityReports.length, avgDays: avg };
   });
 
   const cityInsightsStats = useMemo(() => {
-    return cities
+    return reportCities
       .map((city) => {
         const cityData = cityStats[city];
-        const coords = CITY_COORDINATES[city];
-        
-        // Warn if city coordinates not found (helps debug mapping issues)
-        if (!coords && cityData.count > 0) {
+        // Coordinate priority: 1) DB-stored office coords  2) static library  3) Germany centre
+        const coords = officeCoords[city] ?? CITY_COORDINATES[city];
+
+        if (!coords && cityData && cityData.count > 0) {
           console.warn(`⚠️ No coordinates found for city: "${city}" (${cityData.count} reports). Using default coordinates.`);
         }
-        
+
         const finalCoords = coords || DEFAULT_COORDINATES;
-        const avgDays = cityData.avgDays ?? 0;
-        const reports = cityData.count;
+        const avgDays = cityData?.avgDays ?? 0;
+        const reports = cityData?.count ?? 0;
 
         let confidence: "low" | "medium" | "high";
         if (reports >= 10) confidence = "high";
@@ -265,7 +281,7 @@ export default function TimelinesPage() {
         };
       })
       .filter((stat) => stat.reports > 0);
-  }, [cities, cityStats]);
+  }, [reportCities, cityStats, officeCoords]);
 
   // Process type statistics (with weighted averages)
   const processStats: { [process: string]: { count: number; avgDays: number | null } } = {};

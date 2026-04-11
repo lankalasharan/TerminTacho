@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Link from "next/link";
+import { CITY_COORDINATES, DEFAULT_COORDINATES } from "@/lib/cityCoordinates";
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(
@@ -24,34 +25,7 @@ const Popup = dynamic(
   { ssr: false }
 );
 
-// City coordinates (seed list) + dynamic geocoding fallback for new cities
-const cityCoordinates: { [key: string]: { lat: number; lng: number } } = {
-  "Berlin": { lat: 52.52, lng: 13.405 },
-  "Hamburg": { lat: 53.5511, lng: 9.9937 },
-  "Munich": { lat: 48.1351, lng: 11.582 },
-  "Cologne": { lat: 50.9375, lng: 6.9603 },
-  "Frankfurt am Main": { lat: 50.1109, lng: 8.6821 },
-  "Stuttgart": { lat: 48.7758, lng: 9.1829 },
-  "Düsseldorf": { lat: 51.2277, lng: 6.7735 },
-  "Dortmund": { lat: 51.5136, lng: 7.4653 },
-  "Essen": { lat: 51.4556, lng: 7.0116 },
-  "Leipzig": { lat: 51.3397, lng: 12.3731 },
-  "Bremen": { lat: 53.0793, lng: 8.8017 },
-  "Dresden": { lat: 51.0504, lng: 13.7373 },
-  "Hanover": { lat: 52.3759, lng: 9.732 },
-  "Nuremberg": { lat: 49.4521, lng: 11.0767 },
-  "Duisburg": { lat: 51.4344, lng: 6.7623 },
-  "Bochum": { lat: 51.4818, lng: 7.2162 },
-  "Wuppertal": { lat: 51.2562, lng: 7.1508 },
-  "Bielefeld": { lat: 52.0302, lng: 8.532 },
-  "Bonn": { lat: 50.7374, lng: 7.0982 },
-  "Münster": { lat: 51.9607, lng: 7.6261 },
-  "Karlsruhe": { lat: 49.0069, lng: 8.4037 },
-  "Mannheim": { lat: 49.4875, lng: 8.4660 },
-  "Augsburg": { lat: 48.3705, lng: 10.8978 },
-  "Wiesbaden": { lat: 50.0826, lng: 8.2400 },
-  "Chemnitz": { lat: 50.8278, lng: 12.9214 },
-};
+// Coordinate lookup is handled by the comprehensive CITY_COORDINATES map from lib/cityCoordinates
 
 interface CityStats {
   city: string;
@@ -61,8 +35,6 @@ interface CityStats {
   lng: number;
 }
 
-type CoordCache = Record<string, { lat: number; lng: number }>;
-
 function MapInstanceTracker({ onReady }: { onReady: (map: any) => void }) {
   const map = useMap();
   useEffect(() => {
@@ -71,28 +43,8 @@ function MapInstanceTracker({ onReady }: { onReady: (map: any) => void }) {
   return null;
 }
 
-function loadCoordCache(): CoordCache {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = window.localStorage.getItem("tt_city_coords_v1");
-    return raw ? (JSON.parse(raw) as CoordCache) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveCoordCache(cache: CoordCache) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem("tt_city_coords_v1", JSON.stringify(cache));
-  } catch {
-    // ignore quota errors
-  }
-}
-
 // No longer using external geocoding API to avoid CORS errors
 // Use fallback coordinates for unknown cities instead
-const GERMANY_CENTER = { lat: 51.1657, lng: 10.4515 };
 
 export default function GermanyMap() {
   const [isMounted, setIsMounted] = useState(false);
@@ -101,7 +53,7 @@ export default function GermanyMap() {
   const [mapQuery, setMapQuery] = useState("");
   const [mapInstance, setMapInstance] = useState<any>(null);
 
-  const buildCityStats = async (reports: any[]): Promise<CityStats[]> => {
+  const buildCityStats = (offices: any[], reports: any[]): CityStats[] => {
     const statsMap: { [city: string]: { count: number; totalDays: number; completedCount: number } } = {};
 
     reports.forEach((report) => {
@@ -124,37 +76,32 @@ export default function GermanyMap() {
       }
     });
 
-    const citySet = new Set<string>([
-      ...Object.keys(cityCoordinates),
-      ...Object.keys(statsMap),
-    ]);
-
-    const coordCache = loadCoordCache();
-    const coordsMap: CoordCache = {
-      ...cityCoordinates,
-      ...coordCache,
-    };
-
-    // For any missing cities, use fallback Germany center coordinates
-    const missingCities = Array.from(citySet).filter((city) => !coordsMap[city]);
-    missingCities.forEach((city) => {
-      coordsMap[city] = GERMANY_CENTER;
+    // Collect all cities from offices (same source as the offices page)
+    const allCities = new Set<string>();
+    const officeCoordsByCity: Record<string, { lat: number; lng: number }> = {};
+    offices.forEach((o: any) => {
+      const city = o.city;
+      if (!city) return;
+      allCities.add(city);
+      if (o.lat && o.lng && !officeCoordsByCity[city]) {
+        officeCoordsByCity[city] = { lat: o.lat, lng: o.lng };
+      }
     });
+    // Also include any city that only appears in reports
+    Object.keys(statsMap).forEach((c) => allCities.add(c));
 
-    return Array.from(citySet)
-      .map((city) => {
-        const data = statsMap[city];
-        const coords = coordsMap[city];
-        if (!coords) return null;
-        return {
-          city,
-          count: data?.count || 0,
-          avgDays: data?.completedCount ? Math.round(data.totalDays / data.completedCount) : null,
-          lat: coords.lat,
-          lng: coords.lng,
-        } as CityStats;
-      })
-      .filter((item): item is CityStats => Boolean(item));
+    return Array.from(allCities).map((city) => {
+      const data = statsMap[city];
+      // Coordinate priority: 1) DB-stored  2) static library  3) Germany center
+      const coords = officeCoordsByCity[city] ?? CITY_COORDINATES[city] ?? DEFAULT_COORDINATES;
+      return {
+        city,
+        count: data?.count ?? 0,
+        avgDays: data?.completedCount ? Math.round(data.totalDays / data.completedCount) : null,
+        lat: coords.lat,
+        lng: coords.lng,
+      } as CityStats;
+    });
   };
 
   useEffect(() => {
@@ -171,29 +118,23 @@ export default function GermanyMap() {
       });
     }
 
-    // Fetch real data from API
+    // Fetch offices and reports in parallel so the map matches the offices page
     async function loadData() {
       try {
-        const res = await fetch("/api/reports");
-        if (!res.ok) {
-          throw new Error(`Failed to fetch reports: ${res.status}`);
-        }
-        const data = await res.json();
-        const reports = Array.isArray(data?.reports) ? data.reports : [];
+        const [optionsRes, reportsRes] = await Promise.all([
+          fetch("/api/options"),
+          fetch("/api/reports"),
+        ]);
+        const optionsData = optionsRes.ok ? await optionsRes.json() : {};
+        const reportsData = reportsRes.ok ? await reportsRes.json() : {};
+        const offices = Array.isArray(optionsData?.offices) ? optionsData.offices : [];
+        const reports = Array.isArray(reportsData?.reports) ? reportsData.reports : [];
 
-        const stats = await buildCityStats(reports);
+        const stats = buildCityStats(offices, reports);
         setCityStats(stats);
       } catch (error) {
         console.error("Failed to load map data:", error);
-        // Use seed cities as fallback
-        const fallbackStats = Object.keys(cityCoordinates).map(city => ({
-          city,
-          count: 0,
-          avgDays: null,
-          lat: cityCoordinates[city].lat,
-          lng: cityCoordinates[city].lng,
-        }));
-        setCityStats(fallbackStats);
+        setCityStats([]);
       } finally {
         setLoading(false);
       }
