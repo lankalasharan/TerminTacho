@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 
 // This will be replaced with database/CMS content later
 const blogPosts: Record<string, any> = {
@@ -126,7 +126,33 @@ const blogPosts: Record<string, any> = {
 
 export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const post = blogPosts[slug];
+  const [post, setPost] = useState<any>(blogPosts[slug] ?? null);
+  const [loading, setLoading] = useState(!blogPosts[slug]);
+
+  useEffect(() => {
+    if (blogPosts[slug]) return; // already have static post
+    fetch(`/api/blog/${slug}`)
+      .then((r) => {
+        if (!r.ok) throw new Error("not found");
+        return r.json();
+      })
+      .then((data) => {
+        setPost({
+          ...data.post,
+          date: data.post.publishedAt,
+        });
+      })
+      .catch(() => setPost(null))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: "800px", margin: "80px auto", textAlign: "center", color: "var(--tt-muted)" }}>
+        Loading...
+      </div>
+    );
+  }
 
   if (!post) {
     notFound();
@@ -190,7 +216,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             fontSize: "14px",
             color: "var(--tt-muted)",
           }}>
-            {new Date(post.date).toLocaleDateString("en-US", {
+            {new Date(post.date ?? post.publishedAt).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",

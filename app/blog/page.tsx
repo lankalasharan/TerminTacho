@@ -1,36 +1,67 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-// This will be replaced with database/CMS content later
-const blogPosts = [
+type BlogPostMeta = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  readTime: string;
+  publishedAt: string;
+};
+
+// Static fallback posts (shown until DB posts are available)
+const staticPosts: BlogPostMeta[] = [
   {
     id: "complete-guide-blue-card",
+    slug: "complete-guide-blue-card",
     title: "Complete Guide to Getting the EU Blue Card in Germany",
     excerpt: "Everything you need to know about applying for the EU Blue Card, from eligibility requirements to processing times.",
-    date: "2026-01-20",
+    publishedAt: "2026-01-20",
     category: "Visa Guides",
     readTime: "8 min read",
   },
   {
     id: "auslanderbehorde-appointment-tips",
+    slug: "auslanderbehorde-appointment-tips",
     title: "10 Tips for Your Ausländerbehörde Appointment",
     excerpt: "Make your appointment at the foreigners office smooth and stress-free with these expert tips.",
-    date: "2026-01-15",
+    publishedAt: "2026-01-15",
     category: "Tips & Tricks",
     readTime: "5 min read",
   },
   {
     id: "processing-times-explained",
+    slug: "processing-times-explained",
     title: "Understanding Processing Times: What Really Affects Them?",
     excerpt: "Learn what factors influence processing times at different German immigration offices.",
-    date: "2026-01-10",
+    publishedAt: "2026-01-10",
     category: "Analysis",
     readTime: "6 min read",
   },
 ];
 
 export default function BlogPage() {
+  const [dbPosts, setDbPosts] = useState<BlogPostMeta[]>([]);
+
+  useEffect(() => {
+    fetch("/api/blog")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.posts) && data.posts.length > 0) {
+          setDbPosts(data.posts);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const allPosts = dbPosts.length > 0
+    ? [...dbPosts, ...staticPosts]
+    : staticPosts;
+
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "24px 16px" }}>
       <section className="tt-hero" style={{ padding: "64px 0 48px" }}>
@@ -50,10 +81,10 @@ export default function BlogPage() {
         display: "grid",
         gap: "24px",
       }}>
-        {blogPosts.map((post) => (
+        {allPosts.map((post) => (
           <Link
-            key={post.id}
-            href={`/blog/${post.id}`}
+            key={post.slug}
+            href={`/blog/${post.slug}`}
             style={{
               textDecoration: "none",
               background: "white",
@@ -118,7 +149,7 @@ export default function BlogPage() {
               fontSize: "14px",
               color: "var(--tt-muted)",
             }}>
-              {new Date(post.date).toLocaleDateString("en-US", {
+              {new Date(post.publishedAt).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
