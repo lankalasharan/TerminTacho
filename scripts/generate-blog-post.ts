@@ -281,7 +281,7 @@ async function main() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 1500 },
+      generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
     }),
   });
 
@@ -291,7 +291,12 @@ async function main() {
   }
 
   const geminiData = await geminiRes.json() as any;
-  const content: string = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  let content: string = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+  if (!content) throw new Error("Gemini returned empty content");
+
+  // Strip markdown code fences if Gemini wrapped the HTML (e.g. ```html ... ```)
+  content = content.replace(/^```(?:html)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
 
   if (!content) throw new Error("OpenAI returned empty content");
 
