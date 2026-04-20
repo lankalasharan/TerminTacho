@@ -269,7 +269,7 @@ async function main() {
   const prompt = buildPrompt(topic, topCity, cityStats, title, keywordFocus, month, year);
 
   // Call Google Gemini (free tier)
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
 
   const geminiRes = await fetch(geminiUrl, {
     method: "POST",
