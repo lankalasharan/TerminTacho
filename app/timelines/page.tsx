@@ -189,6 +189,16 @@ export default function TimelinesPage() {
     return () => document.removeEventListener("click", onDocClick);
   }, []);
 
+  const handleCitySelection = (city: string | null) => {
+    setSelectedCity(city);
+    setCityFilter(city ?? "");
+  };
+
+  const handleCityFilterChange = (city: string) => {
+    setCityFilter(city);
+    setSelectedCity(city || null);
+  };
+
   const filteredReports = reports.filter(r => {
     if (cityFilter && r.office.city !== cityFilter) return false;
     if (processFilter && r.processType.name !== processFilter) return false;
@@ -583,7 +593,7 @@ export default function TimelinesPage() {
               </label>
               <select
                 value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
+                onChange={(e) => handleCityFilterChange(e.target.value)}
                 style={{
                   width: "100%",
                   padding: "12px",
@@ -771,7 +781,7 @@ export default function TimelinesPage() {
           {(cityFilter || processFilter || statusFilter) && (
             <button
               onClick={() => {
-                setCityFilter("");
+                handleCitySelection(null);
                 setProcessFilter("");
                 setStatusFilter("");
               }}
@@ -1064,7 +1074,7 @@ export default function TimelinesPage() {
             </div>
 
             {/* Premium Insights Dashboard */}
-            {!cityFilter && cityInsightsStats.length > 0 && (
+            {cityInsightsStats.length > 0 && (
               <div style={{
                 marginBottom: "32px",
               }}>
@@ -1095,11 +1105,7 @@ export default function TimelinesPage() {
                   <GermanyHeatMap
                     stats={cityInsightsStats}
                     selectedCity={selectedCity}
-                    onCitySelect={(city) => {
-                      setSelectedCity(city);
-                      // Also set the filter to show city-specific data below
-                      if (city) setCityFilter(city);
-                    }}
+                    onCitySelect={(city) => handleCitySelection(city)}
                   />
                 </div>
 
@@ -1160,10 +1166,7 @@ export default function TimelinesPage() {
                   <LeaderboardTable
                     stats={cityInsightsStats}
                     selectedCity={selectedCity}
-                    onCitySelect={(city) => {
-                      setSelectedCity(city);
-                      if (city) setCityFilter(city);
-                    }}
+                    onCitySelect={(city) => handleCitySelection(city || null)}
                   />
                 </div>
               </div>
