@@ -797,7 +797,11 @@ export default function TimelinesPage() {
         {/* Dashboard Content */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--tt-muted)" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+              </svg>
+            </div>
             <div style={{ fontSize: "18px" }}>Loading dashboard data...</div>
           </div>
         ) : filteredReports.length === 0 ? (

@@ -72,7 +72,12 @@ export default function ContactPage() {
               textAlign: "center",
               padding: "40px 20px",
             }}>
-              <div style={{ fontSize: "64px", marginBottom: "24px" }}>✅</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "24px" }}>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
               <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "12px", color: "var(--tt-text)" }}>
                 Message Sent Successfully!
               </h2>
@@ -224,7 +229,10 @@ export default function ContactPage() {
                   marginBottom: "24px",
                   fontSize: "14px",
                 }}>
-                  ❌ Failed to send message. Please try again later.
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    Failed to send message. Please try again later.
+                  </span>
                 </div>
               )}
 

@@ -158,8 +158,13 @@ export default function CookiePolicy() {
             <li><strong>Edge:</strong> Settings → Cookies and site permissions</li>
           </ul>
 
-          <p style={{ marginTop: "16px", padding: "16px", background: "#fef3c7", borderRadius: "8px", border: "1px solid #fde047" }}>
-            ⚠️ <strong>Note:</strong> Blocking all cookies may prevent you from using certain features of our website, including the ability to sign in.
+          <p style={{ marginTop: "16px", padding: "16px", background: "#fef3c7", borderRadius: "8px", border: "1px solid #fde047", display: "flex", alignItems: "flex-start", gap: "10px" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, marginTop: "2px" }}>
+              <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span><strong>Note:</strong> Blocking all cookies may prevent you from using certain features of our website, including the ability to sign in.</span>
           </p>
         </section>
 

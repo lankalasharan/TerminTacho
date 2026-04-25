@@ -69,7 +69,11 @@ export default function CookieConsent() {
       }}>
         <div style={{ flex: 1, minWidth: "300px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-            <span style={{ fontSize: "24px" }}>🍪</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 8v4"/>
+              <path d="M12 16h.01"/>
+            </svg>
             <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--tt-text)", margin: 0 }}>
               We Use Cookies
             </h3>

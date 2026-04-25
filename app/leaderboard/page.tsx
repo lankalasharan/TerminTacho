@@ -36,7 +36,7 @@ export default function LeaderboardPage() {
     return `${safe}***@***`;
   }
 
-  const medals = ["🥇", "🥈", "🥉"];
+  const medalColors = ["#F59E0B", "#9CA3AF", "#CD7C47"];
 
   return (
     <DataAccessGate>
@@ -56,12 +56,20 @@ export default function LeaderboardPage() {
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 20px" }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
-            <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+              </svg>
+            </div>
             <p>Loading leaderboard...</p>
           </div>
         ) : contributors.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
             <p>No contributions yet. Be the first to submit!</p>
           </div>
         ) : (
@@ -84,11 +92,13 @@ export default function LeaderboardPage() {
                 }}
               >
                 <div style={{
-                  fontSize: "32px",
+                  fontSize: "20px",
+                  fontWeight: 800,
                   minWidth: "50px",
                   textAlign: "center",
+                  color: index < 3 ? medalColors[index] : "var(--tt-text-muted)",
                 }}>
-                  {index < 3 ? medals[index] : `#${index + 1}`}
+                  {index < 3 ? `#${index + 1}` : `#${index + 1}`}
                 </div>
 
                 <div style={{ flex: 1 }}>
@@ -135,7 +145,7 @@ export default function LeaderboardPage() {
                     fontWeight: 600,
                     color: "var(--tt-text)",
                   }}>
-                    {index === 0 ? "🌟 TOP" : index === 1 ? "⭐ SILVER" : "🔶 BRONZE"}
+                    {index === 0 ? "GOLD" : index === 1 ? "SILVER" : "BRONZE"}
                   </div>
                 )}
               </div>

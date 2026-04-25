@@ -61,6 +61,7 @@ export default function SubmitPage() {
   const [processTypes, setProcessTypes] = useState<ProcessType[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [msgType, setMsgType] = useState<"success" | "error" | "auth" | null>(null);
 
   const [officeId, setOfficeId] = useState("");
   const [customCity, setCustomCity] = useState("");
@@ -108,6 +109,7 @@ export default function SubmitPage() {
     // Block submission if user is not authenticated
     if (sessionStatus !== "authenticated") {
       setMsg("__AUTH_REQUIRED__");
+      setMsgType("auth");
       return;
     }
 
@@ -143,13 +145,15 @@ export default function SubmitPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Failed to submit.");
 
-      setMsg("✅ Submitted successfully!");
+      setMsg("Submitted successfully!");
+      setMsgType("success");
       setDecisionAt("");
       setNotes("");
       setStatus("pending");
       setTurnstileToken("");
     } catch (err: any) {
-      setMsg("❌ " + (err?.message || "Unknown error"));
+      setMsg(err?.message || "Unknown error");
+      setMsgType("error");
       if (String(err?.message || "").toLowerCase().includes("captcha")) {
         setCaptchaError(err?.message || "Please complete the CAPTCHA.");
       }
@@ -180,11 +184,11 @@ export default function SubmitPage() {
             <div
               className="tt-submit-message"
               style={{
-                background: msg === "__AUTH_REQUIRED__" ? "#fffbeb" : msg.startsWith("✅") ? "#d1fae5" : "#fee2e2",
-                border: `1px solid ${msg === "__AUTH_REQUIRED__" ? "#fcd34d" : msg.startsWith("✅") ? "#a7f3d0" : "#fecaca"}`,
+                background: msgType === "auth" ? "#fffbeb" : msgType === "success" ? "#d1fae5" : "#fee2e2",
+                border: `1px solid ${msgType === "auth" ? "#fcd34d" : msgType === "success" ? "#a7f3d0" : "#fecaca"}`,
               }}
             >
-              {msg === "__AUTH_REQUIRED__" ? (
+              {msgType === "auth" ? (
                 <span>
                   Please{" "}
                   <button
@@ -206,7 +210,14 @@ export default function SubmitPage() {
                   {" "}to submit your data. Your form data is preserved — just sign in and try again.
                 </span>
               ) : (
-                msg
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                  {msgType === "success" ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  )}
+                  {msg}
+                </span>
               )}
             </div>
           )}
