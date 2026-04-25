@@ -46,11 +46,44 @@ export default function GermanyHeatMap({
 
   return (
     <div className="relative">
+      <style>{`
+        .heatmap-container {
+          height: 500px;
+          border-radius: 12px;
+        }
+        @media (max-width: 768px) {
+          .heatmap-container {
+            height: 320px;
+          }
+          .heatmap-legend {
+            padding: 8px !important;
+            bottom: 8px !important;
+            right: 8px !important;
+          }
+          .heatmap-legend-title {
+            font-size: 10px !important;
+            margin-bottom: 4px !important;
+          }
+          .heatmap-legend-item {
+            gap: 4px !important;
+          }
+          .heatmap-legend-dot {
+            width: 10px !important;
+            height: 10px !important;
+          }
+          .heatmap-legend-label {
+            font-size: 10px !important;
+          }
+          .heatmap-legend-footer {
+            display: none !important;
+          }
+        }
+      `}</style>
       <MapContainer
-        center={[51.1657, 10.4515]} // Center of Germany
-        zoom={6}
-        style={{ height: "500px", borderRadius: "12px" }}
-        className="z-0"
+        center={[51.3, 10.4515]}
+        zoom={5}
+        style={{ borderRadius: "12px" }}
+        className="z-0 heatmap-container"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -102,29 +135,29 @@ export default function GermanyHeatMap({
       </MapContainer>
 
       {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm border-2 border-gray-200 rounded-lg p-4 shadow-lg z-[1000]">
-        <div className="text-xs font-bold text-gray-900 mb-2">
+      <div className="heatmap-legend absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm border-2 border-gray-200 rounded-lg shadow-lg z-[1000]" style={{ padding: "12px" }}>
+        <div className="heatmap-legend-title text-xs font-bold text-gray-900 mb-2">
           Processing Speed
         </div>
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#10B981]"></div>
-            <span className="text-xs text-gray-700">Fast (&lt;25 days)</span>
+          <div className="heatmap-legend-item flex items-center gap-2">
+            <div className="heatmap-legend-dot w-4 h-4 rounded-full bg-[#10B981]"></div>
+            <span className="heatmap-legend-label text-xs text-gray-700">Fast (&lt;25 days)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#F59E0B]"></div>
-            <span className="text-xs text-gray-700">Medium (25-40 days)</span>
+          <div className="heatmap-legend-item flex items-center gap-2">
+            <div className="heatmap-legend-dot w-4 h-4 rounded-full bg-[#F59E0B]"></div>
+            <span className="heatmap-legend-label text-xs text-gray-700">Medium (25-40 days)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#EF4444]"></div>
-            <span className="text-xs text-gray-700">Slow (&gt;40 days)</span>
+          <div className="heatmap-legend-item flex items-center gap-2">
+            <div className="heatmap-legend-dot w-4 h-4 rounded-full bg-[#EF4444]"></div>
+            <span className="heatmap-legend-label text-xs text-gray-700">Slow (&gt;40 days)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#9CA3AF]"></div>
-            <span className="text-xs text-gray-700">No data</span>
+          <div className="heatmap-legend-item flex items-center gap-2">
+            <div className="heatmap-legend-dot w-4 h-4 rounded-full bg-[#9CA3AF]"></div>
+            <span className="heatmap-legend-label text-xs text-gray-700">No data</span>
           </div>
         </div>
-        <div className="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-200">
+        <div className="heatmap-legend-footer text-xs text-gray-500 mt-3 pt-2 border-t border-gray-200">
           Size = Report count
         </div>
       </div>

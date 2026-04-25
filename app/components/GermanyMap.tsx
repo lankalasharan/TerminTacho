@@ -190,8 +190,9 @@ export default function GermanyMap() {
   };
 
   return (
-    <div style={{ position: "relative", zIndex: 0 }}>
+    <div className="germany-map-root" style={{ position: "relative", zIndex: 0 }}>
       <style>{`
+        /* ── Desktop: toolbar floats over the map ── */
         .map-toolbar {
           position: absolute;
           top: 16px;
@@ -203,6 +204,26 @@ export default function GermanyMap() {
           gap: 8px;
           pointer-events: auto;
           max-width: 100%;
+        }
+        /* ── Mobile: pull toolbar out of the map, render below it ── */
+        @media (max-width: 768px) {
+          .germany-map-root {
+            display: flex;
+            flex-direction: column;
+          }
+          .map-leaflet-wrapper {
+            order: 1;
+          }
+          .map-toolbar {
+            position: static;
+            order: 2;
+            margin-top: 10px;
+            z-index: 1;
+          }
+          /* Hide shortcut links inside map on mobile — they live in the main nav */
+          .map-toolbar-actions {
+            display: none !important;
+          }
         }
         .map-search-form {
           display: flex;
@@ -240,6 +261,8 @@ export default function GermanyMap() {
           font-size: clamp(12px, 2.4vw, 13px);
           font-weight: 700;
           min-height: 36px;
+          cursor: pointer;
+          white-space: nowrap;
         }
         .map-toolbar-actions {
           display: flex;
@@ -292,39 +315,7 @@ export default function GermanyMap() {
           font-size: 12px;
           color: var(--tt-text-muted);
         }
-        @media (max-width: 768px) {
-          .map-toolbar {
-            top: 12px;
-            left: 12px;
-            right: 12px;
-          }
-          .map-search-form {
-            flex-direction: column;
-            align-items: stretch;
-          }
-          .map-search-button {
-            width: 100%;
-          }
-          .map-toolbar-actions {
-            flex-direction: column;
-            align-items: stretch;
-          }
-          .map-toolbar-link {
-            width: 100%;
-            text-align: center;
-          }
-        }
-        @media (max-width: 480px) {
-          .map-search-form {
-            padding: 8px;
-          }
-          .map-search-button {
-            min-height: 40px;
-          }
-          .map-toolbar-link {
-            padding: 8px 10px;
-          }
-        }
+        /* search form stays single-row on all screens — no stacking */
       `}</style>
 
       <div className="map-toolbar">
@@ -374,6 +365,7 @@ export default function GermanyMap() {
           </div>
         )}
       </div>
+      <div className="map-leaflet-wrapper">
       <MapContainer
         center={[51.1657, 10.4515]} // Center of Germany
         zoom={6}
@@ -435,6 +427,7 @@ export default function GermanyMap() {
           </Marker>
         ))}
       </MapContainer>
+      </div>
     </div>
   );
 }
