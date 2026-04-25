@@ -2,8 +2,8 @@ name: Auto Generate Blog Post
 
 on:
   schedule:
-    # Every 2 weeks on Monday at 08:00 UTC
-    - cron: "0 8 1,15 * 1"
+    # Daily at 08:00 UTC. The script enforces exact 15-day cadence.
+    - cron: "0 8 * * *"
   workflow_dispatch: # allow manual trigger from GitHub UI
 
 jobs:

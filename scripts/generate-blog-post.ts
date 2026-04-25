@@ -2,7 +2,7 @@
  * Auto Blog Post Generator for TerminTacho
  * ==========================================
  * Pulls live stats from Supabase DB, generates an SEO-optimised blog post
- * using OpenAI GPT-4o, and publishes it via the /api/blog endpoint.
+ * using Google Gemini, and publishes it directly to the DB.
  *
  * Run manually:   npx tsx scripts/generate-blog-post.ts
  * Scheduled:      GitHub Actions every 2 weeks (see .github/workflows/generate-blog.yml)
@@ -10,13 +10,14 @@
  * Required env vars:
  *   DATABASE_URL          — Supabase Postgres connection string
  *   GEMINI_API_KEY        — Google Gemini API key (free at aistudio.google.com)
- *   BLOG_GENERATE_SECRET  — Secret shared with /api/blog POST endpoint
  *   SITE_URL              — Your live site URL e.g. https://termintacho.de
  */
 
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+const DAY_MS = 24 * 60 * 60 * 1000;
+const BLOG_INTERVAL_DAYS = 15;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -84,6 +85,97 @@ function estimateReadTime(html: string): string {
   const words = html.replace(/<[^>]+>/g, "").split(/\s+/).length;
   const minutes = Math.ceil(words / 200);
   return `${minutes} min read`;
+}
+
+function stripCodeFences(content: string): string {
+  return content.replace(/^```(?:html)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+}
+
+function countWords(html: string): number {
+  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (!text) return 0;
+  return text.split(" ").length;
+}
+
+function validateGeneratedContent(content: string, finishReason?: string): { ok: boolean; reason?: string } {
+  const words = countWords(content);
+
+  if (!content) {
+    return { ok: false, reason: "empty content" };
+  }
+  if (finishReason === "MAX_TOKENS") {
+    return { ok: false, reason: "model stopped at max tokens" };
+  }
+  if (words < 450) {
+    return { ok: false, reason: `content too short (${words} words)` };
+  }
+  if (!content.includes('href="/submit"')) {
+    return { ok: false, reason: "missing CTA submit link" };
+  }
+
+  return { ok: true };
+}
+
+function isScheduledRunDue(now: Date): boolean {
+  const startDateInput = process.env.BLOG_SCHEDULE_START_DATE ?? "2026-01-01";
+  const anchor = new Date(`${startDateInput}T00:00:00Z`);
+
+  if (Number.isNaN(anchor.getTime())) {
+    throw new Error("BLOG_SCHEDULE_START_DATE is invalid. Use YYYY-MM-DD format.");
+  }
+
+  const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const diffDays = Math.floor((todayUtc.getTime() - anchor.getTime()) / DAY_MS);
+
+  return diffDays >= 0 && diffDays % BLOG_INTERVAL_DAYS === 0;
+}
+
+async function generateWithGemini(prompt: string, geminiKey: string): Promise<string> {
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
+
+  let workingPrompt = prompt;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    console.log(`🔁 Gemini attempt ${attempt}/3...`);
+
+    const geminiRes = await fetch(geminiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: workingPrompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+      }),
+    });
+
+    if (!geminiRes.ok) {
+      const err = await geminiRes.text();
+      if ((geminiRes.status === 429 || geminiRes.status >= 500) && attempt < 3) {
+        console.log(`⚠️ Gemini temporary error ${geminiRes.status}. Retrying...`);
+        continue;
+      }
+      throw new Error(`Gemini API error: ${geminiRes.status} ${err}`);
+    }
+
+    const geminiData = (await geminiRes.json()) as any;
+    const candidate = geminiData.candidates?.[0];
+    const finishReason: string | undefined = candidate?.finishReason;
+    const rawContent: string = candidate?.content?.parts?.[0]?.text ?? "";
+    const content = stripCodeFences(rawContent);
+    const validation = validateGeneratedContent(content, finishReason);
+
+    if (validation.ok) {
+      return content;
+    }
+
+    if (attempt < 3) {
+      console.log(`⚠️ Incomplete generation (${validation.reason}). Retrying with stricter instructions...`);
+      workingPrompt = `${prompt}\n\nIMPORTANT RETRY INSTRUCTIONS:\n- Previous draft was incomplete.\n- Output a COMPLETE article in valid HTML only.\n- 600-800 words.\n- End with a final complete paragraph and CTA including href=\"/submit\".`;
+      continue;
+    }
+
+    throw new Error(`Generated content failed validation: ${validation.reason}`);
+  }
+
+  throw new Error("Failed to generate blog content after retries");
 }
 
 // ─── Fetch live stats from DB ─────────────────────────────────────────────────
@@ -238,11 +330,22 @@ async function publishPost(post: {
 async function main() {
   console.log("🤖 TerminTacho Blog Auto-Generator\n");
 
+  const missingEnv: string[] = [];
+  if (!process.env.DATABASE_URL) missingEnv.push("DATABASE_URL");
   const geminiKey = process.env.GEMINI_API_KEY;
-  if (!geminiKey) throw new Error("GEMINI_API_KEY env var is not set");
+  if (!geminiKey) missingEnv.push("GEMINI_API_KEY");
+  if (missingEnv.length > 0) {
+    throw new Error(`Missing required env var(s): ${missingEnv.join(", ")}`);
+  }
+
+  const now = new Date();
+  const isManualDispatch = process.env.GITHUB_EVENT_NAME === "workflow_dispatch";
+  if (!isManualDispatch && !isScheduledRunDue(now)) {
+    console.log(`⏭️ Not a scheduled ${BLOG_INTERVAL_DAYS}-day run date. Skipping generation.`);
+    return;
+  }
 
   // Pick topic based on current week number (rotates every run)
-  const now = new Date();
   const weekNumber = Math.floor(now.getTime() / (1000 * 60 * 60 * 24 * 7));
   const topic = TOPIC_TEMPLATES[weekNumber % TOPIC_TEMPLATES.length];
   const month = getMonthName(now);
@@ -273,32 +376,8 @@ async function main() {
   // Build the GPT prompt
   const prompt = buildPrompt(topic, topCity, cityStats, title, keywordFocus, month, year);
 
-  // Call Google Gemini (free tier)
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
-
-  const geminiRes = await fetch(geminiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-    }),
-  });
-
-  if (!geminiRes.ok) {
-    const err = await geminiRes.text();
-    throw new Error(`Gemini API error: ${geminiRes.status} ${err}`);
-  }
-
-  const geminiData = await geminiRes.json() as any;
-  let content: string = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-
-  if (!content) throw new Error("Gemini returned empty content");
-
-  // Strip markdown code fences if Gemini wrapped the HTML (e.g. ```html ... ```)
-  content = content.replace(/^```(?:html)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
-
-  if (!content) throw new Error("OpenAI returned empty content");
+  // Call Google Gemini with retries and completeness checks.
+  const content = await generateWithGemini(prompt, geminiKey);
 
   const excerpt = buildExcerpt(content);
   const readTime = estimateReadTime(content);
