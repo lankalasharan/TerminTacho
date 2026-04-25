@@ -2,6 +2,7 @@
 
 import GermanyMap from "./components/GermanyMap";
 import NewsletterSignup from "./components/NewsletterSignup";
+import OdometerNumber from "./components/OdometerNumber";
 import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -229,22 +230,30 @@ export default function Home() {
           <div className="tt-stat-grid">
             <div className="tt-stat-card">
               <h3>Cities Covered</h3>
-              <strong>{metrics.cities}</strong>
+              <strong style={{ display: "block", lineHeight: 1 }}>
+                <OdometerNumber value={metrics.cities} delay={0} />
+              </strong>
               <div style={{ marginTop: "8px", color: "var(--tt-text-muted)", fontSize: "14px" }}>Live offices nationwide</div>
             </div>
             <div className="tt-stat-card">
               <h3>Process Types</h3>
-              <strong>{metrics.processes}</strong>
+              <strong style={{ display: "block", lineHeight: 1 }}>
+                <OdometerNumber value={metrics.processes} delay={150} />
+              </strong>
               <div style={{ marginTop: "8px", color: "var(--tt-text-muted)", fontSize: "14px" }}>Visas, permits, more</div>
             </div>
             <div className="tt-stat-card">
               <h3>Reports Today</h3>
-              <strong>{metrics.reports}</strong>
+              <strong style={{ display: "block", lineHeight: 1 }}>
+                <OdometerNumber value={metrics.reports} delay={300} />
+              </strong>
               <div style={{ marginTop: "8px", color: "var(--tt-text-muted)", fontSize: "14px" }}>Community updates</div>
             </div>
             <div className="tt-stat-card">
               <h3>Contributors</h3>
-              <strong>{metrics.users}</strong>
+              <strong style={{ display: "block", lineHeight: 1 }}>
+                <OdometerNumber value={metrics.users} delay={450} />
+              </strong>
               <div style={{ marginTop: "8px", color: "var(--tt-text-muted)", fontSize: "14px" }}>Anonymous members</div>
             </div>
           </div>
