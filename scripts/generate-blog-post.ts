@@ -376,6 +376,10 @@ async function main() {
   // Build the GPT prompt
   const prompt = buildPrompt(topic, topCity, cityStats, title, keywordFocus, month, year);
 
+  if (!geminiKey) {
+    throw new Error("Missing required env var: GEMINI_API_KEY");
+  }
+
   // Call Google Gemini with retries and completeness checks.
   const content = await generateWithGemini(prompt, geminiKey);
 

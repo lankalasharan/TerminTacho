@@ -1,23 +1,37 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
-  try {
-    const baseUrl = "https://termintacho.com";
-    
-    // Static pages
-    const staticPages = [
-      "",
-      "/timelines",
-      "/submit",
-      "/contact",
-      "/privacy",
-      "/terms",
-      "/cookies",
-      "/faq",
-      "/imprint",
-    ];
+export const dynamic = "force-dynamic";
 
+export async function GET() {
+  const baseUrl = "https://termintacho.de";
+  const staticPages = [
+    "",
+    "/timelines",
+    "/submit",
+    "/contact",
+    "/privacy",
+    "/terms",
+    "/cookies",
+    "/faq",
+    "/imprint",
+  ];
+
+  const buildSitemapXml = (urls: string[]) => `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map(
+    (url) => `  <url>
+    <loc>${baseUrl}${url}</loc>
+    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
+    <changefreq>${url === "" ? "weekly" : "daily"}</changefreq>
+    <priority>${url === "" ? "1.0" : "0.8"}</priority>
+  </url>`
+  )
+  .join("\n")}
+</urlset>`;
+
+  try {
     // Get all unique cities for dynamic routes
     const offices = await prisma.office.findMany({
       select: { city: true },
@@ -31,20 +45,7 @@ export async function GET() {
     // Combine all URLs
     const allUrls = [...staticPages, ...dynamicCityPages];
 
-    // Generate sitemap XML
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls
-  .map(
-    (url) => `  <url>
-    <loc>${baseUrl}${url}</loc>
-    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
-    <changefreq>${url === "" ? "weekly" : "daily"}</changefreq>
-    <priority>${url === "" ? "1.0" : "0.8"}</priority>
-  </url>`
-  )
-  .join("\n")}
-</urlset>`;
+    const sitemap = buildSitemapXml(allUrls);
 
     return new NextResponse(sitemap, {
       headers: {
@@ -54,9 +55,13 @@ ${allUrls
     });
   } catch (error) {
     console.error("Sitemap generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate sitemap" },
-      { status: 500 }
-    );
+    // Fallback to static pages so deployment and crawlers still get valid XML.
+    const fallbackSitemap = buildSitemapXml(staticPages);
+    return new NextResponse(fallbackSitemap, {
+      headers: {
+        "Content-Type": "application/xml",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate",
+      },
+    });
   }
 }
