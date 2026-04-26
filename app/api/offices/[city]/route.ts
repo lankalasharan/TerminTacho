@@ -3,6 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { calculateWeightedAverage, getReportWeight } from "@/lib/relevance";
 import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
 
+type OfficeRow = Awaited<ReturnType<typeof prisma.office.findMany>>[number];
+type ReportRow = Awaited<ReturnType<typeof prisma.report.findMany>>[number];
+type ReviewRow = Awaited<ReturnType<typeof prisma.review.findMany>>[number];
+
 // Always read fresh data from the DB — never serve a cached response
 export const dynamic = "force-dynamic";
 
@@ -33,7 +37,7 @@ export async function GET(
 
     // Use the first office row for display info; combine reports across all rows
     const office = offices[0];
-    const officeIds = offices.map((o) => o.id);
+    const officeIds = offices.map((o: OfficeRow) => o.id);
 
     // Get all reports across every office row for this city
     const reports = await prisma.report.findMany({
@@ -77,15 +81,15 @@ export async function GET(
 
     // Calculate statistics
     const totalReports = reports.length;
-    const approvedReports = reports.filter(r => r.status === "approved").length;
-    const rejectedReports = reports.filter(r => r.status === "rejected").length;
-    const pendingReports = reports.filter(r => r.status === "pending").length;
+    const approvedReports = reports.filter((r: ReportRow) => r.status === "approved").length;
+    const rejectedReports = reports.filter((r: ReportRow) => r.status === "rejected").length;
+    const pendingReports = reports.filter((r: ReportRow) => r.status === "pending").length;
 
     // Calculate average processing time
-    const completedReports = reports.filter(r => r.decisionAt);
+    const completedReports = reports.filter((r: ReportRow) => r.decisionAt);
     const completedDays: number[] = [];
     const completedWeights: number[] = [];
-    completedReports.forEach(report => {
+    completedReports.forEach((report: ReportRow) => {
       const days = Math.floor((report.decisionAt!.getTime() - report.submittedAt.getTime()) / (1000 * 60 * 60 * 24));
       if (days >= 0) {
         completedDays.push(days);
@@ -98,21 +102,21 @@ export async function GET(
 
     // Calculate average ratings
     const avgOverall = reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.overallRating, 0) / reviews.length
+      ? reviews.reduce((sum: number, r: ReviewRow) => sum + r.overallRating, 0) / reviews.length
       : 0;
 
-    const processGroups = reports.reduce((acc, report) => {
+    const processGroups = reports.reduce((acc: Record<string, ReportRow[]>, report: ReportRow) => {
       const processName = report.processType.name;
       if (!acc[processName]) acc[processName] = [];
       acc[processName].push(report);
       return acc;
-    }, {} as Record<string, typeof reports>);
+    }, {} as Record<string, ReportRow[]>);
 
-    const processStats = Object.entries(processGroups).map(([name, group]) => {
-      const completed = group.filter(r => r.decisionAt);
+    const processStats = Object.entries(processGroups as Record<string, ReportRow[]>).map(([name, group]) => {
+      const completed = group.filter((r: ReportRow) => r.decisionAt);
       const days: number[] = [];
       const weights: number[] = [];
-      completed.forEach(report => {
+      completed.forEach((report: ReportRow) => {
         const diff = Math.floor((report.decisionAt!.getTime() - report.submittedAt.getTime()) / (1000 * 60 * 60 * 24));
         if (diff >= 0) {
           days.push(diff);

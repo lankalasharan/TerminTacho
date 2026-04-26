@@ -340,7 +340,9 @@ async function main() {
 
   const now = new Date();
   const isManualDispatch = process.env.GITHUB_EVENT_NAME === "workflow_dispatch";
-  if (!isManualDispatch && !isScheduledRunDue(now)) {
+  const forceGeneration = process.env.FORCE_BLOG_GENERATION === "true";
+  const enforceCadence = process.env.ENFORCE_BLOG_INTERVAL !== "false";
+  if (!forceGeneration && !isManualDispatch && enforceCadence && !isScheduledRunDue(now)) {
     console.log(`⏭️ Not a scheduled ${BLOG_INTERVAL_DAYS}-day run date. Skipping generation.`);
     return;
   }
