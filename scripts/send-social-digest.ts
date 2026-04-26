@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { Resend } from "resend";
 
@@ -55,6 +55,70 @@ function getDigestWindowHours(): number {
 
 function hasFetchWarnings(notes: string[]): boolean {
   return notes.some((note) => /some queries failed/i.test(note));
+}
+
+function isDatedReportFile(fileName: string): boolean {
+  return /^reddit-drafts\.\d{4}-\d{2}-\d{2}\.json$/.test(fileName);
+}
+
+function safeParsePayload(raw: string): DraftPayload {
+  const parsed = JSON.parse(raw) as DraftPayload;
+  return {
+    generatedAt: parsed.generatedAt,
+    siteUrl: parsed.siteUrl,
+    totalCandidates: parsed.totalCandidates,
+    notes: parsed.notes ?? [],
+    candidates: parsed.candidates ?? [],
+  };
+}
+
+async function loadBestAvailablePayload(reportDir: string): Promise<{
+  payload: DraftPayload;
+  source: string;
+  latestHadFetchWarnings: boolean;
+  usedHistoricalFallback: boolean;
+}> {
+  const latestPath = path.join(reportDir, "reddit-drafts.latest.json");
+  const latestRaw = await readFile(latestPath, "utf8");
+  const latestPayload = safeParsePayload(latestRaw);
+  const latestHadFetchWarnings = hasFetchWarnings(latestPayload.notes);
+
+  if (latestPayload.candidates.length > 0 || !latestHadFetchWarnings) {
+    return {
+      payload: latestPayload,
+      source: "latest",
+      latestHadFetchWarnings,
+      usedHistoricalFallback: false,
+    };
+  }
+
+  const files = await readdir(reportDir);
+  const datedReports = files.filter(isDatedReportFile).sort().reverse();
+
+  for (const fileName of datedReports) {
+    const filePath = path.join(reportDir, fileName);
+    try {
+      const raw = await readFile(filePath, "utf8");
+      const payload = safeParsePayload(raw);
+      if (payload.candidates.length > 0) {
+        return {
+          payload,
+          source: fileName,
+          latestHadFetchWarnings,
+          usedHistoricalFallback: true,
+        };
+      }
+    } catch {
+      // Ignore unreadable historical report files and continue.
+    }
+  }
+
+  return {
+    payload: latestPayload,
+    source: "latest",
+    latestHadFetchWarnings,
+    usedHistoricalFallback: false,
+  };
 }
 
 function escapeHtml(text: string): string {
@@ -157,9 +221,9 @@ async function main() {
   const recipient = process.env.SOCIAL_DIGEST_TO || DEFAULT_DIGEST_EMAIL;
   const resend = new Resend(resendApiKey);
 
-  const reportPath = path.join(process.cwd(), "reports", "social", "reddit-drafts.latest.json");
-  const raw = await readFile(reportPath, "utf8");
-  const parsed = JSON.parse(raw) as DraftPayload;
+  const reportDir = path.join(process.cwd(), "reports", "social");
+  const bestPayload = await loadBestAvailablePayload(reportDir);
+  const parsed = bestPayload.payload;
   const hadFetchWarnings = hasFetchWarnings(parsed.notes ?? []);
 
   const windowHours = getDigestWindowHours();
@@ -185,13 +249,7 @@ async function main() {
     usedFallback = true;
   }
 
-  // If scraper reported fetch failures and no drafts were produced at all,
-  // fail loudly so schedules surface the upstream data problem.
-  if (selected.length === 0 && hadFetchWarnings) {
-    throw new Error(
-      "No candidates available and scraper reported fetch warnings. Check reddit-drafts.latest.json notes for upstream Reddit errors.",
-    );
-  }
+  const warningOnlyMode = selected.length === 0 && bestPayload.latestHadFetchWarnings;
 
   const dateLabel = new Date().toLocaleDateString("en-GB", {
     dateStyle: "medium",
@@ -222,6 +280,8 @@ async function main() {
               Found <strong>${selected.length}</strong> review candidates.
               ${selected.length === 0 ? "No relevant posts in this window." : "Open post links, copy the draft response, and post manually."}
               ${usedFallback ? "Showing freshest available candidates because no posts matched the configured time window." : ""}
+              ${bestPayload.usedHistoricalFallback ? `Using previous report (${escapeHtml(bestPayload.source)}) because latest scrape returned empty with warnings.` : ""}
+              ${warningOnlyMode ? "Latest scrape reported fetch warnings and produced no candidates. Please check Reddit API access or rate limits." : ""}
             </td>
           </tr>
           <tr>
@@ -256,6 +316,14 @@ async function main() {
     console.warn(
       `[social-digest] No posts found in last ${windowHours}h. Sent freshest available ${selected.length} items instead.`,
     );
+  }
+
+  if (bestPayload.usedHistoricalFallback) {
+    console.warn(`[social-digest] Used historical report fallback source: ${bestPayload.source}`);
+  }
+
+  if (warningOnlyMode || hadFetchWarnings) {
+    console.warn("[social-digest] Latest scrape reported fetch warnings. Check reports/social/reddit-drafts.latest.json notes.");
   }
 
   console.log(`[social-digest] Sent to ${recipient} with ${selected.length} items.`);
