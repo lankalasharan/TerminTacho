@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const baseUrl = "https://termintacho.de";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://termintacho.de";
   const staticPages = [
     "",
     "/timelines",

@@ -33,23 +33,37 @@ const orbitron = Orbitron({
   weight: ["400", "600", "700"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://termintacho.de";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'TerminTacho - Real Processing Times for German Bureaucracy',
     template: '%s | TerminTacho'
   },
   description: 'Anonymous, crowdsourced processing times for German visa applications, residence permits, and bureaucratic processes. Real data from real people across 74 cities.',
   keywords: ['Germany', 'visa', 'residence permit', 'Aufenthaltserlaubnis', 'processing time', 'Ausländerbehörde', 'Blue Card', 'citizenship', 'German bureaucracy'],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://termintacho.com',
+    url: siteUrl,
     title: 'TerminTacho - Real Processing Times for German Bureaucracy',
     description: 'Anonymous, crowdsourced processing times for German visa applications, residence permits, and bureaucratic processes.',
     siteName: 'TerminTacho',
     images: [
       {
-        url: 'https://termintacho.com/og-image.png',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'TerminTacho - Real Processing Times for German Bureaucracy',
@@ -60,7 +74,11 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TerminTacho - Real Processing Times for German Bureaucracy',
     description: 'Anonymous, crowdsourced processing times for German visa applications and residence permits.',
+    images: [`${siteUrl}/og-image.png`],
   },
+  other: process.env.GOOGLE_SITE_VERIFICATION
+    ? { 'google-site-verification': process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({

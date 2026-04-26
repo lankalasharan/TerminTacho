@@ -1,0 +1,13 @@
+Bucket	Includes
+Student	student-visa, extension, internship
+Work	blue card, §18a, §18b, ICT
+Family	spouse, child, dependent
+Settlement	NE, PR
+Citizenship	Einbürgerung, dual
+Business	freelance, startup, investor
+Registration	Anmeldung, Abmeldung
+Documents	tax-id, degree recognition
+Driving	license exchange/application
+Banking	Sperrkonto, financial proof
+Appointments	visa-appointment
+Misc	contract approval, certificates
