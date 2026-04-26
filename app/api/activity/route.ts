@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type RecentReport = Awaited<ReturnType<typeof prisma.report.findMany>>[number];
-type RecentReview = Awaited<ReturnType<typeof prisma.review.findMany>>[number];
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -29,8 +26,10 @@ export async function GET(request: Request) {
     });
 
     // Combine and sort by date
+    type ReportItem = (typeof recentReports)[number];
+    type ReviewItem = (typeof recentReviews)[number];
     const combined = [
-      ...recentReports.map((r: RecentReport) => ({
+      ...recentReports.map((r: ReportItem) => ({
         type: 'report' as const,
         id: r.id,
         date: r.createdAt,
@@ -38,7 +37,7 @@ export async function GET(request: Request) {
         process: r.processType.name,
         status: r.status,
       })),
-      ...recentReviews.map((r: RecentReview) => ({
+      ...recentReviews.map((r: ReviewItem) => ({
         type: 'review' as const,
         id: r.id,
         date: r.createdAt,

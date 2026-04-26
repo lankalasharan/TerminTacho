@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
-import { Prisma } from "@prisma/client";
 
 const faqs = [
   {
@@ -55,24 +54,25 @@ export async function GET(req: Request) {
 
     // Search cities
     const cityAliases = getCityAliases(query);
-    const cityConditions: Prisma.OfficeWhereInput[] = cityAliases.length
-      ? cityAliases.map((alias) => ({
-          city: { contains: alias, mode: Prisma.QueryMode.insensitive },
+    const insensitive = "insensitive" as const;
+    const cityConditions = cityAliases.length
+      ? cityAliases.map((alias: string) => ({
+          city: { contains: alias, mode: insensitive },
         }))
-      : [{ city: { contains: query, mode: Prisma.QueryMode.insensitive } }];
+      : [{ city: { contains: query, mode: insensitive } }];
 
     const cities = await prisma.office.findMany({
       where: {
         OR: [
           ...cityConditions,
-          { name: { contains: query, mode: Prisma.QueryMode.insensitive } },
+          { name: { contains: query, mode: insensitive } },
         ],
       },
       distinct: ["city"],
       take: 5,
     });
 
-    cities.forEach((city) => {
+    cities.forEach((city: (typeof cities)[number]) => {
       const normalizedCity = normalizeCityName(city.city);
       results.push({
         id: `city-${normalizedCity}`,
@@ -86,12 +86,12 @@ export async function GET(req: Request) {
     // Search process types
     const processes = await prisma.processType.findMany({
       where: {
-        name: { contains: query, mode: Prisma.QueryMode.insensitive },
+        name: { contains: query, mode: insensitive },
       },
       take: 5,
     });
 
-    processes.forEach((process) => {
+    processes.forEach((process: (typeof processes)[number]) => {
       results.push({
         id: `process-${process.id}`,
         type: "process",

@@ -202,7 +202,7 @@ async function fetchCityStats(): Promise<CityStat[]> {
   for (const [city, cityReports] of cityMap.entries()) {
     if (cityReports.length < 3) continue; // skip cities with too little data
 
-    const approved = cityReports.filter((r) => r.status === "approved");
+    const approved = cityReports.filter((r: (typeof cityReports)[number]) => r.status === "approved");
     const approvalRate = Math.round((approved.length / cityReports.length) * 100);
 
     // Group by process type

@@ -84,7 +84,8 @@ export async function GET(req: Request) {
     take: limit,
   });
 
-  const normalizedReports = reports.map((report) => ({
+  type ReportItem = (typeof reports)[number];
+  const normalizedReports = reports.map((report: ReportItem) => ({
     ...report,
     office: report.office
       ? { ...report.office, city: normalizeCityName(report.office.city) }

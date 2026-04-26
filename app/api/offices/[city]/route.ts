@@ -4,8 +4,6 @@ import { calculateWeightedAverage, getReportWeight } from "@/lib/relevance";
 import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
 
 type OfficeRow = Awaited<ReturnType<typeof prisma.office.findMany>>[number];
-type ReportRow = Awaited<ReturnType<typeof prisma.report.findMany>>[number];
-type ReviewRow = Awaited<ReturnType<typeof prisma.review.findMany>>[number];
 
 // Always read fresh data from the DB — never serve a cached response
 export const dynamic = "force-dynamic";
@@ -80,6 +78,8 @@ export async function GET(
     });
 
     // Calculate statistics
+    type ReportRow = (typeof reports)[number];
+    type ReviewRow = (typeof reviews)[number];
     const totalReports = reports.length;
     const approvedReports = reports.filter((r: ReportRow) => r.status === "approved").length;
     const rejectedReports = reports.filter((r: ReportRow) => r.status === "rejected").length;

@@ -1,4 +1,5 @@
-import { VoteTargetType, PrismaClient } from "@prisma/client";
+import { PrismaClient, $Enums } from "@prisma/client";
+type VoteTargetType = $Enums.VoteTargetType;
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -364,7 +365,7 @@ async function main() {
       data: votes.map((r) => ({
         id: r.id,
         userId: r.userId,
-        targetType: (r.targetType as VoteTargetType) ?? VoteTargetType.report,
+        targetType: (r.targetType as VoteTargetType) ?? ("report" as VoteTargetType),
         targetId: r.targetId,
         helpful: parseBoolean(r.helpful, false),
         createdAt: parseDate(r.createdAt) ?? new Date(),

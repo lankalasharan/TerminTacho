@@ -54,7 +54,7 @@ export async function GET(request: Request) {
 
     // If user has Google or Facebook account, treat as verified
     const hasOAuth = user?.accounts?.some(
-      (acc) => acc.provider === "google" || acc.provider === "facebook"
+      (acc: { provider: string }) => acc.provider === "google" || acc.provider === "facebook"
     );
 
     const status = await getUserVerificationStatus(user?.id);

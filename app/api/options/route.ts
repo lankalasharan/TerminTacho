@@ -11,7 +11,7 @@ export async function GET() {
     prisma.processType.findMany({ orderBy: [{ name: "asc" }] }),
   ]);
 
-  const normalizedOffices = offices.map((office) => ({
+  const normalizedOffices = offices.map((office: (typeof offices)[number]) => ({
     ...office,
     city: normalizeCityName(office.city),
   }));

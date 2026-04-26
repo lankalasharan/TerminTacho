@@ -26,20 +26,21 @@ export async function GET(request: Request) {
     });
 
     // Calculate average ratings
+    type ReviewItem = (typeof reviews)[number];
     const avgOverall = reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.overallRating, 0) / reviews.length
+      ? reviews.reduce((sum: number, r: ReviewItem) => sum + r.overallRating, 0) / reviews.length
       : 0;
     
-    const avgService = reviews.filter(r => r.serviceRating).length > 0
-      ? reviews.filter(r => r.serviceRating).reduce((sum, r) => sum + (r.serviceRating || 0), 0) / reviews.filter(r => r.serviceRating).length
+    const avgService = reviews.filter((r: ReviewItem) => r.serviceRating).length > 0
+      ? reviews.filter((r: ReviewItem) => r.serviceRating).reduce((sum: number, r: ReviewItem) => sum + (r.serviceRating || 0), 0) / reviews.filter((r: ReviewItem) => r.serviceRating).length
       : 0;
 
-    const avgStaff = reviews.filter(r => r.staffRating).length > 0
-      ? reviews.filter(r => r.staffRating).reduce((sum, r) => sum + (r.staffRating || 0), 0) / reviews.filter(r => r.staffRating).length
+    const avgStaff = reviews.filter((r: ReviewItem) => r.staffRating).length > 0
+      ? reviews.filter((r: ReviewItem) => r.staffRating).reduce((sum: number, r: ReviewItem) => sum + (r.staffRating || 0), 0) / reviews.filter((r: ReviewItem) => r.staffRating).length
       : 0;
 
-    const avgSpeed = reviews.filter(r => r.speedRating).length > 0
-      ? reviews.filter(r => r.speedRating).reduce((sum, r) => sum + (r.speedRating || 0), 0) / reviews.filter(r => r.speedRating).length
+    const avgSpeed = reviews.filter((r: ReviewItem) => r.speedRating).length > 0
+      ? reviews.filter((r: ReviewItem) => r.speedRating).reduce((sum: number, r: ReviewItem) => sum + (r.speedRating || 0), 0) / reviews.filter((r: ReviewItem) => r.speedRating).length
       : 0;
 
     return NextResponse.json({
@@ -125,7 +126,7 @@ export async function POST(request: Request) {
       select: { content: true },
     });
 
-    const existingTexts = existingReviews.map((r) => r.content);
+    const existingTexts = existingReviews.map((r: { content: string }) => r.content);
     const similarityCheck = await checkTextSimilarity(content, existingTexts, 0.85);
 
     if (similarityCheck.isSimilar) {

@@ -17,7 +17,8 @@ export async function GET() {
     // Build per-city stats from completed reports
     const cityMap = new Map<string, { totalDays: number; count: number }>();
 
-    reports.forEach((report) => {
+    type ReportItem = (typeof reports)[number];
+    reports.forEach((report: ReportItem) => {
       const city = normalizeCityName(report.office.city);
       if (!city || !report.submittedAt || !report.decisionAt) return;
 
@@ -38,7 +39,8 @@ export async function GET() {
     // Collect every unique city that has an office (same source as the offices page)
     const allCities = new Set<string>();
     const officeCoordsByCity = new Map<string, { lat: number; lng: number }>();
-    allOffices.forEach((o) => {
+    type OfficeItem = (typeof allOffices)[number];
+    allOffices.forEach((o: OfficeItem) => {
       const city = normalizeCityName(o.city);
       if (!city) return;
       allCities.add(city);

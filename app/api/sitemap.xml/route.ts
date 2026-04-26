@@ -39,7 +39,7 @@ ${urls
     });
 
     const dynamicCityPages = offices.map(
-      (office) => `/offices/${encodeURIComponent(office.city)}`
+      (office: (typeof offices)[number]) => `/offices/${encodeURIComponent(office.city)}`
     );
 
     // Combine all URLs

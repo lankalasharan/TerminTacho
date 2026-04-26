@@ -184,7 +184,7 @@ export async function detectCoordinatedAttack(
     }
   >();
 
-  recentSubmissions.forEach(({ ipAddress, userId }) => {
+  recentSubmissions.forEach(({ ipAddress, userId }: { ipAddress: string | null; userId: string | null }) => {
     if (!ipAddress) return;
 
     if (!ipMap.has(ipAddress)) {
