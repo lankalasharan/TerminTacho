@@ -48,7 +48,14 @@ Optional variables:
 Required for email digest:
 
 - RESEND_API_KEY: Resend API key
-- SOCIAL_DIGEST_TO: your email address that receives digest
+
+Hardcoded defaults in the script:
+
+- Recipient defaults to termintacho@gmail.com
+- Sender defaults to termintacho@gmail.com
+- Timezone defaults to Europe/Berlin
+
+You can still override these with env vars if needed.
 
 Optional for email digest:
 

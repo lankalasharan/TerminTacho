@@ -31,6 +31,9 @@ interface DraftPayload {
   candidates: CandidateDraft[];
 }
 
+const DEFAULT_DIGEST_EMAIL = "termintacho@gmail.com";
+const DEFAULT_DIGEST_TIMEZONE = "Europe/Berlin";
+
 function getRequiredEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -40,7 +43,7 @@ function getRequiredEnv(name: string): string {
 }
 
 function getFromAddress(): string {
-  return process.env.EMAIL_FROM || "TerminTacho <noreply@termintacho.de>";
+  return process.env.EMAIL_FROM || DEFAULT_DIGEST_EMAIL;
 }
 
 function getDigestWindowHours(): number {
@@ -65,7 +68,7 @@ function formatDate(dateString: string): string {
   return date.toLocaleString("en-GB", {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone: process.env.SOCIAL_DIGEST_TIMEZONE || "Europe/Berlin",
+    timeZone: process.env.SOCIAL_DIGEST_TIMEZONE || DEFAULT_DIGEST_TIMEZONE,
   });
 }
 
@@ -147,7 +150,7 @@ function toTextBody(params: {
 
 async function main() {
   const resendApiKey = getRequiredEnv("RESEND_API_KEY");
-  const recipient = getRequiredEnv("SOCIAL_DIGEST_TO");
+  const recipient = process.env.SOCIAL_DIGEST_TO || DEFAULT_DIGEST_EMAIL;
   const resend = new Resend(resendApiKey);
 
   const reportPath = path.join(process.cwd(), "reports", "social", "reddit-drafts.latest.json");
@@ -169,7 +172,7 @@ async function main() {
 
   const dateLabel = new Date().toLocaleDateString("en-GB", {
     dateStyle: "medium",
-    timeZone: process.env.SOCIAL_DIGEST_TIMEZONE || "Europe/Berlin",
+    timeZone: process.env.SOCIAL_DIGEST_TIMEZONE || DEFAULT_DIGEST_TIMEZONE,
   });
   const subject = `TerminTacho social digest ${dateLabel} (${selected.length} posts)`;
 
