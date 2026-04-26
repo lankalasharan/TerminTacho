@@ -15,6 +15,13 @@ It does not auto-post.
 npm run social:reddit:drafts
 ```
 
+Daily digest commands:
+
+```bash
+npm run social:email:digest
+npm run social:daily
+```
+
 ## Output files
 
 - reports/social/reddit-drafts.latest.json
@@ -38,6 +45,18 @@ Optional variables:
 - REDDIT_LIMIT_PER_QUERY: defaults to 10
 - SOCIAL_MAX_DRAFTS: defaults to 80
 
+Required for email digest:
+
+- RESEND_API_KEY: Resend API key
+- SOCIAL_DIGEST_TO: your email address that receives digest
+
+Optional for email digest:
+
+- EMAIL_FROM: sender identity, defaults to TerminTacho <noreply@termintacho.de>
+- SOCIAL_DIGEST_WINDOW_HOURS: rolling window, defaults to 24
+- SOCIAL_DIGEST_MAX_ITEMS: defaults to 40
+- SOCIAL_DIGEST_TIMEZONE: defaults to Europe/Berlin
+
 Example:
 
 ```bash
@@ -51,6 +70,22 @@ REDDIT_SUBREDDITS=germany,berlin,expats REDDIT_QUERIES="blue card timeline,resid
 3. Check each candidate against subreddit rules.
 4. Edit comment text manually before posting.
 5. Post only where your response clearly adds value.
+
+Mobile-first workflow (recommended):
+
+1. Schedule npm run social:daily in Coolify for every evening.
+2. Receive digest email on your phone.
+3. Open each Reddit link from email.
+4. Copy and adjust suggested reply.
+5. Post manually.
+
+Coolify schedule example:
+
+- Command: npm run social:daily
+- Cron: 0 18 * * *
+- Timezone: Europe/Berlin
+
+This sends one evening digest with all candidates from the last 24 hours.
 
 ## Facebook note
 
