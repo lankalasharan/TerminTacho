@@ -53,6 +53,10 @@ function getDigestWindowHours(): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 24;
 }
 
+function hasFetchWarnings(notes: string[]): boolean {
+  return notes.some((note) => /some queries failed/i.test(note));
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -156,6 +160,7 @@ async function main() {
   const reportPath = path.join(process.cwd(), "reports", "social", "reddit-drafts.latest.json");
   const raw = await readFile(reportPath, "utf8");
   const parsed = JSON.parse(raw) as DraftPayload;
+  const hadFetchWarnings = hasFetchWarnings(parsed.notes ?? []);
 
   const windowHours = getDigestWindowHours();
   const now = Date.now();
@@ -167,8 +172,26 @@ async function main() {
   });
 
   const sorted = sortCandidates(recent);
+  const sortedAll = sortCandidates(parsed.candidates ?? []);
   const maxItems = Number(process.env.SOCIAL_DIGEST_MAX_ITEMS || 40);
-  const selected = sorted.slice(0, Number.isFinite(maxItems) && maxItems > 0 ? maxItems : 40);
+  const safeMaxItems = Number.isFinite(maxItems) && maxItems > 0 ? maxItems : 40;
+
+  let selected = sorted.slice(0, safeMaxItems);
+  let usedFallback = false;
+
+  // Fallback to freshest known candidates when 24h window is empty.
+  if (selected.length === 0 && sortedAll.length > 0) {
+    selected = sortedAll.slice(0, safeMaxItems);
+    usedFallback = true;
+  }
+
+  // If scraper reported fetch failures and no drafts were produced at all,
+  // fail loudly so schedules surface the upstream data problem.
+  if (selected.length === 0 && hadFetchWarnings) {
+    throw new Error(
+      "No candidates available and scraper reported fetch warnings. Check reddit-drafts.latest.json notes for upstream Reddit errors.",
+    );
+  }
 
   const dateLabel = new Date().toLocaleDateString("en-GB", {
     dateStyle: "medium",
@@ -198,6 +221,7 @@ async function main() {
             <td style="padding:14px 20px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;">
               Found <strong>${selected.length}</strong> review candidates.
               ${selected.length === 0 ? "No relevant posts in this window." : "Open post links, copy the draft response, and post manually."}
+              ${usedFallback ? "Showing freshest available candidates because no posts matched the configured time window." : ""}
             </td>
           </tr>
           <tr>
@@ -227,6 +251,12 @@ async function main() {
     html,
     text,
   });
+
+  if (usedFallback) {
+    console.warn(
+      `[social-digest] No posts found in last ${windowHours}h. Sent freshest available ${selected.length} items instead.`,
+    );
+  }
 
   console.log(`[social-digest] Sent to ${recipient} with ${selected.length} items.`);
 }
