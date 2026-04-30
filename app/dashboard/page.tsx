@@ -14,6 +14,7 @@ type UserReport = {
   id: string;
   status: string;
   submittedAt: string;
+  decisionAt: string | null;
   createdAt: string;
   processType: { name: string } | null;
   office: { city: string; name: string } | null;
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const [reports, setReports] = useState<UserReport[]>([]);
   const [reportsLoading, setReportsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [closingId, setClosingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -88,6 +90,34 @@ export default function DashboardPage() {
       alert("Failed to delete report.");
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  async function handleClosePendingReport(reportId: string, status: "approved" | "rejected") {
+    setClosingId(reportId);
+    try {
+      const res = await fetch(`/api/reports/${reportId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status,
+          isStillWaiting: false,
+          decisionAt: new Date().toISOString(),
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data?.error || "Failed to close timeline.");
+        return;
+      }
+
+      const updated = await res.json();
+      setReports((prev) => prev.map((r) => (r.id === reportId ? { ...r, ...updated } : r)));
+    } catch {
+      alert("Failed to close timeline.");
+    } finally {
+      setClosingId(null);
     }
   }
 
@@ -515,6 +545,48 @@ export default function DashboardPage() {
                     >
                       {deletingId === r.id ? "Deleting…" : "Delete"}
                     </button>
+                    {r.status === "pending" && (
+                      <>
+                        <button
+                          type="button"
+                          disabled={closingId === r.id}
+                          onClick={() => handleClosePendingReport(r.id, "approved")}
+                          style={{
+                            background: closingId === r.id ? "#bbf7d0" : "#dcfce7",
+                            color: "#166534",
+                            border: "1px solid #86efac",
+                            borderRadius: "8px",
+                            padding: "8px 14px",
+                            fontWeight: 700,
+                            fontSize: "13px",
+                            cursor: closingId === r.id ? "not-allowed" : "pointer",
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {closingId === r.id ? "Closing…" : "Mark Accepted"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={closingId === r.id}
+                          onClick={() => handleClosePendingReport(r.id, "rejected")}
+                          style={{
+                            background: closingId === r.id ? "#fecaca" : "#fee2e2",
+                            color: "#991b1b",
+                            border: "1px solid #fca5a5",
+                            borderRadius: "8px",
+                            padding: "8px 14px",
+                            fontWeight: 700,
+                            fontSize: "13px",
+                            cursor: closingId === r.id ? "not-allowed" : "pointer",
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {closingId === r.id ? "Closing…" : "Mark Rejected"}
+                        </button>
+                      </>
+                    )}
                   </div>
                 );
               })}

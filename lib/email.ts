@@ -85,3 +85,31 @@ export async function sendNewsletterUpdate(to: string, message: string, subject?
     text: `${message}\n\nVisit: ${appUrl}`,
   });
 }
+
+export async function sendPendingTimelineClosureReminder(to: string) {
+  const appUrl = process.env.APP_URL || "https://termintacho.de";
+  const dashboardUrl = `${appUrl.replace(/\/$/, "")}/dashboard`;
+
+  return resend.emails.send({
+    from: getFromAddress(),
+    to,
+    subject: "Please update and close your pending timeline on TerminTacho",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+        <p>Hello,</p>
+        <p>
+          You recently submitted your timeline on TerminTacho and selected a pending status.
+          If there has been a new update in your application and you have received an answer,
+          please close your timeline.
+        </p>
+        <p>
+          You can do this from your dashboard in the menu on termintacho.de:
+          <a href="${dashboardUrl}" style="color: #3e726a;">Open Dashboard</a>.
+        </p>
+        <p>Thank you for helping keep the community data useful and up to date.</p>
+        <p>TerminTacho</p>
+      </div>
+    `,
+    text: `Hello,\n\nYou recently submitted your timeline on TerminTacho and selected a pending status. If there has been a new update in your application and you have received an answer, please close your timeline.\n\nYou can do this from your dashboard in the menu on termintacho.de:\n${dashboardUrl}\n\nThank you for helping keep the community data useful and up to date.\n\nTerminTacho`,
+  });
+}

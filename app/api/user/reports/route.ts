@@ -25,6 +25,7 @@ export async function GET() {
       id: true,
       status: true,
       submittedAt: true,
+      decisionAt: true,
       createdAt: true,
       processType: { select: { name: true } },
       office: { select: { city: true, name: true } },

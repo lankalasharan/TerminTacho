@@ -76,10 +76,10 @@ export function validateTimelineSubmission(data: {
   }
 
   // Validate status
-  if (!["pending", "approved", "rejected"].includes(data.status)) {
+  if (!["approved", "rejected"].includes(data.status)) {
     errors.push({
       field: "status",
-      message: 'Status must be "pending", "approved", or "rejected"',
+      message: 'Status must be "approved" or "rejected"',
     });
   }
 
