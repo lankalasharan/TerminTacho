@@ -78,6 +78,7 @@ export default function SubmitPage() {
   const [notes, setNotes] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const [turnstileResetSignal, setTurnstileResetSignal] = useState(0);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 
   useEffect(() => {
@@ -113,16 +114,26 @@ export default function SubmitPage() {
       return;
     }
 
+    if (!officeId && !customCity.trim()) {
+      const errorMessage = "Please select an office or enter a city.";
+      setMsg(errorMessage);
+      setMsgType("error");
+      return;
+    }
+
+    if (siteKey && !turnstileToken) {
+      const errorMessage = "Please complete the CAPTCHA.";
+      setCaptchaError(errorMessage);
+      setMsg(errorMessage);
+      setMsgType("error");
+      return;
+    }
+
     setLoading(true);
+    let submittedToServer = false;
 
     try {
-      if (!officeId && !customCity.trim()) {
-        throw new Error("Please select an office or enter a city.");
-      }
-
-      if (siteKey && !turnstileToken) {
-        throw new Error("Please complete the CAPTCHA.");
-      }
+      submittedToServer = true;
 
       const res = await fetch("/api/reports", {
         method: "POST",
@@ -150,7 +161,6 @@ export default function SubmitPage() {
       setDecisionAt("");
       setNotes("");
       setStatus("approved");
-      setTurnstileToken("");
     } catch (err: any) {
       setMsg(err?.message || "Unknown error");
       setMsgType("error");
@@ -158,6 +168,10 @@ export default function SubmitPage() {
         setCaptchaError(err?.message || "Please complete the CAPTCHA.");
       }
     } finally {
+      if (siteKey && submittedToServer) {
+        setTurnstileToken("");
+        setTurnstileResetSignal((prev) => prev + 1);
+      }
       setLoading(false);
     }
   }
@@ -622,9 +636,19 @@ export default function SubmitPage() {
                   <div className="tt-submit-captcha">
                     <TurnstileWidget
                       siteKey={siteKey}
-                      onVerify={setTurnstileToken}
-                      onExpire={() => setCaptchaError("CAPTCHA expired. Please try again.")}
-                      onError={() => setCaptchaError("CAPTCHA failed. Please try again.")}
+                      resetSignal={turnstileResetSignal}
+                      onVerify={(token) => {
+                        setTurnstileToken(token);
+                        setCaptchaError(null);
+                      }}
+                      onExpire={() => {
+                        setTurnstileToken("");
+                        setCaptchaError("CAPTCHA expired. Please try again.");
+                      }}
+                      onError={() => {
+                        setTurnstileToken("");
+                        setCaptchaError("CAPTCHA failed. Please try again.");
+                      }}
                     />
                     {captchaError && (
                       <div className="tt-submit-help" style={{ color: "#991b1b" }}>
@@ -635,11 +659,11 @@ export default function SubmitPage() {
                 )}
 
                 <button
-                  disabled={loading}
+                  disabled={loading || (Boolean(siteKey) && !turnstileToken)}
                   className="tt-btn-primary tt-submit-button"
                   style={{
-                    cursor: loading ? "not-allowed" : "pointer",
-                    opacity: loading ? 0.7 : 1,
+                    cursor: loading || (Boolean(siteKey) && !turnstileToken) ? "not-allowed" : "pointer",
+                    opacity: loading || (Boolean(siteKey) && !turnstileToken) ? 0.7 : 1,
                   }}
                 >
                   {loading ? (

@@ -117,7 +117,7 @@ export async function POST(req: Request) {
   const captchaCheck = await verifyTurnstileToken(turnstileToken, ipAddress);
   if (!captchaCheck.success) {
     return NextResponse.json(
-      { error: "CAPTCHA verification failed" },
+      { error: "CAPTCHA verification failed", errorCodes: captchaCheck.errorCodes ?? [] },
       { status: 403 }
     );
   }

@@ -7,6 +7,7 @@ type TurnstileWidgetProps = {
   onVerify: (token: string) => void;
   onExpire?: () => void;
   onError?: () => void;
+  resetSignal?: number;
 };
 
 declare global {
@@ -24,9 +25,11 @@ export default function TurnstileWidget({
   onVerify,
   onExpire,
   onError,
+  resetSignal,
 }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | number | null>(null);
+  const lastResetSignalRef = useRef<number | undefined>(undefined);
 
   // Keep latest callback refs so the effect never needs to re-run when the
   // parent re-renders with new inline function references.
@@ -92,6 +95,22 @@ export default function TurnstileWidget({
       }
     };
   }, [siteKey]); // only re-run when siteKey itself changes
+
+  useEffect(() => {
+    if (resetSignal === undefined) return;
+
+    if (lastResetSignalRef.current === undefined) {
+      lastResetSignalRef.current = resetSignal;
+      return;
+    }
+
+    if (resetSignal === lastResetSignalRef.current) return;
+    lastResetSignalRef.current = resetSignal;
+
+    if (window.turnstile && widgetIdRef.current !== null && window.turnstile.reset) {
+      window.turnstile.reset(widgetIdRef.current);
+    }
+  }, [resetSignal]);
 
   return <div ref={containerRef} />;
 }
