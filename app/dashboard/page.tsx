@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const [reportsLoading, setReportsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [decisionDateInputs, setDecisionDateInputs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -94,6 +95,11 @@ export default function DashboardPage() {
   }
 
   async function handleClosePendingReport(reportId: string, status: "approved" | "rejected") {
+    const inputDate = decisionDateInputs[reportId];
+    if (!inputDate) {
+      alert("Please enter the decision date before closing the timeline.");
+      return;
+    }
     setClosingId(reportId);
     try {
       const res = await fetch(`/api/reports/${reportId}`, {
@@ -102,7 +108,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           status,
           isStillWaiting: false,
-          decisionAt: new Date().toISOString(),
+          decisionAt: new Date(inputDate).toISOString(),
         }),
       });
 
@@ -547,6 +553,25 @@ export default function DashboardPage() {
                     </button>
                     {r.status === "pending" && (
                       <>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", flexShrink: 0 }}>
+                          <label style={{ fontSize: "11px", color: "var(--tt-text-muted)", fontWeight: 600 }}>Decision date received</label>
+                          <input
+                            type="date"
+                            max={new Date().toISOString().split("T")[0]}
+                            value={decisionDateInputs[r.id] ?? ""}
+                            onChange={(e) =>
+                              setDecisionDateInputs((prev) => ({ ...prev, [r.id]: e.target.value }))
+                            }
+                            style={{
+                              border: "1px solid var(--tt-border)",
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              fontSize: "13px",
+                              color: "var(--tt-text)",
+                              background: "white",
+                            }}
+                          />
+                        </div>
                         <button
                           type="button"
                           disabled={closingId === r.id}

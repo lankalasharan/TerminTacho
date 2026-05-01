@@ -66,7 +66,7 @@ export default function PrivacyPolicy() {
           <p>We process your personal data based on:</p>
           <ul style={{ paddingLeft: "24px", marginTop: "12px" }}>
             <li><strong>Consent (Art. 6(1)(a)):</strong> Analytics cookies, newsletter subscription, optional cookies</li>
-            <li><strong>Contract / Pre-Contractual Steps (Art. 6(1)(b)):</strong> Account access, authentication, and user requests</li>
+            <li><strong>Contract / Pre-Contractual Steps (Art. 6(1)(b)):</strong> Account access, authentication, user requests, and transactional service emails directly related to your own submitted data (e.g. reminders to update a pending timeline you submitted)</li>
             <li><strong>Legitimate Interest (Art. 6(1)(f)):</strong> Security, fraud prevention, abuse protection, and service improvement</li>
             <li><strong>Legal Obligation (Art. 6(1)(c)):</strong> Compliance with German and EU law</li>
           </ul>
@@ -83,6 +83,7 @@ export default function PrivacyPolicy() {
             <li>To respond to your inquiries and support requests</li>
             <li>To improve our website and services</li>
             <li>To comply with legal obligations</li>
+            <li>To send you transactional service emails directly related to data you have submitted — for example, to remind you to update or close a timeline you submitted while it remains pending. These emails are sent on the basis of contract performance (Art. 6(1)(b) GDPR) and are not marketing communications. You may delete your account at any time to stop receiving them.</li>
           </ul>
         </section>
 
