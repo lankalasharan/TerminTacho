@@ -17,9 +17,9 @@ function makeTokenHash(ip: string, userAgent: string, reportId: string): string 
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const reportId = params.id;
+  const { id: reportId } = await params;
 
   const ip = getClientIp(req) ?? "unknown";
   const userAgent = req.headers.get("user-agent") ?? "unknown";
