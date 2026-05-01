@@ -1,6 +1,50 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+// Reddit requires: platform:appid:version (by /u/username)
+const REDDIT_USER_AGENT = process.env.REDDIT_USER_AGENT ?? "script:termintacho-social-agent:1.0 (by /u/termintacho)";
+
+let _redditAccessToken: string | null = null;
+let _redditTokenExpiry = 0;
+
+async function getRedditAccessToken(): Promise<string | null> {
+  const clientId = process.env.REDDIT_CLIENT_ID;
+  const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+
+  // Reuse token if still valid (with 60s buffer)
+  if (_redditAccessToken && Date.now() < _redditTokenExpiry - 60_000) {
+    return _redditAccessToken;
+  }
+
+  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+  const response = await fetch("https://www.reddit.com/api/v1/access_token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "User-Agent": REDDIT_USER_AGENT,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!response.ok) {
+    console.warn(`[social-agent] Reddit OAuth token request failed (${response.status}). Falling back to public API.`);
+    return null;
+  }
+
+  const data = (await response.json()) as { access_token?: string; expires_in?: number };
+  if (!data.access_token) return null;
+
+  _redditAccessToken = data.access_token;
+  _redditTokenExpiry = Date.now() + (data.expires_in ?? 3600) * 1000;
+  return _redditAccessToken;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 interface RedditSearchListing {
   data?: {
     children?: Array<{
@@ -194,14 +238,19 @@ function toPriority(score: number): Priority | null {
 
 async function fetchRedditResults(subreddit: string, query: string, limit: number): Promise<CandidateDraft[]> {
   const encodedQuery = encodeURIComponent(query);
-  const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${encodedQuery}&restrict_sr=1&sort=new&t=month&limit=${limit}`;
+  const token = await getRedditAccessToken();
 
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": "TermintachoSocialResearchAgent/1.0",
-      Accept: "application/json",
-    },
-  });
+  // Use OAuth endpoint when token is available, fall back to public JSON API
+  const baseUrl = token ? "https://oauth.reddit.com" : "https://www.reddit.com";
+  const url = `${baseUrl}/r/${subreddit}/search.json?q=${encodedQuery}&restrict_sr=1&sort=new&t=month&limit=${limit}`;
+
+  const headers: Record<string, string> = {
+    "User-Agent": REDDIT_USER_AGENT,
+    Accept: "application/json",
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const response = await fetch(url, { headers });
 
   if (!response.ok) {
     throw new Error(`Reddit request failed (${response.status}) for r/${subreddit} query "${query}"`);
@@ -285,6 +334,8 @@ async function main() {
   const collected: CandidateDraft[] = [];
   const failures: string[] = [];
 
+  const delayMs = getEnvNumber("REDDIT_REQUEST_DELAY_MS", 1200); // stay well under Reddit's 60 req/min limit
+
   for (const subreddit of subreddits) {
     for (const query of queries) {
       try {
@@ -294,6 +345,7 @@ async function main() {
         const msg = error instanceof Error ? error.message : String(error);
         failures.push(msg);
       }
+      await sleep(delayMs);
     }
   }
 

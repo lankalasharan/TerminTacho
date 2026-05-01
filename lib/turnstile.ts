@@ -17,11 +17,13 @@ export async function verifyTurnstileToken(
   token: string | null | undefined,
   ipAddress?: string | null
 ): Promise<TurnstileVerificationResult> {
+  // Always bypass CAPTCHA in non-production environments
+  if (process.env.NODE_ENV !== "production") {
+    return { success: true, skipped: true };
+  }
+
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    if (process.env.NODE_ENV !== "production") {
-      return { success: true, skipped: true };
-    }
     return { success: false, errorCodes: ["missing-secret"] };
   }
 

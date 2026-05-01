@@ -302,7 +302,7 @@ export default function TimelinesPage() {
   });
 
   return (
-    <DataAccessGate>
+    <DataAccessGate softGate>
       <>
       <style>{`
         @media (max-width: 768px) {

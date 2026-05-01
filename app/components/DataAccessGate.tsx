@@ -7,6 +7,8 @@ import Link from "next/link";
 interface AccessGateProps {
   children: React.ReactNode;
   fallbackMessage?: string;
+  /** If true, shows a soft contribute CTA below content instead of blurring */
+  softGate?: boolean;
 }
 
 function BlurOverlay({
@@ -94,7 +96,7 @@ function BlurOverlay({
   );
 }
 
-export default function DataAccessGate({ children, fallbackMessage }: AccessGateProps) {
+export default function DataAccessGate({ children, fallbackMessage, softGate }: AccessGateProps) {
   const { data: session } = useSession();
   const [accessStatus, setAccessStatus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -137,16 +139,60 @@ export default function DataAccessGate({ children, fallbackMessage }: AccessGate
   }, [session]);
 
   if (loading) {
-    return (
-      <div style={{ padding: "40px 20px", textAlign: "center", maxWidth: "600px", margin: "0 auto" }}>
-        <p>Loading...</p>
-      </div>
-    );
+    return <>{children}</>;
   }
 
   // Full access — show content normally
   if (accessStatus?.hasFullAccess) {
     return <>{children}</>;
+  }
+
+  // Soft gate mode: show content + a gentle CTA below, no blur
+  if (softGate) {
+    return (
+      <>
+        {children}
+        <div
+          style={{
+            margin: "32px 0 0",
+            padding: "24px 28px",
+            borderRadius: "14px",
+            border: "1px dashed #d1d5db",
+            background: "#f9fafb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "16px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>
+              Want to see the latest reports?
+            </p>
+            <p style={{ fontSize: "13px", color: "#6b7280", margin: "4px 0 0" }}>
+              {fallbackMessage || "Add your own timeline to unlock the most recent community data for this city."}
+            </p>
+          </div>
+          <Link
+            href="/submit"
+            style={{
+              display: "inline-block",
+              padding: "10px 20px",
+              background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)",
+              color: "white",
+              borderRadius: "8px",
+              textDecoration: "none",
+              fontWeight: 700,
+              fontSize: "14px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Add my timeline →
+          </Link>
+        </div>
+      </>
+    );
   }
 
   // Not authenticated

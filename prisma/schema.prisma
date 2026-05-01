@@ -78,7 +78,7 @@ model ProcessType {
 }
 
 model Report {
-  id              String      @id @default(cuid())
+  id              String        @id @default(cuid())
   officeId        String
   processTypeId   String
   caseNumber      String?
@@ -90,20 +90,43 @@ model Report {
   userEmail       String?
   userId          String?
   ipAddress       String?
-  isOfficial      Boolean     @default(false)
-  createdAt       DateTime    @default(now())
-  helpful         Int         @default(0)
-  notHelpful      Int         @default(0)
-  confidenceScore Float       @default(0.5)
-  isStillWaiting  Boolean     @default(false)
-  office          Office      @relation(fields: [officeId], references: [id])
-  processType     ProcessType @relation(fields: [processTypeId], references: [id])
+  isOfficial      Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  helpful         Int           @default(0)
+  notHelpful      Int           @default(0)
+  confidenceScore Float         @default(0.5)
+  isStillWaiting  Boolean       @default(false)
+  // Trust system fields
+  trustLevel      String        @default("unverified") // "unverified" | "verified" | "community_verified" | "admin_digest"
+  matchCount      Int           @default(0)            // "Matches my experience" count
+  sentiment       String?                              // "fast" | "average" | "slow" quick pulse
+  isAdminSeeded   Boolean       @default(false)
+  sourceUrl       String?                              // source link for admin-seeded reports
+  adminNote       String?                              // admin's context note
+  // Reminder email opt-in (GDPR)
+  reminderOptIn   Boolean       @default(false)
+  reminderSentAt  DateTime?
+  office          Office        @relation(fields: [officeId], references: [id])
+  processType     ProcessType   @relation(fields: [processTypeId], references: [id])
+  reportMatches   ReportMatch[]
 
   @@unique([userId, caseNumber, processTypeId])
   @@index([officeId, processTypeId])
   @@index([createdAt])
   @@index([userId])
   @@index([confidenceScore])
+  @@index([trustLevel])
+}
+
+model ReportMatch {
+  id          String   @id @default(cuid())
+  reportId    String
+  tokenHash   String   // hashed session/cookie token — no PII stored
+  createdAt   DateTime @default(now())
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, tokenHash])
+  @@index([reportId])
 }
 
 model Review {

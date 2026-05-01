@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
   const medalColors = ["#F59E0B", "#9CA3AF", "#CD7C47"];
 
   return (
-    <DataAccessGate>
+    <DataAccessGate softGate>
       <>
       <section className="tt-hero">
         <div className="tt-container" style={{ textAlign: "center" }}>

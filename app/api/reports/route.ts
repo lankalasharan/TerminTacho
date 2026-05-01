@@ -66,6 +66,14 @@ export async function GET(req: Request) {
       decisionAt: true,
       status: true,
       createdAt: true,
+      isOfficial: true,
+      trustLevel: true,
+      matchCount: true,
+      sentiment: true,
+      isAdminSeeded: true,
+      sourceUrl: true,
+      adminNote: true,
+      notes: true,
       office: {
         select: {
           id: true,
@@ -97,21 +105,24 @@ export async function GET(req: Request) {
   });
 }
 
+function isAdminEmail(email: string): boolean {
+  const adminEmails = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+  return adminEmails.includes(email);
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-
-  // Require authentication for all submissions
-  if (!session?.user?.email) {
-    return NextResponse.json(
-      { error: "You must be logged in to submit a report." },
-      { status: 401 }
-    );
-  }
+  // Anonymous submissions are allowed — session is optional
+  const isAuthenticated = !!session?.user?.email;
+  const isAdmin = isAuthenticated && isAdminEmail(session!.user!.email!);
 
   const body = await req.json();
   const ipAddress = getClientIp(req);
 
-  const { officeId, officeCity, officeName, processTypeId, processTypeName, method, submittedAt, decisionAt, status, notes, caseNumber, turnstileToken } =
+  const { officeId, officeCity, officeName, processTypeId, processTypeName, method, submittedAt, decisionAt, status, notes, caseNumber, turnstileToken, sentiment, sourceUrl, adminNote, reminderOptIn } =
     body ?? {};
 
   const captchaCheck = await verifyTurnstileToken(turnstileToken, ipAddress);
@@ -122,7 +133,12 @@ export async function POST(req: Request) {
     );
   }
 
-  if ((!officeId && !officeCity) || (!processTypeId && !processTypeName) || !method || !submittedAt || !status) {
+  // For quick-pulse (sentiment-only) submissions, only office + sentiment required
+  const isQuickPulse = !!sentiment && !submittedAt;
+  if ((!officeId && !officeCity) || (!processTypeId && !processTypeName)) {
+    return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+  }
+  if (!isQuickPulse && (!method || !submittedAt || !status)) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
@@ -156,34 +172,38 @@ export async function POST(req: Request) {
     }
   }
 
-  // Validate timeline data
-  const validationErrors = validateTimelineSubmission({
-    submittedAt,
-    decisionAt,
-    status,
-  });
+  // Validate timeline data (skip for quick-pulse submissions)
+  if (!isQuickPulse) {
+    const validationErrors = validateTimelineSubmission({
+      submittedAt,
+      decisionAt,
+      status,
+    });
 
-  if (validationErrors.length > 0) {
-    return NextResponse.json(
-      { error: "Validation failed", details: validationErrors },
-      { status: 400 }
-    );
+    if (validationErrors.length > 0) {
+      return NextResponse.json(
+        { error: "Validation failed", details: validationErrors },
+        { status: 400 }
+      );
+    }
   }
 
   let userId: string | undefined;
   let userEmail: string | undefined;
 
-  // session is guaranteed here (auth check at top)
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { id: true, createdAt: true },
-  });
-  userId = user?.id;
-  userEmail = session.user.email;
+  if (isAuthenticated) {
+    const user = await prisma.user.findUnique({
+      where: { email: session!.user!.email! },
+      select: { id: true, createdAt: true },
+    });
+    userId = user?.id;
+    userEmail = session!.user!.email!;
+  }
 
-  if (user) {
+  if (userId) {
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
     // Track IP address
-    if (ipAddress) {
+    if (user && ipAddress) {
       await trackIpAddress(user.id, ipAddress);
     }
 
@@ -283,21 +303,32 @@ export async function POST(req: Request) {
     }
   }
 
+  // Determine trust level
+  let trustLevel = "unverified";
+  if (isAdmin) trustLevel = "admin_digest";
+  else if (isAuthenticated) trustLevel = "verified";
+
   const report = await prisma.report.create({
     data: {
       officeId: String(resolvedOfficeId),
       processTypeId: String(resolvedProcessTypeId),
       caseNumber: caseNumber ? String(caseNumber) : null,
-      method: String(method),
-      submittedAt: new Date(submittedAt),
+      method: isQuickPulse ? "quick_pulse" : String(method),
+      submittedAt: submittedAt ? new Date(submittedAt) : new Date(),
       decisionAt: decisionAt ? new Date(decisionAt) : null,
-      status: String(status),
+      status: isQuickPulse ? "pending" : String(status),
       notes: notes?.trim() ? String(notes).trim().slice(0, 500) : null,
       userId,
       userEmail,
       ipAddress,
       confidenceScore,
-      isOfficial: false,
+      isOfficial: isAdmin ? true : false,
+      trustLevel,
+      sentiment: sentiment ? String(sentiment) : null,
+      isAdminSeeded: isAdmin,
+      sourceUrl: isAdmin && sourceUrl ? String(sourceUrl).slice(0, 500) : null,
+      adminNote: isAdmin && adminNote ? String(adminNote).trim().slice(0, 500) : null,
+      reminderOptIn: isAuthenticated && reminderOptIn === true,
     },
   });
 

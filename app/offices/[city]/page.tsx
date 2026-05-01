@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import DataAccessGate from "../../components/DataAccessGate";
 import TurnstileWidget from "../../components/Turnstile";
+import TrustBadge from "../../components/TrustBadge";
 
 interface OfficeData {
   office: {
@@ -173,7 +174,7 @@ export default function OfficePage() {
   };
 
   return (
-    <DataAccessGate>
+    <DataAccessGate softGate>
       <>
       <section className="tt-hero">
         <div className="tt-container">
@@ -599,8 +600,9 @@ export default function OfficePage() {
                         <span>{processingDays} days processing time</span>
                       </div>
                     )}
-                    <div style={{ fontSize: "12px", color: "var(--tt-muted)", marginTop: "8px" }}>
-                      Submitted {new Date(report.submittedAt).toLocaleDateString()}
+                    <div style={{ fontSize: "12px", color: "var(--tt-muted)", marginTop: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
+                      <span>Submitted {new Date(report.submittedAt).toLocaleDateString()}</span>
+                      <TrustBadge reportId={report.id} trustLevel={report.trustLevel ?? "unverified"} matchCount={report.matchCount ?? 0} isAdminSeeded={report.isAdminSeeded} sourceUrl={report.sourceUrl} adminNote={report.adminNote} compact />
                     </div>
                     {report.notes && (
                       <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--tt-text-strong)", display: "flex", alignItems: "flex-start", gap: "6px" }}>
