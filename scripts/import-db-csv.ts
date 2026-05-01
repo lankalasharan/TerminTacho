@@ -1,5 +1,5 @@
-import { PrismaClient, $Enums } from "@prisma/client";
-type VoteTargetType = $Enums.VoteTargetType;
+import { PrismaClient } from "@prisma/client";
+type VoteTargetType = "report" | "review";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 

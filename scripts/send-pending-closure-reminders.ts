@@ -16,7 +16,7 @@ async function main() {
   const shouldSend = hasFlag("--send");
   const limit = parseLimit();
 
-  const pendingUsers = await prisma.report.findMany({
+  const pendingUsers: Array<{ userEmail: string | null }> = await prisma.report.findMany({
     where: {
       status: "pending",
       userEmail: { not: null },
@@ -28,15 +28,15 @@ async function main() {
     ...(limit ? { take: limit } : {}),
   });
 
-  const recipients = pendingUsers
-    .map((item) => item.userEmail)
-    .filter((email): email is string => Boolean(email));
+  const recipients: string[] = pendingUsers
+    .map((item: { userEmail: string | null }) => item.userEmail)
+    .filter((email: string | null): email is string => Boolean(email));
 
   console.log(`Found ${recipients.length} unique pending user emails.`);
 
   if (!shouldSend) {
     console.log("Dry run only. No emails sent. Use --send to send emails.");
-    recipients.forEach((email) => console.log(`- ${email}`));
+    recipients.forEach((email: string) => console.log(`- ${email}`));
     return;
   }
 
