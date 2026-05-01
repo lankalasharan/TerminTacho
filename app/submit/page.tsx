@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
@@ -275,15 +275,15 @@ export default function SubmitPage() {
               {currentStep === "office" && (
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "22px" }}>{sentiment === "fast" ? "ðŸŸ¢" : sentiment === "average" ? "ðŸŸ¡" : "ðŸ”´"}</span>
+                    <span style={{ fontSize: "22px" }}>{sentiment === "fast" ? "🟢" : sentiment === "average" ? "🟡" : "🔴"}</span>
                     <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111827", margin: 0 }}>Which office?</h2>
                   </div>
-                  <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "20px" }}>Select the AuslÃ¤nderbehÃ¶rde where you applied.</p>
+                  <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "20px" }}>Select the Ausländerbehörde where you applied.</p>
                   <div className="tt-submit-field">
                     <div className="tt-select-wrap">
                       <select value={officeId} onChange={(e) => { setOfficeId(e.target.value); if (e.target.value) setCustomCity(""); }} className="tt-submit-input tt-submit-select">
-                        <option value="">Select an officeâ€¦</option>
-                        {offices.map((o) => <option key={o.id} value={o.id}>{o.city} â€” {o.name}</option>)}
+                        <option value="">Select an office…</option>
+                        {offices.map((o) => <option key={o.id} value={o.id}>{o.city} — {o.name}</option>)}
                       </select>
                       <span className="tt-select-caret" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg></span>
                     </div>
@@ -293,8 +293,8 @@ export default function SubmitPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                    <button type="button" onClick={() => setCurrentStep("sentiment")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>â† Back</button>
-                    <button type="button" onClick={handleOfficeNext} disabled={!officeId && !customCity.trim()} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: (!officeId && !customCity.trim()) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!officeId && !customCity.trim()) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!officeId && !customCity.trim()) ? "not-allowed" : "pointer" }}>Continue â†’</button>
+                    <button type="button" onClick={() => setCurrentStep("sentiment")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
+                    <button type="button" onClick={handleOfficeNext} disabled={!officeId && !customCity.trim()} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: (!officeId && !customCity.trim()) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!officeId && !customCity.trim()) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!officeId && !customCity.trim()) ? "not-allowed" : "pointer" }}>Continue →</button>
                   </div>
                 </div>
               )}
@@ -307,7 +307,7 @@ export default function SubmitPage() {
                   <div className="tt-submit-field">
                     <div className="tt-select-wrap">
                       <select value={processTypeId} onChange={(e) => { setProcessTypeId(e.target.value); if (e.target.value) setCustomProcessType(""); }} className="tt-submit-input tt-submit-select">
-                        <option value="">Select a processâ€¦</option>
+                        <option value="">Select a process…</option>
                         {processTypes.map((p) => <option key={p.id} value={p.id}>{normalizeProcessLabel(p.name)}</option>)}
                       </select>
                       <span className="tt-select-caret" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg></span>
@@ -318,8 +318,8 @@ export default function SubmitPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                    <button type="button" onClick={() => setCurrentStep("office")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>â† Back</button>
-                    <button type="button" onClick={handleProcessNext} disabled={!processTypeId && !customProcessType.trim()} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: (!processTypeId && !customProcessType.trim()) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!processTypeId && !customProcessType.trim()) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!processTypeId && !customProcessType.trim()) ? "not-allowed" : "pointer" }}>Continue â†’</button>
+                    <button type="button" onClick={() => setCurrentStep("office")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
+                    <button type="button" onClick={handleProcessNext} disabled={!processTypeId && !customProcessType.trim()} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: (!processTypeId && !customProcessType.trim()) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!processTypeId && !customProcessType.trim()) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!processTypeId && !customProcessType.trim()) ? "not-allowed" : "pointer" }}>Continue →</button>
                   </div>
                 </div>
               )}
@@ -328,7 +328,7 @@ export default function SubmitPage() {
               {currentStep === "dates" && (
                 <div>
                   <div style={{ background: "#f0fdf4", border: "1px solid #a7f3d0", borderRadius: "8px", padding: "12px 16px", marginBottom: "20px", fontSize: "13px", color: "#065f46" }}>
-                    âœ“ Your experience has been recorded. Add exact dates for more accurate predictions.
+                    ✓ Your experience has been recorded. Add exact dates for more accurate predictions.
                   </div>
                   <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "8px", color: "#111827" }}>Add exact dates?</h2>
                   <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "20px" }}>Helps calculate precise wait times. Completely optional.</p>
@@ -366,9 +366,9 @@ export default function SubmitPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                    <button type="button" onClick={() => setCurrentStep("process")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>â† Back</button>
+                    <button type="button" onClick={() => setCurrentStep("process")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
                     <button type="button" onClick={() => setCurrentStep("notes")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#6b7280", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>Skip</button>
-                    <button type="button" onClick={() => setCurrentStep("notes")} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Continue â†’</button>
+                    <button type="button" onClick={() => setCurrentStep("notes")} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Continue →</button>
                   </div>
                 </div>
               )}
@@ -395,9 +395,9 @@ export default function SubmitPage() {
                     </div>
                   )}
                   <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                    <button type="button" onClick={() => setCurrentStep("dates")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>â† Back</button>
+                    <button type="button" onClick={() => setCurrentStep("dates")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
                     <button type="button" onClick={() => setCurrentStep("submit")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#6b7280", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>Skip</button>
-                    <button type="button" onClick={() => setCurrentStep("submit")} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Continue â†’</button>
+                    <button type="button" onClick={() => setCurrentStep("submit")} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Continue →</button>
                   </div>
                 </div>
               )}
@@ -417,7 +417,7 @@ export default function SubmitPage() {
                   {sessionStatus === "authenticated" && (
                     <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "16px", cursor: "pointer", fontSize: "13px", color: "#374151" }}>
                       <input type="checkbox" checked={reminderOptIn} onChange={(e) => setReminderOptIn(e.target.checked)} style={{ marginTop: "2px", cursor: "pointer" }} />
-                      <span>Email me in ~8 weeks to confirm my outcome â€” helps others see if the data is still accurate. Unsubscribe any time.</span>
+                      <span>Email me in ~8 weeks to confirm my outcome — helps others see if the data is still accurate. Unsubscribe any time.</span>
                     </label>
                   )}
                   {siteKey && (
@@ -439,11 +439,11 @@ export default function SubmitPage() {
                     </button>
                     {sessionStatus !== "authenticated" && (
                       <button type="button" onClick={() => signIn(undefined, { callbackUrl: "/submit" })} style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "2px solid #059669", background: "white", color: "#059669", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>
-                        Sign in to submit as Verified â†’
+                        Sign in to submit as Verified →
                       </button>
                     )}
                   </div>
-                  <button type="button" onClick={() => setCurrentStep("notes")} style={{ marginTop: "10px", background: "none", border: "none", color: "#9ca3af", fontSize: "13px", cursor: "pointer", padding: "4px 0" }}>â† Back</button>
+                  <button type="button" onClick={() => setCurrentStep("notes")} style={{ marginTop: "10px", background: "none", border: "none", color: "#9ca3af", fontSize: "13px", cursor: "pointer", padding: "4px 0" }}>← Back</button>
                 </form>
               )}
             </div>
