@@ -41,6 +41,13 @@ export default function MenuBar() {
             <path d="M6 15l4-4 3 3 5-6" />
           </svg>
         );
+      case "predict":
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 3" />
+          </svg>
+        );
       case "pencil":
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={iconStyle} aria-hidden="true">
@@ -333,6 +340,31 @@ export default function MenuBar() {
               <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
                 <MenuIcon name="chart" />
                 <span>Browse Timelines</span>
+              </span>
+            </Link>
+
+            <Link
+              href="/predict"
+              onClick={() => setIsOpen(false)}
+              className="menu-link"
+              style={{
+                padding: "12px 16px",
+                fontSize: "16px",
+                fontWeight: 700,
+                color: "var(--tt-primary-strong)",
+                textDecoration: "none",
+                borderRadius: "8px",
+                transition: "background 0.2s",
+                display: "block",
+                background: "rgba(47, 183, 178, 0.06)",
+                border: "1px solid rgba(47, 183, 178, 0.2)",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "rgba(47, 183, 178, 0.12)"}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(47, 183, 178, 0.06)"; }}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
+                <MenuIcon name="predict" />
+                <span>Predict Wait Time</span>
               </span>
             </Link>
 

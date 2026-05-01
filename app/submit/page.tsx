@@ -63,7 +63,7 @@ const SENTIMENT_OPTIONS = [
   },
 ];
 
-const STEPS = ["sentiment", "office", "process", "dates", "notes", "submit"] as const;
+const STEPS = ["sentiment", "process", "dates", "notes", "submit"] as const;
 type Step = typeof STEPS[number];
 
 export default function SubmitPage() {
@@ -132,11 +132,11 @@ export default function SubmitPage() {
 
   function handleSentimentSelect(value: "fast" | "average" | "slow") {
     setSentiment(value);
-    setCurrentStep("office");
+    // Don't auto-advance — office/city is now on this same step
   }
 
-  function handleOfficeNext() {
-    if (!officeId && !customCity.trim()) return;
+  function handleSentimentStepNext() {
+    if (!sentiment || (!officeId && !customCity.trim())) return;
     setCurrentStep("process");
   }
 
@@ -248,17 +248,17 @@ export default function SubmitPage() {
                 </div>
               )}
 
-              {/* Step 1: Sentiment */}
+              {/* Step 1: Sentiment + Office */}
               {currentStep === "sentiment" && (
                 <div>
-                  <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "8px", color: "#111827" }}>How is the wait at your office?</h2>
-                  <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "28px" }}>One tap is all it takes to help others.</p>
+                  <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "6px", color: "#111827" }}>How is the wait at your office?</h2>
+                  <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "22px" }}>Just your general feeling — one tap is enough to help others.</p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
                     {SENTIMENT_OPTIONS.map((opt) => (
                       <button key={opt.value} type="button" onClick={() => handleSentimentSelect(opt.value as any)}
-                        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: `2px solid ${opt.border}`, background: opt.bg, cursor: "pointer", transition: "all 0.15s" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = opt.hoverBorder; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = opt.border; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
+                        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: sentiment === opt.value ? `2px solid ${opt.hoverBorder}` : `2px solid ${opt.border}`, background: sentiment === opt.value ? opt.bg : "white", cursor: "pointer", transition: "all 0.15s", boxShadow: sentiment === opt.value ? `0 0 0 3px ${opt.hoverBorder}30` : "none" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = opt.hoverBorder; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = sentiment === opt.value ? opt.hoverBorder : opt.border; e.currentTarget.style.boxShadow = sentiment === opt.value ? `0 0 0 3px ${opt.hoverBorder}30` : "none"; }}
                       >
                         {opt.icon}
                         <div style={{ textAlign: "center" }}>
@@ -268,34 +268,30 @@ export default function SubmitPage() {
                       </button>
                     ))}
                   </div>
-                </div>
-              )}
 
-              {/* Step 2: Office */}
-              {currentStep === "office" && (
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "22px" }}>{sentiment === "fast" ? "🟢" : sentiment === "average" ? "🟡" : "🔴"}</span>
-                    <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111827", margin: 0 }}>Which office?</h2>
-                  </div>
-                  <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "20px" }}>Select the Ausländerbehörde where you applied.</p>
-                  <div className="tt-submit-field">
-                    <div className="tt-select-wrap">
+                  {/* Context note */}
+                  <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "14px", textAlign: "center", lineHeight: 1.5 }}>
+                    This is just your general feeling. Continue below to add exact dates for more accurate community data.
+                  </p>
+
+                  {/* Office / City selection */}
+                  <div style={{ marginTop: "20px", borderTop: "1px solid #e5e7eb", paddingTop: "20px" }}>
+                    <label style={{ fontSize: "14px", fontWeight: 600, color: "#374151", marginBottom: "8px", display: "block" }}>Which Ausländerbehörde / city?</label>
+                    <div className="tt-select-wrap" style={{ marginBottom: "10px" }}>
                       <select value={officeId} onChange={(e) => { setOfficeId(e.target.value); if (e.target.value) setCustomCity(""); }} className="tt-submit-input tt-submit-select">
                         <option value="">Select an office…</option>
                         {offices.map((o) => <option key={o.id} value={o.id}>{o.city} — {o.name}</option>)}
                       </select>
                       <span className="tt-select-caret" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg></span>
                     </div>
-                    <div className="tt-submit-subfields" style={{ marginTop: "12px" }}>
-                      <label className="tt-submit-subtitle">Can't find your city?</label>
-                      <input type="text" value={customCity} onChange={(e) => { setCustomCity(e.target.value); if (e.target.value.trim()) setOfficeId(""); }} placeholder="City or town (e.g., Heidelberg)" className="tt-submit-input" />
-                    </div>
+                    <label className="tt-submit-subtitle" style={{ marginBottom: "6px", display: "block" }}>Can't find your city?</label>
+                    <input type="text" value={customCity} onChange={(e) => { setCustomCity(e.target.value); if (e.target.value.trim()) setOfficeId(""); }} placeholder="City or town (e.g., Heidelberg)" className="tt-submit-input" />
                   </div>
-                  <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                    <button type="button" onClick={() => setCurrentStep("sentiment")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
-                    <button type="button" onClick={handleOfficeNext} disabled={!officeId && !customCity.trim()} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: (!officeId && !customCity.trim()) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!officeId && !customCity.trim()) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!officeId && !customCity.trim()) ? "not-allowed" : "pointer" }}>Continue →</button>
-                  </div>
+
+                  <button type="button" onClick={handleSentimentStepNext} disabled={!sentiment || (!officeId && !customCity.trim())}
+                    style={{ marginTop: "20px", width: "100%", padding: "12px 18px", borderRadius: "8px", border: "none", background: (!sentiment || (!officeId && !customCity.trim())) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!sentiment || (!officeId && !customCity.trim())) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!sentiment || (!officeId && !customCity.trim())) ? "not-allowed" : "pointer" }}>
+                    Continue →
+                  </button>
                 </div>
               )}
 
@@ -318,13 +314,13 @@ export default function SubmitPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                    <button type="button" onClick={() => setCurrentStep("office")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
+                    <button type="button" onClick={() => setCurrentStep("sentiment")} style={{ padding: "10px 18px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", color: "#374151", fontWeight: 600, fontSize: "14px", cursor: "pointer" }}>← Back</button>
                     <button type="button" onClick={handleProcessNext} disabled={!processTypeId && !customProcessType.trim()} style={{ flex: 1, padding: "10px 18px", borderRadius: "8px", border: "none", background: (!processTypeId && !customProcessType.trim()) ? "#e5e7eb" : "linear-gradient(135deg, var(--tt-primary-strong) 0%, var(--tt-primary) 100%)", color: (!processTypeId && !customProcessType.trim()) ? "#9ca3af" : "white", fontWeight: 700, fontSize: "14px", cursor: (!processTypeId && !customProcessType.trim()) ? "not-allowed" : "pointer" }}>Continue →</button>
                   </div>
                 </div>
               )}
 
-              {/* Step 4: Dates (optional) */}
+              {/* Step 3: Dates (optional) */}
               {currentStep === "dates" && (
                 <div>
                   <div style={{ background: "#f0fdf4", border: "1px solid #a7f3d0", borderRadius: "8px", padding: "12px 16px", marginBottom: "20px", fontSize: "13px", color: "#065f46" }}>

@@ -16,6 +16,8 @@ export default function Home() {
     reports: 0,
     users: 0,
   });
+  const [predictProcessId, setPredictProcessId] = useState("");
+  const [processTypes, setProcessTypes] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     async function loadMetrics() {
@@ -32,8 +34,18 @@ export default function Home() {
         console.error("Failed to load metrics:", error);
       }
     }
-
     loadMetrics();
+  }, []);
+
+  useEffect(() => {
+    async function loadProcessTypes() {
+      try {
+        const res = await fetch("/api/options");
+        const data = await res.json();
+        setProcessTypes(data.processTypes || []);
+      } catch { /* non-fatal */ }
+    }
+    loadProcessTypes();
   }, []);
 
   useEffect(() => {
@@ -255,6 +267,67 @@ export default function Home() {
                 <OdometerNumber value={metrics.users} delay={450} />
               </strong>
               <div style={{ marginTop: "8px", color: "var(--tt-text-muted)", fontSize: "14px" }}>Anonymous members</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Predictor Widget */}
+      <section className="tt-section" style={{ paddingTop: 0 }}>
+        <div className="tt-container">
+          <div style={{
+            background: "linear-gradient(135deg, #1a3a5c 0%, #1e4976 100%)",
+            borderRadius: "20px",
+            padding: "clamp(24px, 4vw, 48px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "32px",
+            flexWrap: "wrap",
+          }}>
+            <div style={{ flex: 1, minWidth: "220px" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.9)", borderRadius: "20px", padding: "4px 12px", fontSize: "12px", fontWeight: 700, marginBottom: "14px", border: "1px solid rgba(255,255,255,0.15)" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
+                Community-powered estimator
+              </div>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 800, color: "white", lineHeight: 1.2, margin: "0 0 10px" }}>Predict your wait time</h2>
+              <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "15px", margin: 0, lineHeight: 1.6 }}>
+                Pick your process type and see how long others have waited — based on real community reports.
+              </p>
+            </div>
+            <div style={{ flex: 1, minWidth: "260px", maxWidth: "400px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ position: "relative" }}>
+                  <select
+                    value={predictProcessId}
+                    onChange={(e) => setPredictProcessId(e.target.value)}
+                    style={{ width: "100%", padding: "13px 16px", paddingRight: "36px", borderRadius: "10px", border: "none", fontSize: "14px", fontWeight: 600, color: predictProcessId ? "#111827" : "#9ca3af", background: "white", appearance: "none", cursor: "pointer" }}
+                  >
+                    <option value="">Select your process type…</option>
+                    {processTypes.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name.replace(/\p{Extended_Pictographic}/gu, "").trim()}</option>
+                    ))}
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                </div>
+                <Link
+                  href={predictProcessId ? `/predict?processTypeId=${predictProcessId}` : "/predict"}
+                  style={{
+                    textAlign: "center",
+                    textDecoration: "none",
+                    padding: "13px",
+                    borderRadius: "10px",
+                    fontWeight: 700,
+                    fontSize: "15px",
+                    transition: "all 0.2s",
+                    background: predictProcessId ? "white" : "rgba(255,255,255,0.25)",
+                    color: predictProcessId ? "#1a3a5c" : "rgba(255,255,255,0.8)",
+                  }}
+                >
+                  {predictProcessId ? "See my wait time →" : "Open predictor →"}
+                </Link>
+              </div>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", margin: "10px 0 0", textAlign: "center" }}>Anonymous · No sign-in required</p>
             </div>
           </div>
         </div>

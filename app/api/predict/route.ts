@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const processTypeId = searchParams.get("processTypeId");
   const officeId = searchParams.get("officeId");
+  const city = searchParams.get("city");
 
   if (!processTypeId) {
     return NextResponse.json({ error: "processTypeId is required" }, { status: 400 });
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
     decisionAt: { not: null },
   };
   if (officeId) where.officeId = officeId;
+  else if (city) where.office = { city };
 
   const reports = await prisma.report.findMany({
     where,
@@ -61,12 +63,15 @@ export async function GET(req: NextRequest) {
   }
 
   // Sentiment-only count (quick pulses without dates)
+  const sentimentWhere: Record<string, unknown> = {
+    processTypeId,
+    sentiment: { not: null },
+  };
+  if (officeId) sentimentWhere.officeId = officeId;
+  else if (city) sentimentWhere.office = { city };
+
   const sentimentOnly = await prisma.report.findMany({
-    where: {
-      processTypeId,
-      ...(officeId ? { officeId } : {}),
-      sentiment: { not: null },
-    },
+    where: sentimentWhere,
     select: { sentiment: true },
     take: 500,
   });

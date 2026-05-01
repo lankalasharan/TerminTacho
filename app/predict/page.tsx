@@ -33,7 +33,7 @@ const CONFIDENCE_CONFIG = {
 export default function PredictPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [processTypes, setProcessTypes] = useState<ProcessType[]>([]);
-  const [officeId, setOfficeId] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
   const [processTypeId, setProcessTypeId] = useState("");
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,14 @@ export default function PredictPage() {
       setProcessTypes(data.processTypes || []);
     }
     load();
+    // Pre-select processTypeId from URL query param (e.g. from homepage widget)
+    const params = new URLSearchParams(window.location.search);
+    const qProcess = params.get("processTypeId");
+    if (qProcess) setProcessTypeId(qProcess);
   }, []);
+
+  // Deduplicate cities for the dropdown
+  const uniqueCities = Array.from(new Map(offices.map((o) => [o.city, o])).values());
 
   async function handlePredict() {
     if (!processTypeId) return;
@@ -56,7 +63,7 @@ export default function PredictPage() {
     setPrediction(null);
     try {
       const params = new URLSearchParams({ processTypeId });
-      if (officeId) params.set("officeId", officeId);
+      if (cityFilter) params.set("city", cityFilter);
       const res = await fetch(`/api/predict?${params.toString()}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Could not load prediction.");
@@ -119,13 +126,13 @@ export default function PredictPage() {
                   </label>
                   <div className="tt-select-wrap">
                     <select
-                      value={officeId}
-                      onChange={(e) => setOfficeId(e.target.value)}
+                      value={cityFilter}
+                      onChange={(e) => setCityFilter(e.target.value)}
                       className="tt-submit-input tt-submit-select"
                     >
                       <option value="">All cities</option>
-                      {offices.map((o) => (
-                        <option key={o.id} value={o.id}>{o.city}</option>
+                      {uniqueCities.map((o) => (
+                        <option key={o.city} value={o.city}>{o.city}</option>
                       ))}
                     </select>
                     <span className="tt-select-caret" aria-hidden="true">
@@ -241,13 +248,12 @@ export default function PredictPage() {
                   )}
 
                   {/* Data transparency note */}
-                  <div style={{ fontSize: "12px", color: "#9ca3af", borderTop: "1px solid #e5e7eb", paddingTop: "14px", display: "flex", alignItems: "flex-start", gap: "6px" }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: "1px", flexShrink: 0 }} aria-hidden="true">
+                  <div style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "8px", padding: "12px 14px", display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#92400e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: "1px", flexShrink: 0 }} aria-hidden="true">
                       <circle cx="12" cy="12" r="9" /><path d="M12 8v4" /><path d="M12 16h.01" />
                     </svg>
-                    <span>
-                      Estimates are based on community-submitted reports ({prediction.verifiedCount} verified, {prediction.count - prediction.verifiedCount} unverified).
-                      Actual times may vary. <Link href="/submit" style={{ color: "var(--tt-primary)", textDecoration: "none", fontWeight: 600 }}>Add your experience →</Link>
+                    <span style={{ fontSize: "13px", color: "#92400e", lineHeight: 1.5 }}>
+                      Based on only <strong>{prediction.count} recent {prediction.count === 1 ? "report" : "reports"}</strong> — this gives you the feel but not a reliable range.{" "}<Link href="/submit" style={{ color: "#92400e", fontWeight: 700, textDecoration: "underline" }}>Add your experience →</Link> to help improve accuracy for everyone.
                     </span>
                   </div>
                 </div>
@@ -255,9 +261,18 @@ export default function PredictPage() {
             )}
 
             {!prediction && !loading && (
-              <div style={{ padding: "28px", borderTop: "1px solid #e5e7eb", marginTop: "20px", textAlign: "center" }}>
-                <div style={{ fontSize: "40px", marginBottom: "10px" }}>⏳</div>
-                <p style={{ fontSize: "14px", color: "#9ca3af" }}>Select a process type above to see a prediction.</p>
+              <div style={{ padding: "24px 28px 28px" }}>
+                <div style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "10px", padding: "14px 16px", display: "flex", gap: "10px", alignItems: "flex-start", marginBottom: "20px" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#92400e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: "1px", flexShrink: 0 }} aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+                  <div>
+                    <div style={{ fontSize: "13px", fontWeight: 700, color: "#92400e", marginBottom: "3px" }}>Early-stage data</div>
+                    <div style={{ fontSize: "13px", color: "#92400e", lineHeight: 1.5 }}>We currently have only a handful of recent reports — this gives you the feel, not a reliable range.{" "}<Link href="/submit" style={{ color: "#92400e", fontWeight: 700 }}>Add your experience</Link> to unlock better predictions for everyone.</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>⏳</div>
+                  <p style={{ fontSize: "14px", color: "#9ca3af" }}>Select a process type above to see a prediction.</p>
+                </div>
               </div>
             )}
           </div>
