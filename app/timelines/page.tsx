@@ -111,6 +111,45 @@ function getProcessIcon(label: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
+function getCanonicalProcessKey(label: string): string {
+  return normalizeProcessLabel(label)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getSliderMax(days: number[]): number {
+  if (days.length === 0) return 30;
+  const max = Math.max(...days);
+  return Math.max(30, Math.ceil(max / 10) * 10);
+}
+
+function getStatusFromRatio(ratio: number): { label: string; stripe: string; badgeBg: string; badgeColor: string } {
+  if (ratio <= 0.4) {
+    return {
+      label: "ON TRACK",
+      stripe: "#10b981",
+      badgeBg: "#d1fae5",
+      badgeColor: "#065f46",
+    };
+  }
+  if (ratio <= 0.75) {
+    return {
+      label: "PROCESSING",
+      stripe: "#f59e0b",
+      badgeBg: "#fef3c7",
+      badgeColor: "#92400e",
+    };
+  }
+  return {
+    label: "DELAYED",
+    stripe: "#ef4444",
+    badgeBg: "#fee2e2",
+    badgeColor: "#991b1b",
+  };
+}
+
 export default function TimelinesPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [allCities, setAllCities] = useState<string[]>([]);
@@ -294,6 +333,82 @@ export default function TimelinesPage() {
     const avg = getWeightedAverageDays(processReports);
     processStats[process] = { count: processReports.length, avgDays: avg };
   });
+
+  const mergedProcessCards = useMemo(() => {
+    type Bucket = {
+      key: string;
+      displayName: string;
+      names: Set<string>;
+      reports: number;
+      dayPoints: number[];
+      weightedDays: number[];
+      weights: number[];
+    };
+
+    const map = new Map<string, Bucket>();
+
+    filteredReports.forEach((report) => {
+      const rawName = report.processType.name;
+      const key = getCanonicalProcessKey(rawName);
+      if (!key) return;
+
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          displayName: normalizeProcessLabel(rawName),
+          names: new Set<string>([rawName]),
+          reports: 0,
+          dayPoints: [],
+          weightedDays: [],
+          weights: [],
+        });
+      }
+
+      const bucket = map.get(key)!;
+      bucket.reports += 1;
+      bucket.names.add(rawName);
+
+      if (!report.decisionAt) return;
+      const days = calculateDays(report.submittedAt, report.decisionAt);
+      if (days === null || days < 0) return;
+
+      bucket.dayPoints.push(days);
+      bucket.weightedDays.push(days);
+      bucket.weights.push(getReportWeight({ submittedAt: report.submittedAt, isOfficial: report.isOfficial }));
+    });
+
+    const result = Array.from(map.values())
+      .map((bucket) => {
+        if (bucket.dayPoints.length === 0) return null;
+        const avg = calculateWeightedAverage(bucket.weightedDays, bucket.weights);
+        const uniqueSortedPoints = [...bucket.dayPoints].sort((a, b) => a - b);
+        const p50 = getPercentile(uniqueSortedPoints, 50);
+        const category = getProcessCategory(bucket.displayName);
+
+        return {
+          key: bucket.key,
+          name: bucket.displayName,
+          aliases: Array.from(bucket.names),
+          category,
+          reports: bucket.reports,
+          dayPoints: uniqueSortedPoints,
+          avgDays: avg,
+          medianDays: p50,
+          minDays: uniqueSortedPoints[0],
+          maxDays: uniqueSortedPoints[uniqueSortedPoints.length - 1],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => a.avgDays - b.avgDays);
+
+    const byCategory: Record<string, typeof result> = {};
+    result.forEach((item) => {
+      if (!byCategory[item.category]) byCategory[item.category] = [];
+      byCategory[item.category].push(item);
+    });
+
+    return byCategory;
+  }, [filteredReports]);
 
   return (
     <DataAccessGate softGate>
@@ -1166,103 +1281,26 @@ export default function TimelinesPage() {
               </div>
             )}
 
-            {/* Process Type Breakdown - Grouped by Category */}
-            {!processFilter && processTypes.length > 0 && (() => {
-              // Group process types by category
-              const categorizedProcesses: Record<string, Array<{ name: string; stats: { count: number; avgDays: number | null } }>> = {};
-              
-              processTypes
-                .filter(process => processStats[process].avgDays !== null)
-                .forEach(process => {
-                  const category = getProcessCategory(process);
-                  if (!categorizedProcesses[category]) {
-                    categorizedProcesses[category] = [];
-                  }
-                  categorizedProcesses[category].push({
-                    name: process,
-                    stats: processStats[process]
-                  });
-                });
-
-              // Sort processes within each category by avgDays
-              Object.keys(categorizedProcesses).forEach(cat => {
-                categorizedProcesses[cat].sort((a, b) => (a.stats.avgDays || 0) - (b.stats.avgDays || 0));
-              });
-
-              // Calculate national average for comparison
-              const nationalAvgDays = avgDays;
-
-              // Category metadata
-              const categoryMeta: Record<string, { label: string; color: string; iconSvg: string }> = {
-                student: {
-                  label: "Student & Education",
-                  color: "var(--tt-primary-strong)",
-                  iconSvg: getCategoryIconSvg("student")
-                },
-                work: {
-                  label: "Work & Employment",
-                  color: "var(--tt-success)",
-                  iconSvg: getCategoryIconSvg("work")
-                },
-                family: {
-                  label: "Family & Relationships",
-                  color: "#ec4899",
-                  iconSvg: getCategoryIconSvg("family")
-                },
-                residence: {
-                  label: "Residence & Settlement",
-                  color: "#8b5cf6",
-                  iconSvg: getCategoryIconSvg("residence")
-                },
-                business: {
-                  label: "Business & Investment",
-                  color: "#f59e0b",
-                  iconSvg: getCategoryIconSvg("business")
-                },
-                document: {
-                  label: "Documents & Registration",
-                  color: "#06b6d4",
-                  iconSvg: getCategoryIconSvg("document")
-                },
-                citizenship: {
-                  label: "Citizenship",
-                  color: "#ef4444",
-                  iconSvg: getCategoryIconSvg("citizenship")
-                },
-                finance: {
-                  label: "Finance & Banking",
-                  color: "#10b981",
-                  iconSvg: getCategoryIconSvg("finance")
-                },
-                transport: {
-                  label: "Transport & Vehicles",
-                  color: "#6366f1",
-                  iconSvg: getCategoryIconSvg("transport")
-                },
+            {/* Process Type Breakdown - Static SLA Slider Cards */}
+            {!processFilter && Object.keys(mergedProcessCards).length > 0 && (() => {
+              const categoryMeta: Record<string, { label: string; iconSvg: string }> = {
+                student: { label: "Student & Education", iconSvg: getCategoryIconSvg("student") },
+                work: { label: "Work & Employment", iconSvg: getCategoryIconSvg("work") },
+                family: { label: "Family & Relationships", iconSvg: getCategoryIconSvg("family") },
+                residence: { label: "Residence & Settlement", iconSvg: getCategoryIconSvg("residence") },
+                business: { label: "Business & Investment", iconSvg: getCategoryIconSvg("business") },
+                document: { label: "Documents & Registration", iconSvg: getCategoryIconSvg("document") },
+                citizenship: { label: "Citizenship", iconSvg: getCategoryIconSvg("citizenship") },
+                finance: { label: "Finance & Banking", iconSvg: getCategoryIconSvg("finance") },
+                transport: { label: "Transport & Vehicles", iconSvg: getCategoryIconSvg("transport") },
               };
 
+              const categoryOrder = ["work", "student", "family", "residence", "business", "document", "citizenship", "finance", "transport"];
               const toggleCategory = (category: string) => {
-                setExpandedCategories(prev => ({
+                setExpandedCategories((prev) => ({
                   ...prev,
-                  [category]: !prev[category]
+                  [category]: !prev[category],
                 }));
-              };
-
-              // Helper function to get performance color
-              const getPerformanceColor = (avgDays: number, nationalAvg: number | null) => {
-                if (!nationalAvg) return "var(--tt-primary)";
-                const diff = avgDays - nationalAvg;
-                if (diff <= -10) return "var(--tt-success)"; // Much faster
-                if (diff <= 0) return "#10b981"; // Faster
-                if (diff <= 10) return "#f59e0b"; // Slower
-                return "#ef4444"; // Much slower
-              };
-
-              // Helper function to get confidence badge
-              const getConfidenceBadge = (count: number) => {
-                if (count >= 10) return { label: "High Confidence", color: "#10b981", bg: "#ecfdf5" };
-                if (count >= 4) return { label: "Medium Confidence", color: "#f59e0b", bg: "#fffbeb" };
-                return { label: "Low Confidence", color: "#ef4444", bg: "#fef2f2" };
               };
 
               return (
@@ -1282,24 +1320,20 @@ export default function TimelinesPage() {
                       <path d="M9 18h6"/>
                       <path d="M9 10h6"/>
                     </svg>
-                    Processing Times by Category
+                    Live Process Monitoring
                   </h2>
                   <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", marginBottom: "24px" }}>
-                    Organized by process type with performance indicators and data confidence levels
+                    Static sliders are generated from real report data points. Hover white dots to see exact days.
                   </p>
 
-                  {/* Categories */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    {Object.entries(categorizedProcesses)
-                      .sort(([a], [b]) => {
-                        const order = ["work", "student", "family", "residence", "business", "document", "citizenship", "finance", "transport"];
-                        return order.indexOf(a) - order.indexOf(b);
-                      })
-                      .map(([category, processes]) => {
+                    {categoryOrder
+                      .filter((category) => (mergedProcessCards[category] || []).length > 0)
+                      .map((category) => {
                         const meta = categoryMeta[category];
                         if (!meta) return null;
-                        
-                        const isExpanded = expandedCategories[category];
+                        const processes = mergedProcessCards[category];
+                        const isExpanded = expandedCategories[category] ?? true;
                         const totalProcesses = processes.length;
 
                         return (
@@ -1309,10 +1343,8 @@ export default function TimelinesPage() {
                               border: "2px solid var(--tt-border)",
                               borderRadius: "12px",
                               overflow: "hidden",
-                              transition: "all 0.2s",
                             }}
                           >
-                            {/* Category Header */}
                             <button
                               onClick={() => toggleCategory(category)}
                               style={{
@@ -1324,34 +1356,24 @@ export default function TimelinesPage() {
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 cursor: "pointer",
-                                transition: "background 0.2s",
                               }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = "#f9fafb"}
-                              onMouseLeave={(e) => e.currentTarget.style.background = "var(--tt-surface-soft)"}
                             >
                               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                                 <div dangerouslySetInnerHTML={{ __html: meta.iconSvg }} />
                                 <div style={{ textAlign: "left" }}>
-                                  <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--tt-text)" }}>
-                                    {meta.label}
-                                  </div>
+                                  <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--tt-text)" }}>{meta.label}</div>
                                   <div style={{ fontSize: "13px", color: "var(--tt-text-muted)", marginTop: "2px" }}>
                                     {totalProcesses} process {totalProcesses === 1 ? "type" : "types"}
                                   </div>
                                 </div>
                               </div>
-                              <div style={{
-                                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                transition: "transform 0.2s",
-                                color: "var(--tt-muted)",
-                              }}>
+                              <div style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s", color: "var(--tt-muted)" }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <polyline points="6 9 12 15 18 9"/>
                                 </svg>
                               </div>
                             </button>
 
-                            {/* Category Processes */}
                             {isExpanded && (
                               <div style={{
                                 padding: "20px",
@@ -1360,109 +1382,110 @@ export default function TimelinesPage() {
                                 gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
                                 gap: "16px",
                               }}>
-                                {processes.map(({ name, stats }) => {
-                                  const performanceColor = getPerformanceColor(stats.avgDays || 0, nationalAvgDays);
-                                  const confidence = getConfidenceBadge(stats.count);
-                                  const comparison = nationalAvgDays ? Math.round((stats.avgDays || 0) - nationalAvgDays) : null;
+                                {processes.map((process) => {
+                                  const sliderMax = getSliderMax(process.dayPoints);
+                                  const avgPosition = Math.min(100, Math.max(0, (process.avgDays / sliderMax) * 100));
+                                  const status = getStatusFromRatio(process.avgDays / sliderMax);
+                                  const confidence = process.reports >= 10
+                                    ? { label: "High Confidence", color: "#10b981", bg: "#ecfdf5" }
+                                    : process.reports >= 4
+                                      ? { label: "Medium Confidence", color: "#f59e0b", bg: "#fffbeb" }
+                                      : { label: "Low Confidence", color: "#ef4444", bg: "#fef2f2" };
 
                                   return (
                                     <div
-                                      key={name}
+                                      key={process.key}
                                       style={{
+                                        position: "relative",
+                                        background: "var(--tt-surface-container-lowest, #ffffff)",
+                                        border: "1px solid #e2e8f0",
+                                        borderRadius: "12px",
                                         padding: "16px",
-                                        background: "var(--tt-surface-soft)",
-                                        borderRadius: "10px",
-                                        border: "2px solid var(--tt-border)",
-                                        transition: "all 0.2s",
-                                        cursor: "pointer",
-                                      }}
-                                      onClick={() => setProcessFilter(name)}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.borderColor = performanceColor;
-                                        e.currentTarget.style.background = "#ffffff";
-                                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.borderColor = "var(--tt-border)";
-                                        e.currentTarget.style.background = "var(--tt-surface-soft)";
-                                        e.currentTarget.style.boxShadow = "none";
+                                        overflow: "hidden",
                                       }}
                                     >
-                                      {/* Confidence Badge */}
-                                      <div style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "6px",
-                                        padding: "4px 10px",
-                                        background: confidence.bg,
-                                        color: confidence.color,
-                                        borderRadius: "6px",
-                                        fontSize: "11px",
-                                        fontWeight: 700,
-                                        marginBottom: "10px",
-                                      }}>
+                                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "4px", background: status.stripe }} />
+
+                                      <div style={{ marginBottom: "10px", display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 10px", background: confidence.bg, color: confidence.color, borderRadius: "999px", fontSize: "11px", fontWeight: 700 }}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                                         </svg>
                                         {confidence.label}
                                       </div>
 
-                                      {/* Process Name */}
-                                      <div style={{ fontSize: "15px", fontWeight: 700, marginBottom: "12px", color: "var(--tt-text)", lineHeight: 1.3 }}>
-                                        {normalizeProcessLabel(name)}
+                                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", marginBottom: "8px" }}>
+                                        <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--tt-text)", lineHeight: 1.35 }}>
+                                          {process.name}
+                                        </div>
+                                        <span style={{ padding: "4px 10px", background: status.badgeBg, color: status.badgeColor, borderRadius: "999px", fontSize: "10px", fontWeight: 700, whiteSpace: "nowrap" }}>
+                                          {status.label}
+                                        </span>
                                       </div>
 
-                                      {/* Processing Time */}
-                                      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "8px" }}>
-                                        <div style={{ fontSize: "28px", fontWeight: 800, color: performanceColor }}>
-                                          ~{Math.round(stats.avgDays || 0)}
+                                      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "6px" }}>
+                                        <div style={{ fontSize: "36px", fontWeight: 800, color: status.stripe, lineHeight: 1 }}>
+                                          ~{Math.round(process.avgDays)}
                                         </div>
-                                        <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--tt-text-muted)" }}>
-                                          days
+                                        <div style={{ fontSize: "22px", color: "#64748b", fontWeight: 600 }}>days</div>
+                                      </div>
+
+                                      <div style={{ fontSize: "12px", color: "var(--tt-text-muted)", marginBottom: "12px" }}>
+                                        Range {process.minDays} to {process.maxDays} days · Median {Math.round(process.medianDays)}d
+                                      </div>
+
+                                      <div style={{ fontSize: "11px", color: "#64748b", fontWeight: 700, marginBottom: "6px" }}>
+                                        SLA TRACKER
+                                      </div>
+                                      <div style={{ position: "relative", height: "12px", borderRadius: "999px", overflow: "visible", background: "#f1f5f9", marginBottom: "6px" }}>
+                                        <div style={{ position: "absolute", inset: 0, borderRadius: "999px", background: "linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%)" }} />
+
+                                        {process.dayPoints.map((point, idx) => {
+                                          const x = Math.min(100, Math.max(0, (point / sliderMax) * 100));
+                                          return (
+                                            <button
+                                              key={`${process.key}-dot-${idx}`}
+                                              type="button"
+                                              title={`${point} days`}
+                                              aria-label={`${process.name} datapoint ${point} days`}
+                                              style={{
+                                                position: "absolute",
+                                                left: `${x}%`,
+                                                top: "50%",
+                                                transform: "translate(-50%, -50%)",
+                                                width: "6px",
+                                                height: "6px",
+                                                borderRadius: "999px",
+                                                background: "white",
+                                                border: "none",
+                                                padding: 0,
+                                                margin: 0,
+                                                cursor: "help",
+                                              }}
+                                            />
+                                          );
+                                        })}
+
+                                        <div style={{ position: "absolute", left: `${avgPosition}%`, top: "50%", transform: "translate(-50%, -50%)", width: "2px", height: "18px", background: "#0f172a", borderRadius: "2px", zIndex: 5 }}>
+                                          <div style={{ position: "absolute", bottom: "120%", left: "50%", transform: "translateX(-50%)", fontSize: "9px", fontWeight: 700, color: "#0f172a", background: "white", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "2px 4px", whiteSpace: "nowrap" }}>
+                                            AVG: {Math.round(process.avgDays)}d
+                                          </div>
                                         </div>
                                       </div>
 
-                                      {/* Comparison to National Average */}
-                                      {comparison !== null && (
-                                        <div style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          gap: "4px",
-                                          fontSize: "12px",
-                                          fontWeight: 600,
-                                          color: comparison > 0 ? "#ef4444" : "var(--tt-success)",
-                                          marginBottom: "8px",
-                                        }}>
-                                          {comparison > 0 ? (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                              <polyline points="18 15 12 9 6 15"/>
-                                            </svg>
-                                          ) : (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                              <polyline points="6 9 12 15 18 9"/>
-                                            </svg>
-                                          )}
-                                          {comparison > 0 ? "+" : ""}{comparison} days vs avg
-                                        </div>
-                                      )}
+                                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#64748b", fontWeight: 700, marginBottom: "10px" }}>
+                                        <span>0D</span>
+                                        <span>{Math.round(sliderMax / 2)}D</span>
+                                        <span>{sliderMax}D</span>
+                                      </div>
 
-                                      {/* Report Count */}
-                                      <div style={{
-                                        fontSize: "12px",
-                                        color: "var(--tt-text-muted)",
-                                        paddingTop: "8px",
-                                        borderTop: "1px solid var(--tt-border)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "4px",
-                                      }}>
+                                      <div style={{ fontSize: "12px", color: "var(--tt-text-muted)", paddingTop: "8px", borderTop: "1px solid var(--tt-border)", display: "flex", alignItems: "center", gap: "4px" }}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                                           <circle cx="9" cy="7" r="4"/>
                                           <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                                           <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                         </svg>
-                                        {stats.count} {stats.count === 1 ? "report" : "reports"}
+                                        {process.reports} {process.reports === 1 ? "report" : "reports"}
                                       </div>
                                     </div>
                                   );
