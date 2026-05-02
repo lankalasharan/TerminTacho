@@ -3,16 +3,10 @@
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import TurnstileWidget from "../components/Turnstile";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 
 type Office = { id: string; city: string; name: string };
 type ProcessType = { id: string; name: string };
-
-function normalizeProcessLabel(label: string): string {
-  return label
-    .replace(/\p{Extended_Pictographic}/gu, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
 
 const SENTIMENT_OPTIONS = [
   {

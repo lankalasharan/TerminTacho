@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeCityName } from "@/lib/cityNames";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 
 // Always read fresh data from the DB — never serve a cached response
 export const dynamic = "force-dynamic";
@@ -16,7 +17,11 @@ export async function GET() {
     city: normalizeCityName(office.city),
   }));
 
-  return NextResponse.json({ offices: normalizedOffices, processTypes }, {
+  const normalizedProcessTypes = [...processTypes].sort((a, b) =>
+    normalizeProcessLabel(a.name).localeCompare(normalizeProcessLabel(b.name), "en", { sensitivity: "base" })
+  );
+
+  return NextResponse.json({ offices: normalizedOffices, processTypes: normalizedProcessTypes }, {
     headers: { "Cache-Control": "no-store" },
   });
 }

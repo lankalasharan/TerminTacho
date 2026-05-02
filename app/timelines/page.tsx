@@ -14,6 +14,7 @@ import {
   getReportWeight,
 } from "@/lib/relevance";
 import { CITY_COORDINATES, DEFAULT_COORDINATES } from "@/lib/cityCoordinates";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 
 // Dynamically import the map component to avoid SSR issues with Leaflet
 const GermanyHeatMap = dynamic(
@@ -67,13 +68,6 @@ function getWeightedAverageDays(reports: Report[]): number | null {
   });
 
   return days.length > 0 ? calculateWeightedAverage(days, weights) : null;
-}
-
-function normalizeProcessLabel(label: string): string {
-  return label
-    .replace(/\p{Extended_Pictographic}/gu, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
 }
 
 function getProcessCategory(label: string): string {

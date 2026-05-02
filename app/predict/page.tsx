@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 
 type Office = { id: string; city: string; name: string };
 type ProcessType = { id: string; name: string };
@@ -17,11 +18,13 @@ interface Prediction {
   sentimentOnly?: boolean;
 }
 
-function normalizeProcessLabel(label: string): string {
-  return label
-    .replace(/\p{Extended_Pictographic}/gu, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+function tryParseJson(raw: string): any {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 const CONFIDENCE_CONFIG = {
@@ -38,13 +41,19 @@ export default function PredictPage() {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [noDataNotice, setNoDataNotice] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
-      const res = await fetch("/api/options");
-      const data = await res.json();
-      setOffices(data.offices || []);
-      setProcessTypes(data.processTypes || []);
+      try {
+        const res = await fetch("/api/options");
+        const raw = await res.text();
+        const data = tryParseJson(raw) ?? {};
+        setOffices(data.offices || []);
+        setProcessTypes(data.processTypes || []);
+      } catch {
+        setError("Failed to load process options. Please refresh the page.");
+      }
     }
     load();
     // Pre-select processTypeId from URL query param (e.g. from homepage widget)
@@ -60,14 +69,36 @@ export default function PredictPage() {
     if (!processTypeId) return;
     setLoading(true);
     setError(null);
+    setNoDataNotice(null);
     setPrediction(null);
     try {
       const params = new URLSearchParams({ processTypeId });
       if (cityFilter) params.set("city", cityFilter);
       const res = await fetch(`/api/predict?${params.toString()}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Could not load prediction.");
-      setPrediction(data);
+      const raw = await res.text();
+      const data = tryParseJson(raw);
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          const selectedProcess = normalizeProcessLabel(
+            processTypes.find((p) => p.id === processTypeId)?.name || "this process"
+          );
+          const noDataMessage = cityFilter
+            ? `There is no reliable data yet for ${selectedProcess} in ${cityFilter}.`
+            : `There is no reliable data yet for ${selectedProcess}.`;
+          const encouragement =
+            "We are growing sharply. I know it feels frustrating not finding the data yet, so please add your own experience for any city and any process so others do not feel the same.";
+          setNoDataNotice(`${noDataMessage} ${encouragement}`);
+          return;
+        }
+        throw new Error(data?.error || "Could not load prediction.");
+      }
+
+      if (!data || typeof data !== "object") {
+        throw new Error("Unexpected response from the prediction service.");
+      }
+
+      setPrediction(data as Prediction);
     } catch (err: any) {
       setError(err?.message || "Unknown error");
     } finally {
@@ -173,6 +204,12 @@ export default function PredictPage() {
             {error && (
               <div style={{ margin: "20px 28px 0", padding: "12px 16px", background: "#fee2e2", border: "1px solid #fecaca", borderRadius: "8px", fontSize: "13px", color: "#991b1b" }}>
                 {error}
+              </div>
+            )}
+
+            {noDataNotice && (
+              <div style={{ margin: "20px 28px 0", padding: "12px 16px", background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "8px", fontSize: "13px", color: "#92400e", lineHeight: 1.5 }}>
+                {noDataNotice}
               </div>
             )}
 

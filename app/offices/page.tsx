@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { CITY_COORDINATES } from "@/lib/cityCoordinates";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 import "leaflet/dist/leaflet.css";
 
 const MapContainer = dynamic(
@@ -40,13 +41,6 @@ type Report = {
 };
 
 const GERMANY_CENTER = { lat: 51.1657, lng: 10.4515 };
-
-function normalizeProcessLabel(label: string): string {
-  return label
-    .replace(/\p{Extended_Pictographic}/gu, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
 
 function getProcessCategory(label: string): string {
   const normalizedLabel = normalizeProcessLabel(label).toLowerCase();

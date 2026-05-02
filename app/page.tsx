@@ -6,6 +6,7 @@ import OdometerNumber from "./components/OdometerNumber";
 import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 
 export default function Home() {
   const [showMap, setShowMap] = useState(false);
@@ -305,7 +306,7 @@ export default function Home() {
                   >
                     <option value="">Select your process type…</option>
                     {processTypes.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name.replace(/\p{Extended_Pictographic}/gu, "").trim()}</option>
+                      <option key={p.id} value={p.id}>{normalizeProcessLabel(p.name)}</option>
                     ))}
                   </select>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>

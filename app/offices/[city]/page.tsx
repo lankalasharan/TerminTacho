@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import DataAccessGate from "../../components/DataAccessGate";
 import TurnstileWidget from "../../components/Turnstile";
 import TrustBadge from "../../components/TrustBadge";
+import { normalizeProcessLabel } from "@/lib/processLabels";
 
 interface OfficeData {
   office: {
@@ -302,7 +303,7 @@ export default function OfficePage() {
                 borderRadius: "8px",
               }}>
                 <div>
-                  <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{stat.name}</div>
+                  <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{normalizeProcessLabel(stat.name)}</div>
                   <div style={{ fontSize: "14px", color: "var(--tt-text-muted)" }}>
                     {stat.count > 0 ? `${stat.count} reports` : (
                       <Link href="/submit" style={{ color: "var(--tt-primary-strong)", textDecoration: "none", fontWeight: 600 }}>
@@ -519,7 +520,7 @@ export default function OfficePage() {
                   <p style={{ color: "var(--tt-text-strong)", lineHeight: 1.6 }}>{review.content}</p>
                   {review.processType && (
                     <div style={{ marginTop: "12px", fontSize: "14px", color: "var(--tt-primary-strong)" }}>
-                      Process: {review.processType}
+                      Process: {normalizeProcessLabel(review.processType)}
                     </div>
                   )}
                 </div>
@@ -579,7 +580,7 @@ export default function OfficePage() {
                     borderLeft: `4px solid ${report.status === 'approved' ? 'var(--tt-success)' : report.status === 'rejected' ? '#ef4444' : '#f59e0b'}`,
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                      <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{report.processType.name}</div>
+                      <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{normalizeProcessLabel(report.processType.name)}</div>
                       <div style={{
                         padding: "4px 12px",
                         background: report.status === 'approved' ? '#d1fae5' : report.status === 'rejected' ? '#fee2e2' : '#fef3c7',
