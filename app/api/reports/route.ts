@@ -8,6 +8,7 @@ import {
   isDuplicateSubmission,
   checkSubmissionRateLimit,
 } from "@/lib/antifraud";
+import { getCanonicalProcessKey } from "@/lib/processLabels";
 import { validateTimelineSubmission } from "@/lib/dataValidation";
 import { getClientIp, trackIpAddress, checkIpAbusePattern, checkIpSubmissionPatterns } from "@/lib/ipTracking";
 import { verifyTurnstileToken } from "@/lib/turnstile";
@@ -207,43 +208,46 @@ export async function POST(req: Request) {
       await trackIpAddress(user.id, ipAddress);
     }
 
-    // Check IP abuse pattern (too many accounts from same IP)
-    const ipAbuseCheck = await checkIpAbusePattern(ipAddress);
-    if (ipAbuseCheck.isAbusive) {
-      return NextResponse.json(
-        { error: "Suspicious activity detected. Please try again later." },
-        { status: 429 }
-      );
-    }
+    // Admins are allowed to seed multiple data points without anti-fraud throttles.
+    if (!isAdmin) {
+      // Check IP abuse pattern (too many accounts from same IP)
+      const ipAbuseCheck = await checkIpAbusePattern(ipAddress);
+      if (ipAbuseCheck.isAbusive) {
+        return NextResponse.json(
+          { error: "Suspicious activity detected. Please try again later." },
+          { status: 429 }
+        );
+      }
 
-    // Check IP submission patterns (spam from same IP)
-    const ipPatternCheck = await checkIpSubmissionPatterns(ipAddress);
-    if (ipPatternCheck.isSuspicious) {
-      return NextResponse.json(
-        { error: "Too many submissions from your location. Try again in 1 hour." },
-        { status: 429 }
-      );
-    }
+      // Check IP submission patterns (spam from same IP)
+      const ipPatternCheck = await checkIpSubmissionPatterns(ipAddress);
+      if (ipPatternCheck.isSuspicious) {
+        return NextResponse.json(
+          { error: "Too many submissions from your location. Try again in 1 hour." },
+          { status: 429 }
+        );
+      }
 
-    // Check for duplicate submission (by case number)
-    const duplicate = await isDuplicateSubmission(userId, caseNumber, processTypeId);
-    if (duplicate.isDuplicate) {
-      return NextResponse.json(
-        { error: duplicate.message || "Duplicate submission detected" },
-        { status: 409 }
-      );
-    }
+      // Check for duplicate submission (by case number)
+      const duplicate = await isDuplicateSubmission(userId, caseNumber, processTypeId);
+      if (duplicate.isDuplicate) {
+        return NextResponse.json(
+          { error: duplicate.message || "Duplicate submission detected" },
+          { status: 409 }
+        );
+      }
 
-    // Check rate limiting (5 submissions per 24 hours)
-    const rateCheck = await checkSubmissionRateLimit(userId, {
-      maxSubmissions: 5,
-      timeWindowHours: 24,
-    });
-    if (!rateCheck.allowed) {
-      return NextResponse.json(
-        { error: rateCheck.message },
-        { status: 429 }
-      );
+      // Check rate limiting (5 submissions per 24 hours)
+      const rateCheck = await checkSubmissionRateLimit(userId, {
+        maxSubmissions: 5,
+        timeWindowHours: 24,
+      });
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          { error: rateCheck.message },
+          { status: 429 }
+        );
+      }
     }
   }
 
@@ -266,10 +270,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Process type is required." }, { status: 400 });
     }
 
-    const existingProcess = await prisma.processType.findFirst({
-      where: { name: { equals: name, mode: "insensitive" } },
-      select: { id: true },
+    const canonicalKey = getCanonicalProcessKey(name);
+    const allProcessTypes = await prisma.processType.findMany({
+      select: { id: true, name: true },
     });
+    const existingProcess = allProcessTypes.find(
+      (processType) => getCanonicalProcessKey(processType.name) === canonicalKey
+    );
 
     if (existingProcess) {
       resolvedProcessTypeId = existingProcess.id;
@@ -282,8 +289,8 @@ export async function POST(req: Request) {
     }
   }
 
-  // Check duplicate: same user, same office, same process type
-  if (userId && resolvedOfficeId && resolvedProcessTypeId) {
+  // Check duplicate: same user, same office, same process type (non-admin only)
+  if (!isAdmin && userId && resolvedOfficeId && resolvedProcessTypeId) {
     const existingReport = await prisma.report.findFirst({
       where: {
         userId,

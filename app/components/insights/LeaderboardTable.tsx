@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { CityStat } from "@/lib/insightsUtils";
 
 interface LeaderboardTableProps {
@@ -110,13 +111,16 @@ export default function LeaderboardTable({
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Confidence
                 </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Details
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredAndSorted.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     No cities found matching "{searchQuery}"
@@ -167,6 +171,16 @@ export default function LeaderboardTable({
                         {city.confidence.toUpperCase()}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Link
+                        href={`/offices/${encodeURIComponent(city.city)}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+                        aria-label={`Open ${city.city} city page`}
+                      >
+                        Open city page
+                      </Link>
+                    </td>
                   </tr>
                 ))
               )}
@@ -182,25 +196,33 @@ export default function LeaderboardTable({
             <h3 className="text-xl font-bold text-gray-900">
               {selectedCityData.city}
             </h3>
-            <button
-              onClick={() => onCitySelect("")}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
-              aria-label="Close details"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/offices/${encodeURIComponent(selectedCityData.city)}`}
+                className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                Open city page
+              </Link>
+              <button
+                onClick={() => onCitySelect("")}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Close details"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>

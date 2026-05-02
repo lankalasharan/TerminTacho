@@ -50,6 +50,12 @@ export async function GET(
         status: true,
         createdAt: true,
         isOfficial: true,
+        trustLevel: true,
+        matchCount: true,
+        isAdminSeeded: true,
+        sourceUrl: true,
+        adminNote: true,
+        notes: true,
         processType: {
           select: {
             id: true,

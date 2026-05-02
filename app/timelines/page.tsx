@@ -14,7 +14,7 @@ import {
   getReportWeight,
 } from "@/lib/relevance";
 import { CITY_COORDINATES, DEFAULT_COORDINATES } from "@/lib/cityCoordinates";
-import { normalizeProcessLabel } from "@/lib/processLabels";
+import { getCanonicalProcessKey, normalizeProcessLabel } from "@/lib/processLabels";
 
 // Dynamically import the map component to avoid SSR issues with Leaflet
 const GermanyHeatMap = dynamic(
@@ -111,14 +111,6 @@ function getProcessIcon(label: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-function getCanonicalProcessKey(label: string): string {
-  return normalizeProcessLabel(label)
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function getSliderMax(days: number[]): number {
   if (days.length === 0) return 30;
   const max = Math.max(...days);
@@ -162,6 +154,7 @@ export default function TimelinesPage() {
   const [showMap, setShowMap] = useState(false);
   const [processOpen, setProcessOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const cities = allCities;
   const processTypes = allProcessTypes;
 
@@ -234,7 +227,7 @@ export default function TimelinesPage() {
 
   const filteredReports = reports.filter(r => {
     if (cityFilter && r.office.city !== cityFilter) return false;
-    if (processFilter && r.processType.name !== processFilter) return false;
+    if (processFilter && getCanonicalProcessKey(r.processType.name) !== getCanonicalProcessKey(processFilter)) return false;
     if (statusFilter && r.status !== statusFilter) return false;
     return true;
   });
@@ -329,7 +322,10 @@ export default function TimelinesPage() {
   // Process type statistics (with weighted averages)
   const processStats: { [process: string]: { count: number; avgDays: number | null } } = {};
   processTypes.forEach(process => {
-    const processReports = filteredReports.filter(r => r.processType.name === process);
+    const processKey = getCanonicalProcessKey(process);
+    const processReports = filteredReports.filter(
+      (r) => getCanonicalProcessKey(r.processType.name) === processKey
+    );
     const avg = getWeightedAverageDays(processReports);
     processStats[process] = { count: processReports.length, avgDays: avg };
   });
@@ -631,6 +627,41 @@ export default function TimelinesPage() {
 
       <main className="tt-section">
         <div className="tt-container" style={{ maxWidth: "1400px" }}>
+        {selectedCity && (
+          <div style={{
+            marginBottom: "16px",
+            padding: "12px 14px",
+            borderRadius: "12px",
+            background: "#eff6ff",
+            border: "1px solid #bfdbfe",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "10px",
+          }}>
+            <div style={{ fontSize: "14px", color: "#1e40af", fontWeight: 600 }}>
+              Selected city: <strong>{selectedCity}</strong>
+            </div>
+            <Link
+              href={`/offices/${encodeURIComponent(selectedCity)}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 12px",
+                borderRadius: "10px",
+                background: "#1d4ed8",
+                color: "white",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 700,
+              }}
+            >
+              Open {selectedCity} city page
+            </Link>
+          </div>
+        )}
         <div style={{
           display: "flex",
           justifyContent: "flex-end",
@@ -1221,13 +1252,29 @@ export default function TimelinesPage() {
                 {/* City Leaderboard */}
                 <div style={{
                   background: "white",
-                  padding: "32px",
                   borderRadius: "16px",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                   marginBottom: "24px",
                   border: "1px solid var(--tt-surface-muted)",
+                  overflow: "hidden",
                 }}>
-                  <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "16px", color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setLeaderboardOpen((open) => !open)}
+                    style={{
+                      width: "100%",
+                      padding: "22px 32px",
+                      background: "white",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      cursor: "pointer",
+                    }}
+                    aria-expanded={leaderboardOpen}
+                    aria-label="Toggle city leaderboard"
+                  >
+                    <h2 style={{ fontSize: "22px", fontWeight: 700, margin: 0, color: "var(--tt-text)", display: "flex", alignItems: "center", gap: "8px" }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
                       <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
@@ -1237,46 +1284,60 @@ export default function TimelinesPage() {
                       <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
                     </svg>
                     City Leaderboard - Compare Processing Times
-                  </h2>
-                  <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", marginBottom: "20px" }}>
-                    Search, sort, and compare processing times across all cities
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "12px",
-                      alignItems: "center",
-                      padding: "12px 16px",
-                      borderRadius: "12px",
-                      background: "var(--tt-surface-soft)",
-                      border: "1px solid var(--tt-border)",
-                      marginBottom: "16px",
-                      fontSize: "13px",
-                      color: "var(--tt-text-muted)",
-                    }}
-                  >
-                    <span style={{ fontWeight: 700, color: "var(--tt-text)" }}>
-                      Confidence = number of reports
-                    </span>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#10B981" }} />
-                      High: 10+
-                    </span>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#F59E0B" }} />
-                      Medium: 4-9
-                    </span>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#9CA3AF" }} />
-                      Low: 1-3
-                    </span>
-                  </div>
-                  <LeaderboardTable
-                    stats={cityInsightsStats}
-                    selectedCity={selectedCity}
-                    onCitySelect={(city) => handleCitySelection(city || null)}
-                  />
+                    </h2>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", color: "var(--tt-muted)", fontSize: "13px", fontWeight: 600 }}>
+                      {leaderboardOpen ? "Hide" : "Show"}
+                      <span style={{ transform: leaderboardOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                      </span>
+                    </div>
+                  </button>
+
+                  {leaderboardOpen && (
+                    <div style={{ padding: "0 32px 28px" }}>
+                      <p style={{ fontSize: "14px", color: "var(--tt-text-muted)", marginBottom: "20px" }}>
+                        Search, sort, and compare processing times across all cities
+                      </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "12px",
+                          alignItems: "center",
+                          padding: "12px 16px",
+                          borderRadius: "12px",
+                          background: "var(--tt-surface-soft)",
+                          border: "1px solid var(--tt-border)",
+                          marginBottom: "16px",
+                          fontSize: "13px",
+                          color: "var(--tt-text-muted)",
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, color: "var(--tt-text)" }}>
+                          Confidence = number of reports
+                        </span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#10B981" }} />
+                          High: 10+
+                        </span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#F59E0B" }} />
+                          Medium: 4-9
+                        </span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#9CA3AF" }} />
+                          Low: 1-3
+                        </span>
+                      </div>
+                      <LeaderboardTable
+                        stats={cityInsightsStats}
+                        selectedCity={selectedCity}
+                        onCitySelect={(city) => handleCitySelection(city || null)}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1417,9 +1478,6 @@ export default function TimelinesPage() {
                                         <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--tt-text)", lineHeight: 1.35 }}>
                                           {process.name}
                                         </div>
-                                        <span style={{ padding: "4px 10px", background: status.badgeBg, color: status.badgeColor, borderRadius: "999px", fontSize: "10px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                                          {status.label}
-                                        </span>
                                       </div>
 
                                       <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "6px" }}>
@@ -1433,9 +1491,6 @@ export default function TimelinesPage() {
                                         Range {process.minDays} to {process.maxDays} days · Median {Math.round(process.medianDays)}d
                                       </div>
 
-                                      <div style={{ fontSize: "11px", color: "#64748b", fontWeight: 700, marginBottom: "6px" }}>
-                                        SLA TRACKER
-                                      </div>
                                       <div style={{ position: "relative", height: "12px", borderRadius: "999px", overflow: "visible", background: "#f1f5f9", marginBottom: "6px" }}>
                                         <div style={{ position: "absolute", inset: 0, borderRadius: "999px", background: "linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%)" }} />
 

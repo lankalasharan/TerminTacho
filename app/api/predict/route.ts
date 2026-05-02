@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { getCanonicalProcessKey } from "@/lib/processLabels";
 
 // Trust weight by level — verified data counted more
 const TRUST_WEIGHTS: Record<string, number> = {
@@ -32,8 +33,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "processTypeId is required" }, { status: 400 });
     }
 
+    const selectedProcessType = await prisma.processType.findUnique({
+      where: { id: processTypeId },
+      select: { id: true, name: true },
+    });
+    if (!selectedProcessType) {
+      return NextResponse.json({ error: "Invalid processTypeId" }, { status: 400 });
+    }
+
+    const canonicalKey = getCanonicalProcessKey(selectedProcessType.name);
+    const allProcessTypes = await prisma.processType.findMany({
+      select: { id: true, name: true },
+    });
+    const processTypeIds = allProcessTypes
+      .filter((pt) => getCanonicalProcessKey(pt.name) === canonicalKey)
+      .map((pt) => pt.id);
+
     const where: Prisma.ReportWhereInput = {
-      processTypeId,
+      processTypeId: { in: processTypeIds },
       decisionAt: { not: null },
     };
     if (officeId) where.officeId = officeId;
@@ -65,7 +82,7 @@ export async function GET(req: NextRequest) {
 
     // Sentiment-only count (quick pulses without dates)
     const sentimentWhere: Prisma.ReportWhereInput = {
-      processTypeId,
+      processTypeId: { in: processTypeIds },
       sentiment: { not: null },
     };
     if (officeId) sentimentWhere.officeId = officeId;

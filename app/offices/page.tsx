@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { CITY_COORDINATES } from "@/lib/cityCoordinates";
-import { normalizeProcessLabel } from "@/lib/processLabels";
+import { getCanonicalProcessKey, normalizeProcessLabel } from "@/lib/processLabels";
 import "leaflet/dist/leaflet.css";
 
 const MapContainer = dynamic(
@@ -144,7 +144,7 @@ export default function OfficesIndexPage() {
       const process = report.processType?.name || "";
       if (!city || !process) return;
       const set = map.get(city) || new Set<string>();
-      set.add(process);
+      set.add(getCanonicalProcessKey(process));
       map.set(city, set);
     });
     return map;
@@ -160,7 +160,8 @@ export default function OfficesIndexPage() {
 
   const filteredOffices = useMemo(() => {
     if (!processFilter) return filtered;
-    return filtered.filter((office) => cityProcessMap.get(office.city)?.has(processFilter));
+    const selectedKey = getCanonicalProcessKey(processFilter);
+    return filtered.filter((office) => cityProcessMap.get(office.city)?.has(selectedKey));
   }, [filtered, processFilter, cityProcessMap]);
 
   const cityCards = useMemo(() => {

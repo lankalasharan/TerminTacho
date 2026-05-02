@@ -566,7 +566,7 @@ export default function OfficePage() {
               </Link>
             </div>
           ) : (
-            <div style={{ display: "grid", gap: "16px" }}>
+            <div style={{ display: "grid", gap: "10px" }}>
               {data.recentReports.map((report: any) => {
                 const processingDays = report.decisionAt
                   ? Math.floor((new Date(report.decisionAt).getTime() - new Date(report.submittedAt).getTime()) / (1000 * 60 * 60 * 24))
@@ -574,26 +574,27 @@ export default function OfficePage() {
 
                 return (
                   <div key={report.id} style={{
-                    padding: "16px",
+                    padding: "12px",
                     background: "var(--tt-surface-soft)",
                     borderRadius: "8px",
                     borderLeft: `4px solid ${report.status === 'approved' ? 'var(--tt-success)' : report.status === 'rejected' ? '#ef4444' : '#f59e0b'}`,
                   }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                      <div style={{ fontWeight: 600, color: "var(--tt-text)" }}>{normalizeProcessLabel(report.processType.name)}</div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", gap: "8px", alignItems: "flex-start" }}>
+                      <div style={{ fontWeight: 600, color: "var(--tt-text)", lineHeight: 1.25 }}>{normalizeProcessLabel(report.processType.name)}</div>
                       <div style={{
-                        padding: "4px 12px",
+                        padding: "3px 10px",
                         background: report.status === 'approved' ? '#d1fae5' : report.status === 'rejected' ? '#fee2e2' : '#fef3c7',
                         color: report.status === 'approved' ? '#065f46' : report.status === 'rejected' ? '#991b1b' : '#92400e',
                         borderRadius: "12px",
-                        fontSize: "12px",
+                        fontSize: "11px",
                         fontWeight: 600,
+                        whiteSpace: "nowrap",
                       }}>
                         {report.status}
                       </div>
                     </div>
                     {processingDays !== null && (
-                      <div style={{ fontSize: "14px", color: "var(--tt-primary-strong)", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ fontSize: "13px", color: "var(--tt-primary-strong)", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                           <circle cx="12" cy="12" r="9" />
                           <path d="M12 7v5l3 3" />
@@ -601,16 +602,37 @@ export default function OfficePage() {
                         <span>{processingDays} days processing time</span>
                       </div>
                     )}
-                    <div style={{ fontSize: "12px", color: "var(--tt-muted)", marginTop: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
+                    <div style={{ fontSize: "12px", color: "var(--tt-muted)", marginTop: "6px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
                       <span>Submitted {new Date(report.submittedAt).toLocaleDateString()}</span>
                       <TrustBadge reportId={report.id} trustLevel={report.trustLevel ?? "unverified"} matchCount={report.matchCount ?? 0} isAdminSeeded={report.isAdminSeeded} sourceUrl={report.sourceUrl} adminNote={report.adminNote} compact />
                     </div>
+                    {report.sourceUrl && (
+                      <div style={{ marginTop: "6px", fontSize: "12px" }}>
+                        <a
+                          href={report.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: "var(--tt-primary-strong)",
+                            textDecoration: "underline",
+                            textUnderlineOffset: "2px",
+                          }}
+                        >
+                          Courtesy source link
+                        </a>
+                      </div>
+                    )}
                     {report.notes && (
-                      <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--tt-text-strong)", display: "flex", alignItems: "flex-start", gap: "6px" }}>
+                      <div style={{ marginTop: "8px", fontSize: "12px", color: "var(--tt-text-strong)", display: "flex", alignItems: "flex-start", gap: "6px" }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginTop: 2 }}>
                           <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
                         </svg>
-                        <span>{report.notes}</span>
+                        <span style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}>{report.notes}</span>
                       </div>
                     )}
                   </div>

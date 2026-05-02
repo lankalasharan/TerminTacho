@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCityAliases, normalizeCityName } from "@/lib/cityNames";
+import { getCanonicalProcessKey, normalizeProcessLabel } from "@/lib/processLabels";
 
 const faqs = [
   {
@@ -88,16 +89,22 @@ export async function GET(req: Request) {
       where: {
         name: { contains: query, mode: insensitive },
       },
-      take: 5,
+      take: 20,
     });
 
+    const seenProcessKeys = new Set<string>();
     processes.forEach((process: (typeof processes)[number]) => {
+      const key = getCanonicalProcessKey(process.name);
+      if (seenProcessKeys.has(key)) return;
+      seenProcessKeys.add(key);
+
+      const displayName = normalizeProcessLabel(process.name);
       results.push({
         id: `process-${process.id}`,
         type: "process",
-        title: process.name,
-        description: `Processing times for ${process.name} applications`,
-        url: `/timelines?process=${encodeURIComponent(process.name)}`,
+        title: displayName,
+        description: `Processing times for ${displayName} applications`,
+        url: `/timelines?process=${encodeURIComponent(displayName)}`,
       });
     });
 
